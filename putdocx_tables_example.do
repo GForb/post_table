@@ -24,13 +24,13 @@ syntax , filename(string) table_no(integer) [title(string) width(integer -1)]  /
 	}
 		
 	*Table
-	putdocx table table`table_no' = data(_all) , halign(center)  `width' `layout' border(insideV, nil)   border(insideH, nil)  
-	putdocx table table`table_no'(1,.), bold valign(center) shading(205 125 220) font(calibri, 10, white) `b_outside'    //  
-	putdocx table table`table_no'(.,1), border(start) border(end) font(calibri, 10) 
+	putdocx table table`table_no' = data(_all) , halign(center)  `width' `layout' // border(insideV, nil)  border(insideH, nil)  
+	putdocx table table`table_no'(1,.), bold valign(center) shading(205 215 220) font(calibri, 11) // `b_outside'    
+	*putdocx table table`table_no'(.,1), border(start) border(end) font(calibri, 11) 
 	putdocx describe table`table_no' 
 	local n_col =  r(ncols)
 	forvalues i = 2 (1) `n_col' {
-		putdocx table table`table_no'(.,`i'), halign(center) font(calibri, 10)
+		putdocx table table`table_no'(.,`i'), halign(right)  font(calibri, 11)
 	}
 end
 
@@ -57,27 +57,18 @@ putdocx pagebreak
 
 *Tables
 local table_no = 1
-putx_tab, filename("post_base_beta_eg1.dta") table_no(`table_no') title("First example") 
-local table_no = `table_no' +1
-putdocx paragraph, halign(left)
-putdocx text ("ᵃfootnote a")
+putx_tab, filename("pt_eg3.dta") table_no(`table_no') title("First example") 
 
-
-*
-putx_tab, filename("post_base_beta_eg2.dta") table_no(2) title("Another example")
-local table_no = `table_no' +1
-putdocx pagebreak
-putx_tab, filename("post_base_beta_eg3.dta") table_no(3) title("An example on a new page")
-local table_no = `table_no' +1
-putdocx sectionbreak, landscape
-putx_tab, filename("post_base_beta_eg4.dta") table_no(4) title("Switch to landscape")
-local table_no = `table_no' +1
-putdocx sectionbreak
-putx_tab, filename("post_base_beta_eg5.dta") table_no(5) title("And back to portrait")
-local table_no = `table_no' +1
+*Table from excel
+local table_no = `table_no' + 1
+import excel using example_excel, clear
+save excel_example, replace
+putx_tab, filename("excel_example.dta") table_no(`table_no') title("Some data from a spreadsheet") 
+*Editing the alignment from default 
+putdocx table table`table_no'(.,.), halign(left) 
 
 *Saving document
-putdocx save "$tables\eg_dmec_report" , replace
+putdocx save "eg_dmec_report2" , replace
 
 
 
