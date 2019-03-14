@@ -1,12 +1,12 @@
 *author gordon forbes
 *version: see GIT HUB
 
-capture program drop post_table_base
+capture program drop pt_base
 
 prog define pt_base
-syntax varlist(numeric) [if], postname(string) ///
+syntax varlist(numeric) [if], POSTname(string) ///
 	[ ///
-	type(string) /// options: skew (reports median IQR), bin (no %), cont (mean sd), cat (freq by group)
+	Type(string) /// options: skew (reports median IQR), bin (no %), cont (mean sd), cat (freq by group)
 	count_only /// suppresses percentages reported with binary and catagorical variables
 	over(varname) /// specify name for over variable 
 	over_grps(numlist) /// specify the values the "over" variable can take and which order they should appear. If over is not specified command produces one summary
@@ -16,10 +16,8 @@ syntax varlist(numeric) [if], postname(string) ///
 	gap_end(integer 0)  /// adds empty rows to baseline table after all variables
 	decimal(integer 1) miss_decimal(integer 1) su_decimal(integer 1) /// specify number of decimal places to be used 
 	positive(integer 1) /// specifies what a positive is for binary variables, default is 1
-	missing(string)  /// specifies that missing data is to be reported, options are cols, brackets. 
-	miss_per /// include percentage in missing data summary
-	n_analysis(string) /// Specifies that the numbers with complete data should be reported, options cols or brackets or append
-	n_analysis_per /// include percentage in missing data summary
+	Missing(string)  /// specifies that missing data is to be reported, options are cols, brackets. 
+	N_analysis(string) /// Specifies that the numbers with complete data should be reported, options cols, brackets, or append
 	order(string) /// options group_sum or group_treat. Groups colmns by summary ie. missing data columns then summary columns or groups columns by treatment group.
 	su_label(string) /// su_label has can be append or col. If append is specified adds descrptor for the summary measure to variable label. If col is specified adds descriptor in separate column.
 	su_label_text(string) /// Overides default summary labels
@@ -63,8 +61,25 @@ if "`comment'" == "no comment" local comment ("")
 if "`type'" == "misstable" {
 	local type  bin
 	local positive .
-	local missing  missing // used to include missing values in summary tables
+	local miss_opt  missing // used to include missing values in summary tables
 }
+
+*Missing
+foreach w in `missing' {
+	if "`w'" == "brackets" local missing brackets
+	if "`w'" == "cols" local missing cols
+	if "`w'" == "%" local miss_per miss_per
+	if "`w'" == "cond" local miss_cond cond	
+}
+
+*Missing
+foreach w in `n_analysis' {
+	if "`w'" == "brackets" local n_analysis brackets
+	if "`w'" == "cols" local n_analysis cols
+	if "`w'" == "%" local n_analysis_per n_analysis_per
+	if "`w'" == "cond" local n_analysis_cond cond	
+}
+
 
 ***************************Looping over variables*******************************
 foreach v in `varlist' {
@@ -194,8 +209,8 @@ local type1 = "`type'" // resetting type variable to be that given by command
 		**********************
 		
 		*Calculating counts and percentages for each level of catagorical variable
-		if "`over'" != "" tab `v' `over', col `missing' // displaying output
-		if "`over'" == "" tab `v', `missing'  // displaying output
+		if "`over'" != "" tab `v' `over', col `miss_opt' // displaying output
+		if "`over'" == "" tab `v', `miss_opt'  // displaying output
 		local val_label: value label `v' // storing the value label names for catagorical variable in local macro
 
 		local levels "`cat_levels'"
@@ -300,8 +315,8 @@ local type1 = "`type'" // resetting type variable to be that given by command
 			}
 			
 			local su_`i' ("`n' `per_str' `brackets_`i''") 
-			if "`over'" != "" tab `v' `over', col `missing' // displaying output
-			if "`over'" == "" tab `v', `missing'  // displaying output 
+			if "`over'" != "" tab `v' `over', col `miss_opt' // displaying output
+			if "`over'" == "" tab `v', `miss_opt'  // displaying output 
 			
 	}
 	
