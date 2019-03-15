@@ -40,6 +40,6 @@ putdocx pagebreak
 putdocx save example_title_page, replace
 
 *Merging with a document already written, and the tables we saw earlier
-putdocx append example_title_page example_doc ds_examples bl_examples, saving(example_report, replace)
+putdocx append example_title_page example_doc ds_examples bl_examples example_conclusions, saving(example_report, replace)
 
 

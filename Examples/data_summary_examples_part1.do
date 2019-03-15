@@ -23,7 +23,7 @@ To obtain datasets in more useful formats either export to excel or run the file
 
 cd  "N:\Automating reporting\Example data and results" // set path for where your data is stored and results will be saved
 
-use "$data\eg_data2", clear // load your dataset
+use "eg_data2", clear // load your dataset
 
 ********Example 1***********
 *Continuous variables using pt_sum

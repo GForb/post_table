@@ -6,13 +6,14 @@ capture program drop pt_base
 prog define pt_base
 syntax varlist(numeric) [if], POSTname(string) ///
 	[ ///
-	Type(string) /// options: skew (reports median IQR), bin (no %), cont (mean sd), cat (freq by group)
+	Type(string) /// options: skew (reports median IQR), bin (no %), cont (mean sd), cat (freq by group), misstable table summarising missing values
 	count_only /// suppresses percentages reported with binary and catagorical variables
 	over(varname) /// specify name for over variable 
 	over_grps(numlist) /// specify the values the "over" variable can take and which order they should appear. If over is not specified command produces one summary
 	overall(string) /// include a summary column for all observations in addition to those by over group. Can be given as first or last. if first column appears first, if last last obv.
 	cat_levels(numlist) /// if variable catagorical levels allows catogories to be customised
-	cat_col /// if cat col is specified catagories for catagorical variables are included in a seperate column. For other variable types an extra collumn is added 
+	cat_col /// if cat col is specified catagories for catagorical variables are included in a seperate column. For other variable types an extra collumn is added
+	cat_tabs(integer 1) ///
 	gap(integer 0) /// adds empty rows to baseline table after each variable
 	gap_end(integer 0)  /// adds empty rows to baseline table after all variables
 	decimal(integer 1) miss_decimal(integer 1) su_decimal(integer 1) /// specify number of decimal places to be used 
@@ -20,6 +21,7 @@ syntax varlist(numeric) [if], POSTname(string) ///
 	Missing(string)  /// specifies that missing data is to be reported, options are cols, brackets. 
 	N_analysis(string) /// Specifies that the numbers with complete data should be reported, options cols, brackets, or append
 	order(string) /// options group_sum or group_treat. Groups colmns by summary ie. missing data columns then summary columns or groups columns by treatment group.
+	sum_cols_first /// puts summary columns before those giving missing data or denominators
 	su_label(string) /// su_label has can be append or col. If append is specified adds descrptor for the summary measure to variable label. If col is specified adds descriptor in separate column.
 	su_label_text(string) /// Overides default summary labels
 	append_label(string) /// appends extra text to variable and summary label
@@ -82,11 +84,30 @@ foreach w in `n_analysis' {
 	if "`w'" == "cond" local cond cond	
 }
 
+*cat tabs
+forvalues t = 1 (1) `cat_tabs' {
+	local tab1 = "`tab1'	" 
+}
+
+
+	
+		
+	
 
 ***************************Looping over variables*******************************
 foreach v in `varlist' {
-	di _newline(3) "****** `v' ******" _newline(1)
+	di as result _newline(3) "****** `v' ******" _newline(1)
 
+
+	*Header for table
+
+	display as text %26s "Group {c |}" /* ///
+		*/ as text /* ///
+		*/ %19s "N obs. Percent" /* ///
+		*/ %24s "N missing Percent"
+
+		di as text "{hline 21}{c +}{hline 43}"
+	
 *Auto detecting type of variable. (this is very crude) - note r(N_unique) equals missing when there  are more than 99 unique values.
 
 local type1 = "`type'" // resetting type variable to be that given by command
@@ -104,7 +125,7 @@ local type1 = "`type'" // resetting type variable to be that given by command
 	}
 
 *Determining whether there is any missing data
-	qui count if missing(`v') == 1 
+	qui count if missing(`v')
 	local miss_overall = r(N) // this lcoal macro is used to implement the cond option for missing data and n_analysis
 
 *Processing Variable name
@@ -147,17 +168,17 @@ local type1 = "`type'" // resetting type variable to be that given by command
 		if "`i'" == "overall" {
 			qui count
 			local N_data = r(N)
-			qui count if  missing(`v') ==0
+			qui count if  !missing(`v')
 			local N_`i' = r(N) // note the local macro N_`i' is used as denominaotr for calculating percentages when type is cat or binary
-			qui count if missing(`v') ==1
+			qui count if missing(`v')
 			local n_missing_`i' = r(N) 
 		}
 		else {
 			qui count if `over' == `i'
 			local N_data = r(N)
-			qui count if `over' == `i' & missing(`v') ==0
+			qui count if `over' == `i' & !missing(`v')
 			local N_`i' = r(N)
-			qui count if missing(`v') ==1 & `over'==`i'
+			qui count if missing(`v') & `over'==`i'
 			local n_missing_`i' = r(N) 
 		}
 
@@ -173,8 +194,10 @@ local type1 = "`type'" // resetting type variable to be that given by command
 		if "`miss_per'" != "" local missing_`i' `n_missing_`i'' (`miss_per_`i''`per')
 		
 		*Displaying results
-		di "Group  `i'" _newline "n obs:" as result `n_per_`i'' " `n_inanalysis_per_`i''%"
-		di "n missing:" as result `n_missing_`i'' " `miss_per_`i''%" _newline(2)
+		display as text %20s abbrev("`i'",20) " {c |}" /* ///
+			*/ as result /* ///
+			*/ %9.0g `N_`i'' " " %9.0g `n_inanalysis_per_`i'' /* ///
+			*/ %14.0g `n_missing_`i'' " " %9.0g `n_missing_per_`i'' 
 		
 		*Output
 		local brackets_`i' ""
@@ -194,8 +217,8 @@ local type1 = "`type'" // resetting type variable to be that given by command
 		}	
 		
 	}
-	
-
+	*last line of table
+	di as text "{hline 21}{c BT}{hline 43}"
 *catagorical variables (done a bit different)
 	if "`type1'" == "cat" {
 	
@@ -218,7 +241,7 @@ local type1 = "`type'" // resetting type variable to be that given by command
 				foreach i in `over_grps' {
 					if "`n_analysis'" == "cols" local treat_cols`i' ("`inanalysis_`i''")
 					if "`missing'" == "cols" local treat_cols`i' ("`missing_`i''") 
-					local treat_cols`i' ("`missing_`i''")  ("")
+					*local treat_cols`i' ("`missing_`i''")  ("")
 					local summaries `summaries' `treat_cols`i''
 				}	
 				post `postname' `var_label' `measure_post'  `summaries' `comment'
@@ -277,9 +300,12 @@ local type1 = "`type'" // resetting type variable to be that given by command
 		
 		*********Posting***********
 			if "`su_label'" == "col" local measure_post ("")
-			local tab "	"
+			local tab "`tab1'"
 			if "`cat_col'" != "" {
-				if `row' == 1 local ccol `var_label'
+				if `row' == 1 {
+					local ccol `var_label'
+					if "`su_label'" == "col" local measure_post ("`measure1'")
+				}
 				if `row' > 1 local ccol ("")
 				local tab ""
 			}
@@ -291,34 +317,27 @@ local type1 = "`type'" // resetting type variable to be that given by command
 				local inan_cols ""
 				foreach j in `over_grps' {
 					local summaries `summaries'  `su_`j''
-					if "`missing'" == "cols" local miss_cols `miss_cols'  ("")
-					if "`n_analysis'" == "cols" local inan_cols `inan_cols'  ("")
-					if "`cat_col'" != "" {
-						if "`missing'" == "cols" local miss_cols `miss_cols' ("`missing_`i''")
-						if "`n_analysis'" == "cols" local inan_cols `inan_cols'  ("`inanalysis_`i''")
-					}
+					if "`missing'" == "cols" local miss_cols `miss_cols' ("`missing_`j''")
+					if "`n_analysis'" == "cols" local inan_cols `inan_cols'  ("`inanalysis_`j''")
 				}
 				
 				if "`sum_cols_first'" == "" {
-					post `postname' `ccol' ("`tab'`value_name'") `measure_post'  `inan_cols' `miss_cols' `summaries' `comment'
+					post `postname' `ccol' `measure_post'  ("`tab'`value_name'")  `inan_cols' `miss_cols' `summaries' `comment'
 				}
 				else {
-					post `postname' `ccol' ("`tab'`value_name'") `measure_post'  `summaries' `inan_cols' `miss_cols'  `comment'
+					post `postname' `ccol' `measure_post' ("`tab'`value_name'")   `summaries' `inan_cols' `miss_cols'  `comment'
 				}
 			}
 			if "`order'" == "group_treat" {
 				local summaries ""
 				foreach j in `over_grps' {
-					if "`missing'" == "cols" local treat_cols`j' `treat_cols`j'' ("") 
-					if "`n_analysis'" == "cols" local treat_cols`j' ("")
-					if "`cat_col'" != "" {
-						if "`missing'" == "cols" local treat_cols`j' `treat_cols`j'' ("`missing_`j	''")
-						if "`n_analysis'" == "cols" local treat_cols`j' ("`inanalysis_`j''")	
-					}
+					local treat_cols`j' ""
+					if "`missing'" == "cols" local treat_cols`j' `treat_cols`j''  ("`missing_`j''")
+					if "`n_analysis'" == "cols" local treat_cols`j' ("`inanalysis_`j''")
 					local treat_cols`j' `treat_cols`j''  `su_`j''
 					local summaries `summaries' `treat_cols`j''
 				}
-				post `postname' `ccol' ("`tab'`value_name'") `measure_post'  `summaries' `comment'
+				post `postname' `ccol' `measure_post' ("`tab'`value_name'")   `summaries' `comment'
 			}
 		}
 	} 
@@ -351,15 +370,12 @@ local type1 = "`type'" // resetting type variable to be that given by command
 			}
 			
 			local su_`i' ("`n' `per_str' `brackets_`i''") 
-			if "`over'" != "" tab `v' `over', col `miss_opt' // displaying output
-			if "`over'" == "" tab `v', `miss_opt'  // displaying output 
-			
-	}
+		}
 	
 	*Contnuous variables, median IQR
 		if "`type1'" == "skew" {
 			di "Group `i'"
-			if "`i'" == "overall" tabstat `v' if  `over' == `i', stats(q) save
+			if "`i'" == "overall" tabstat `v', stats(q) save
 			if "`i'" != "overall" tabstat `v' if  `over' == `i', stats(q) save
 			mat define A = r(StatTotal) 
 			local median = string(A[2,1], "%12.`su_decimal'f")
@@ -368,8 +384,12 @@ local type1 = "`type'" // resetting type variable to be that given by command
 			local su_`i' ("`median' (`q1'-`q3') `brackets_`i''") 
 		}
 	}
-	
-	
+	if "`type1'" == "bin" {
+		if "`miss_opt'" == "" {
+				if "`over'" != "" tab `v' `over', col // displaying output
+				if "`over'" == "" tab `v'  
+		}
+	}
 	
 	*********Posting***********
 			if "`order'" == "group_sum" {
