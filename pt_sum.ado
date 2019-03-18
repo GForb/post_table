@@ -1,6 +1,6 @@
-capture program drop post_table_sum
+capture program drop pt_sum
 
-prog define post_table_sum
+prog define pt_sum
 syntax varlist(numeric) [if], postname(string) stats(namelist) ///
 	[ ///
 	over(varname) ///
@@ -67,7 +67,7 @@ foreach v in `varlist' {
 *Implementing command
 		di "Group  `i'"
 		if "`i'" == "overall" su `v', detail
-		if "`i'" != "overall" su `v', detail if  `over' == `i'
+		if "`i'" != "overall" su `v' if  `over' == `i', detail 
 		local N_`i' = r(N)
 		foreach s in mean sd  {
 			local `s'_`i' = string(r(`s'), "%12.`decimal'f")
