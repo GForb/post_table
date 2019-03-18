@@ -1,0 +1,59 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. 
+. /***/ pt_base age gender ethnicity, post(`postname')
+
+
+
+{res}****** age ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+             overall {c |}{res}     1000       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+Group overall
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}      1,000    44.75141    10.09038   18.73607   79.98365
+
+
+
+****** gender ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+             overall {c |}{res}     1000       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+     Female {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       Male {c |}{res}        481       48.10       48.10
+{txt}     Female {c |}{res}        519       51.90      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      1,000      100.00
+
+
+
+****** ethnicity ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+             overall {c |}{res}      889      88.9           111      11.1
+{txt}{hline 21}{c BT}{hline 43}
+
+             Ethnicity {c |}      Freq.     Percent        Cum.
+{hline 23}{c +}{hline 35}
+                 Other {c |}{res}         45        5.06        5.06
+{txt}                 Mixed {c |}{res}        131       14.74       19.80
+{txt}Asian or Asian British {c |}{res}        201       22.61       42.41
+{txt}Black or Black British {c |}{res}        231       25.98       68.39
+{txt}White or White British {c |}{res}        281       31.61      100.00
+{txt}{hline 23}{c +}{hline 35}
+                 Total {c |}{res}        889      100.00
+{txt}
+{com}. 
+. 
+. /**/ pt_base_close `postname', eg_no(`eg_no')
+{smcl}
+{com}{sf}{ul off}
