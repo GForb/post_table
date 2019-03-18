@@ -98,8 +98,9 @@ forvalues i = 1 (1) 8 {
 }
 putdocx table table2(9,1), rowspan(3)
 putdocx table table2(12,1), rowspan(5)
-putdocx table table2(17,1), rowspan(4)
-putdocx table table2(21,1), rowspan(4)
+putdocx table table2(17,1), colspan(5) bold
+putdocx table table2(18,1), rowspan(4)
+putdocx table table2(22,1), rowspan(4)
 
 
 *Table from excel
