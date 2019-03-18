@@ -30,7 +30,7 @@ syntax , filename(string) table_no(integer) [title(string) header_rows(integer 1
 	else {
 		local width width(`width'cm)
 	}
-	
+	local layout layout(autofitc)
 	
 	*Table title
 	if "`title'" != ""{
@@ -88,6 +88,7 @@ putdocx table table1(20,1), rowspan(4)
 putdocx pagebreak
 
 *Table 2
+
 putx_tab, filename("bl_example2.dta") table_no(2) title("Second example") header_rows(2) 
 putdocx table table2(1,3), colspan(2) halign(center)  // megering cells must be done using putdocx. See help putdocx for more details
 putdocx table table2(1,4), colspan(2) halign(center)   // note you must take into account the merge that has already occured when specifying column numbers.
