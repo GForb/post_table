@@ -39,7 +39,7 @@ if "`if'" != "" {
 
 *setting decimal values
 if `su_decimal' ==1 local su_decimal = `decimal'
-if `miss_decimal' ==1 local est_decimal = `decimal'		
+if `miss_decimal' ==1 local miss_decimal = `decimal'		
 
 *Setting default for over and extracting the levels of `over'
 if "`over'" != "" {
@@ -241,7 +241,7 @@ local type1 = "`type'" // resetting type variable to be that given by command
 				foreach i in `over_grps' {
 					if "`n_analysis'" == "cols" local treat_cols`i' ("`inanalysis_`i''")
 					if "`missing'" == "cols" local treat_cols`i' ("`missing_`i''") 
-					*local treat_cols`i' ("`missing_`i''")  ("")
+					local treat_cols`i' `treat_cols`i''  ("")
 					local summaries `summaries' `treat_cols`i''
 				}	
 				post `postname' `var_label' `measure_post'  `summaries' `comment'

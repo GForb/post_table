@@ -1,0 +1,226 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples\ptb_eg5.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}18 Mar 2019, 09:45:10
+{txt}
+{com}. 
+. pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)
+
+
+
+{res}****** age ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      506       100             0         0
+                   {txt}0 {c |}{res}      494       100             0         0
+             {txt}overall {c |}{res}     1000       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}        506    44.90614    10.06612    19.5597   77.65178
+Group 0
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}        494    44.59293    10.12291   18.73607   79.98365
+Group overall
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}      1,000    44.75141    10.09038   18.73607   79.98365
+{txt}
+{com}. pt_base age , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)
+
+
+
+{res}****** age ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      506       100             0         0
+                   {txt}0 {c |}{res}      494       100             0         0
+             {txt}overall {c |}{res}     1000       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:age} {...}
+{c |}{...}
+ {res}  37.5342  44.99636  51.54602
+{txt}{hline 13}{c BT}{hline 30}
+Group 0
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:age} {...}
+{c |}{...}
+ {res} 37.98506  44.10923  51.39442
+{txt}{hline 13}{c BT}{hline 30}
+Group overall
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:age} {...}
+{c |}{...}
+ {res} 37.72828  44.58735  51.50417
+{txt}{hline 13}{c BT}{hline 30}
+
+{com}. pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) per
+
+
+
+{res}****** gender ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      506       100             0         0
+                   {txt}0 {c |}{res}      494       100             0         0
+             {txt}overall {c |}{res}     1000       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+           {c |}         treat
+    Female {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+      Male {c |}{res}       233        248 {txt}{c |}{res}       481 
+           {txt}{c |}{res}     47.17      49.01 {txt}{c |}{res}     48.10 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+    Female {c |}{res}       261        258 {txt}{c |}{res}       519 
+           {txt}{c |}{res}     52.83      50.99 {txt}{c |}{res}     51.90 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
+           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append) count_only
+
+
+
+{res}****** gender ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      506       100             0         0
+                   {txt}0 {c |}{res}      494       100             0         0
+             {txt}overall {c |}{res}     1000       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+           {c |}         treat
+    Female {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+      Male {c |}{res}       233        248 {txt}{c |}{res}       481 
+           {txt}{c |}{res}     47.17      49.01 {txt}{c |}{res}     48.10 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+    Female {c |}{res}       261        258 {txt}{c |}{res}       519 
+           {txt}{c |}{res}     52.83      50.99 {txt}{c |}{res}     51.90 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
+           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) per
+
+
+
+{res}****** ethnicity ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      454  89.72332            52  10.27668
+                   {txt}0 {c |}{res}      435  88.05668            59  11.94332
+             {txt}overall {c |}{res}      889      88.9           111      11.1
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+                      {c |}         treat
+            Ethnicity {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Other {c |}{res}        26         19 {txt}{c |}{res}        45 
+                      {txt}{c |}{res}      5.98       4.19 {txt}{c |}{res}      5.06 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Mixed {c |}{res}        70         61 {txt}{c |}{res}       131 
+                      {txt}{c |}{res}     16.09      13.44 {txt}{c |}{res}     14.74 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Asian or Asian Britis {c |}{res}       100        101 {txt}{c |}{res}       201 
+                      {txt}{c |}{res}     22.99      22.25 {txt}{c |}{res}     22.61 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Black or Black Britis {c |}{res}       103        128 {txt}{c |}{res}       231 
+                      {txt}{c |}{res}     23.68      28.19 {txt}{c |}{res}     25.98 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281 
+                      {txt}{c |}{res}     31.26      31.94 {txt}{c |}{res}     31.61 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}       435        454 {txt}{c |}{res}       889 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) count_only
+
+
+
+{res}****** ethnicity ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      454  89.72332            52  10.27668
+                   {txt}0 {c |}{res}      435  88.05668            59  11.94332
+             {txt}overall {c |}{res}      889      88.9           111      11.1
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+                      {c |}         treat
+            Ethnicity {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Other {c |}{res}        26         19 {txt}{c |}{res}        45 
+                      {txt}{c |}{res}      5.98       4.19 {txt}{c |}{res}      5.06 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Mixed {c |}{res}        70         61 {txt}{c |}{res}       131 
+                      {txt}{c |}{res}     16.09      13.44 {txt}{c |}{res}     14.74 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Asian or Asian Britis {c |}{res}       100        101 {txt}{c |}{res}       201 
+                      {txt}{c |}{res}     22.99      22.25 {txt}{c |}{res}     22.61 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Black or Black Britis {c |}{res}       103        128 {txt}{c |}{res}       231 
+                      {txt}{c |}{res}     23.68      28.19 {txt}{c |}{res}     25.98 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281 
+                      {txt}{c |}{res}     31.26      31.94 {txt}{c |}{res}     31.61 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}       435        454 {txt}{c |}{res}       889 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. 
+. pt_base_close `postname', eg_no(`eg_no')        
+{smcl}
+{com}{sf}{ul off}

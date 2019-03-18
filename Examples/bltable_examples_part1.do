@@ -32,6 +32,7 @@ postfile `postname'  str60 variable  str50 (cat sum)   using bl_example1, replac
 count
 local N = r(N)
 post `postname' ("Baseline Characteristics") ("") ("Randomised (N = `N')")
+
 pt_base age bmi qol gender smoking  alcohol site ethnicity sons daughters, postname(`postname') su_label(append) n_analysis(append cond) cat_col
 
 
@@ -66,7 +67,12 @@ postfile `postname'  str60 variable  str50 (cat sum1 sum2 sum3 sum4 )   using bl
 
 post `postname' ("Baseline Characteristics") ("") ("Group 0") ("") ("Group 1") ("") 
 post `postname' ("") ("") ("N") ("Summary") ("N") ("Summary") 
-pt_base age bmi qol  gender alcohol smoking site ethnicity sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
+
+pt_base age bmi qol  gender alcohol smoking site ethnicity , postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
+
+post `postname' ("No. of children") ("") ("") ("") ("N") ("") 
+
+pt_base sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
 	
 
 postclose `postname'
@@ -78,6 +84,7 @@ use bl_example2, clear
 *Example 1
 use bl_example1, clear 	
 browse
+compress _all
 
 *Example 2
 use bl_example2
