@@ -12,7 +12,7 @@ To run table 3, an excel named
 */
 
 
-cd  "N:\Automating reporting\Example data and results" // set path for where your data is stored and results will be saved
+cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
 
 
 

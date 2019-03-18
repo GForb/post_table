@@ -6,7 +6,7 @@ This do file creates a word document combining the ds example and the bl example
 */
 
 
-cd  "N:\Automating reporting\Example data and results" // set path for where your data is stored and results will be saved
+cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
 
 
 

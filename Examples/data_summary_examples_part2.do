@@ -10,7 +10,7 @@ Remember to close the word document created after any edits
 */
 
 
-cd  "N:\Automating reporting\Example data and results" // set path for where your data is stored and results will be saved
+cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
 
 
 

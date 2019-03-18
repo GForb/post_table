@@ -1,5 +1,5 @@
 *This file gives examples demonstraing all the features of pt_base
-cd "N:\Automating reporting\Example data and results\pt_base all examples"
+cd "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
 
 cap prog drop pt_base_intro
 prog define pt_base_intro

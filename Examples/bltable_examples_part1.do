@@ -21,7 +21,7 @@ To obtain datasets in more useful formats either export to excel or run the file
 */
 
 
-cd  "N:\Automating reporting\Example data and results" // set path for where your data is stored and results will be saved
+cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
 
 use "eg_data2", clear // load your dataset
 
