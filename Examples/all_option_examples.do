@@ -5,7 +5,7 @@ cap prog drop pt_base_intro
 prog define pt_base_intro
 	syntax namelist, eg_no(integer) cols(integer)
 	cap log close
-	log using ptb_eg`eg_no', replace
+	*log using ptb_eg`eg_no', replace
 	use eg_data2, clear
 	local results ptb_eg`eg_no'
 	tempname postname
@@ -22,7 +22,7 @@ prog define pt_base_close
 	use ptb_eg`eg_no', clear
 	format _all %-100s
 	qui compress _all
-	qui log close
+	*qui log close
 end
 
 
