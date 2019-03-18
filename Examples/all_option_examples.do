@@ -17,8 +17,8 @@ prog define pt_base_intro
 	postfile `namelist'  str100(`post_cols')   using "`results'.dta", replace
 end
 
-cap prog drop pt_base_close
-prog define pt_base_close 
+cap prog drop /**/ pt_base_close
+prog define /**/ pt_base_close 
 	syntax namelist, eg_no(numlist max=1)
 	postclose `namelist'	
 	use "ptb_eg`eg_no'.dta", clear
@@ -37,12 +37,19 @@ end
 *********************************
 local eg_no 1.1
 tempname postname
+
+
+
 pt_base_intro `postname', eg_no(`eg_no') cols(2) // openening post file, see function at top of do file for detail
+
+/***
+This is the table obtained using default settings with no additional options specified.
+***/
 
 /***/ pt_base age gender ethnicity, post(`postname')
 
 
-/**/ pt_base_close `postname', eg_no(`eg_no')
+/**/ /**/ pt_base_close `postname', eg_no(`eg_no')
 *********************************
 
 
@@ -56,11 +63,14 @@ local eg_no 2.1
 tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(3) 
 
+/***
+To present data over a variable, for example treatment group, use the option 'over'
+***/
 
 /***/ pt_base age gender ethnicity, post(`postname') over(treat) 
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')
+
+/**/ pt_base_close `postname', eg_no(`eg_no')
 **********************************
 
 
@@ -69,10 +79,15 @@ local eg_no 2.2
 tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(4) 
 
+/***
+The option `over_grps' can be used to specify the order of the treatment groups. 'overall()' can be given with _first_ or _last_. When `over` is specified `overall` summarises the whole dataset, with the position of the overall 
+column in the table either first or last.
+***/
+
 /***/ pt_base age gender ethnicity, post(`postname') over(treat) overall(first) 
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')
+
+/**/ pt_base_close `postname', eg_no(`eg_no')
 *********************************
 
 
@@ -81,10 +96,14 @@ local eg_no 2.3
 tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(4) 
 
+/***
+The option over group can be used to change the order of treatment groups.
+***/
+
 /***/ pt_base age gender ethnicity, post(`postname') over(treat) over_grps(1 0) overall(last)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 ********************************************************************************
@@ -97,23 +116,27 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(4) // openening post file, see function at top of do file for detail
 
 /***
-Wehn the option "type" is not specified pt_base decides whether to summarise data as catagorical, binary or continuous based on the number of unique observations. 
-- 2 unique values: Binary
-- 3-9 unique values: Catagorical
-- 10 or more unique values: Continuous
+When the option `type` is not specified pt_base decides whether to summarise data as catagorical, binary or continuous based on the number of unique observations. 
+Variables with 10 or more unique values will be treated as continuous, and summarised by mean (sd). Variables with 9 or less unique values will be treated as binary or catagorical.
 
-The defaults can be overidden using the type option. type(skew) 
+The defaults can be overidden using the type option. The option `type(skew)` can be used to present continuous data as median (IQR). 
+For binary variables the default is to consider the value 1 to be positive and to count the number of positives. If you want a different value considered as "positive" use the option `positive(_integer)_`.
+Using `type(cat)` for binary variables presents sumaries for both levels of the variable.
+
+
+
 ***/
 
 
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)
 /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)
 /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)
+/***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) positive(1)
 /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -129,8 +152,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(4) // openening post file, see fun
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) per 
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) count_only 
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 *                       Section 3a: Catagorical variables                      *
@@ -149,8 +172,8 @@ label values gender gender
 /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append)   cat_levels(0 1 2)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -171,8 +194,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5) // openening post file, see fun
 Note: When using the cat_col option it must be specified for all lines of the table, not just those lines that contain catagorical variables. This is to ensure the correct number of columns is produced.
 ***/
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -193,8 +216,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append)   cat_col  gap(1)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -213,8 +236,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(cols) 
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(cols) 
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -230,8 +253,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(cols %)  sum_cols_first
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(cols %)  sum_cols_first
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -246,8 +269,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(cols %)  order(group_treat) per
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(cols %)  order(group_treat) per
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -262,8 +285,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(7) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)   gap(1) n_analysis(cols %)  order(group_treat) per
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)  gap(1) n_analysis(cols %)  order(group_treat) per
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -279,8 +302,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(brackets)  order(group_treat)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(brackets)  order(group_treat)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -296,8 +319,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(append)  order(group_treat)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(append)  order(group_treat)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -314,8 +337,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(append cond)  order(group_treat)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(append cond)  order(group_treat)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -338,8 +361,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(cols) 
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(cols) 
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -355,8 +378,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(cols)  sum_cols_first
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(cols)  sum_cols_first
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -371,8 +394,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(cols)  order(group_treat)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(cols)  order(group_treat)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -388,8 +411,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender , post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) var_lab(Gender) cat_tabs(2) per  cat_col decimal(0) missing(cols)  gap_end(1)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) cat_tabs(2)	 per  cat_col decimal(0)  missing(cols)  gap_end(1)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 *********************************
@@ -403,8 +426,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender , post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) var_lab(Gender) cat_tabs(2) per  cat_col decimal(0) missing(cols)  gap_end(1) sum_cols_first
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) cat_tabs(2)	 per  cat_col decimal(0)  missing(cols)  gap_end(1) sum_cols_first
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -419,8 +442,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender , post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) var_lab(Gender) cat_tabs(2) per  cat_col decimal(0) missing(cols)  gap_end(1) order(group_treat)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) cat_tabs(2)	 per  cat_col decimal(0)  missing(cols)  gap_end(1) order(group_treat)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 
@@ -436,8 +459,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8) // openening post file, see fun
 /***/ pt_base  gender , post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) var_lab(Gender) cat_tabs(2) per  cat_col decimal(0) missing(cols %)  gap_end(1) order(group_treat)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(first) su_label(append) over_grps(1, 0) type(cat) cat_tabs(2)	 per  cat_col decimal(0)  missing(cols %)  gap_end(1) order(group_treat)
 
-//Off
-pt_base_close `postname', eg_no(`eg_no')	
+
+/**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************
 
 /*
