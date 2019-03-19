@@ -1,0 +1,429 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. 
+. /***
+> ###9.1 `if `in`
+> `if` and `in` can be used with pt_base in the usual way for Stata commands.
+> ***/
+. 
+. /***/ post `postname' ("Variable")  ("Summary 1") ("")  ("Summary 2") ("Overall")
+{txt}
+{com}. 
+. /***/ pt_base age if ethnicity ==4 , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append)  
+{txt}(719 observations deleted)
+
+
+
+{res}****** age ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      145       100             0         0
+                   {txt}0 {c |}{res}      136       100             0         0
+             {txt}overall {c |}{res}      281       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}        145    44.76163    10.25371   20.89186   70.44794
+Group 0
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}        136    45.01136     9.37138   18.73607   70.35209
+Group overall
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}        281     44.8825    9.819877   18.73607   70.44794
+{txt}
+{com}. /***/ pt_base qol if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append)  
+{txt}(719 observations deleted)
+
+
+
+{res}****** qol ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      128  88.27586            17  11.72414
+                   {txt}0 {c |}{res}      127  93.38235             9  6.617647
+             {txt}overall {c |}{res}      255  90.74733            26  9.252669
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 40.23786  50.83806  60.71415
+{txt}{hline 13}{c BT}{hline 30}
+Group 0
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 39.65888  50.64239  60.43225
+{txt}{hline 13}{c BT}{hline 30}
+Group overall
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 40.05452  50.80204  60.43225
+{txt}{hline 13}{c BT}{hline 30}
+
+{com}. /***/ pt_base  gender if ethnicity ==4 , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(append)  
+{txt}(719 observations deleted)
+
+
+
+{res}****** gender ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      145       100             0         0
+                   {txt}0 {c |}{res}      136       100             0         0
+             {txt}overall {c |}{res}      281       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+           {c |}         treat
+    Female {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+      Male {c |}{res}        62         74 {txt}{c |}{res}       136 
+           {txt}{c |}{res}     45.59      51.03 {txt}{c |}{res}     48.40 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+    Female {c |}{res}        74         71 {txt}{c |}{res}       145 
+           {txt}{c |}{res}     54.41      48.97 {txt}{c |}{res}     51.60 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}       136        145 {txt}{c |}{res}       281 
+           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. /***/ pt_base ethnicity  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) n_analysis(append)
+{txt}(719 observations deleted)
+
+
+
+{res}****** ethnicity ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}      145       100             0         0
+                   {txt}0 {c |}{res}      136       100             0         0
+             {txt}overall {c |}{res}      281       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+                      {c |}         treat
+            Ethnicity {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}       136        145 {txt}{c |}{res}       281 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}.  
+.  
+. /***/ pt_base age in 1/100 , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append) 
+{txt}(900 observations deleted)
+
+
+
+{res}****** age ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       51       100             0         0
+                   {txt}0 {c |}{res}       49       100             0         0
+             {txt}overall {c |}{res}      100       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}         51    43.85398    10.37755   23.44865    67.4399
+Group 0
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}         49    45.52607    9.049499   26.10173   62.25602
+Group overall
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}        100    44.67331    9.736647   23.44865    67.4399
+{txt}
+{com}. /***/ pt_base qol in 1/100, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append) 
+{txt}(900 observations deleted)
+
+
+
+{res}****** qol ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       48  94.11765             3  5.882353
+                   {txt}0 {c |}{res}       47  95.91837             2  4.081633
+             {txt}overall {c |}{res}       95        95             5         5
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 34.65965  55.22671  63.63947
+{txt}{hline 13}{c BT}{hline 30}
+Group 0
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 38.94218  51.66963  61.41079
+{txt}{hline 13}{c BT}{hline 30}
+Group overall
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 36.48608  52.40151  62.34124
+{txt}{hline 13}{c BT}{hline 30}
+
+{com}. /***/ pt_base  gender in 1/100 , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(append) 
+{txt}(900 observations deleted)
+
+
+
+{res}****** gender ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       51       100             0         0
+                   {txt}0 {c |}{res}       49       100             0         0
+             {txt}overall {c |}{res}      100       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+           {c |}         treat
+    Female {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+      Male {c |}{res}        24         22 {txt}{c |}{res}        46 
+           {txt}{c |}{res}     48.98      43.14 {txt}{c |}{res}     46.00 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+    Female {c |}{res}        25         29 {txt}{c |}{res}        54 
+           {txt}{c |}{res}     51.02      56.86 {txt}{c |}{res}     54.00 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}        49         51 {txt}{c |}{res}       100 
+           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. /***/ pt_base ethnicity in 1/100, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) n_analysis(append) 
+{txt}(900 observations deleted)
+
+
+
+{res}****** ethnicity ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       44  86.27451             7  13.72549
+                   {txt}0 {c |}{res}       36  73.46939            13  26.53061
+             {txt}overall {c |}{res}       80        80            20        20
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+                      {c |}         treat
+            Ethnicity {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Other {c |}{res}         2          4 {txt}{c |}{res}         6 
+                      {txt}{c |}{res}      5.56       9.09 {txt}{c |}{res}      7.50 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Mixed {c |}{res}         6          4 {txt}{c |}{res}        10 
+                      {txt}{c |}{res}     16.67       9.09 {txt}{c |}{res}     12.50 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Asian or Asian Britis {c |}{res}         8         14 {txt}{c |}{res}        22 
+                      {txt}{c |}{res}     22.22      31.82 {txt}{c |}{res}     27.50 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Black or Black Britis {c |}{res}         6         10 {txt}{c |}{res}        16 
+                      {txt}{c |}{res}     16.67      22.73 {txt}{c |}{res}     20.00 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+White or White Britis {c |}{res}        14         12 {txt}{c |}{res}        26 
+                      {txt}{c |}{res}     38.89      27.27 {txt}{c |}{res}     32.50 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}        36         44 {txt}{c |}{res}        80 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. 
+. /***/ pt_base age in 1/100 if ethnicity ==4 , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append) 
+{txt}(974 observations deleted)
+
+
+
+{res}****** age ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       12       100             0         0
+                   {txt}0 {c |}{res}       14       100             0         0
+             {txt}overall {c |}{res}       26       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}         12    39.19889    8.802838   23.44865   50.85174
+Group 0
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}         14    45.15851    9.449833   26.10173   59.08346
+Group overall
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 9}age {c |}{res}         26    42.40792    9.471589   23.44865   59.08346
+{txt}
+{com}. /***/ pt_base qol in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append) 
+{txt}(974 observations deleted)
+
+
+
+{res}****** qol ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       10  83.33333             2  16.66667
+                   {txt}0 {c |}{res}       14       100             0         0
+             {txt}overall {c |}{res}       24  92.30769             2  7.692308
+{txt}{hline 21}{c BT}{hline 43}
+Group 1
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 30.18304  50.70726  63.35477
+{txt}{hline 13}{c BT}{hline 30}
+Group 0
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 36.48608  55.50172  62.02238
+{txt}{hline 13}{c BT}{hline 30}
+Group overall
+
+{ralign 12:variable} {...}
+{c |}       p25       p50       p75
+{hline 13}{c +}{hline 30}
+{ralign 12:qol} {...}
+{c |}{...}
+ {res} 35.74572  55.50172  62.84801
+{txt}{hline 13}{c BT}{hline 30}
+
+{com}. /***/ pt_base  gender in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(append) 
+{txt}(974 observations deleted)
+
+
+
+{res}****** gender ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       12       100             0         0
+                   {txt}0 {c |}{res}       14       100             0         0
+             {txt}overall {c |}{res}       26       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+           {c |}         treat
+    Female {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+      Male {c |}{res}         5          7 {txt}{c |}{res}        12 
+           {txt}{c |}{res}     35.71      58.33 {txt}{c |}{res}     46.15 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+    Female {c |}{res}         9          5 {txt}{c |}{res}        14 
+           {txt}{c |}{res}     64.29      41.67 {txt}{c |}{res}     53.85 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}        14         12 {txt}{c |}{res}        26 
+           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. /***/ pt_base ethnicity in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(append) 
+{txt}(974 observations deleted)
+
+
+
+{res}****** ethnicity ******
+
+               {txt}Group {c |}     N obs. Percent       N missing Percent
+{hline 21}{c +}{hline 43}
+                   1 {c |}{res}       12       100             0         0
+                   {txt}0 {c |}{res}       14       100             0         0
+             {txt}overall {c |}{res}       26       100             0         0
+{txt}{hline 21}{c BT}{hline 43}
+
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+                      {c |}         treat
+            Ethnicity {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+White or White Britis {c |}{res}        14         12 {txt}{c |}{res}        26 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}        14         12 {txt}{c |}{res}        26 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. 
+. /**/ pt_base_close `postname', eg_no(`eg_no')   
+{smcl}
+{com}{sf}{ul off}

@@ -1,0 +1,107 @@
+cd "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
+
+*looping over examples
+local egs1 1
+local egs2 3
+local egs3 4
+local egs4 1
+local egs5 6
+local egs6 6
+local egs7 3
+local egs8 1
+local egs9 1
+forvalues i = 1 (1) 9 {
+	forvalues j = 1 (1) `egs`i'' {
+		global eg_list $eg_list `i'.`j'
+	}
+}
+
+di "`eg_list'"
+
+cap prog drop putx_tab
+prog  putx_tab
+syntax , filename(string) table_no(integer) [title(string) header_rows(integer 1) header_cols(integer 1) ] 
+	use  "`filename'", clear
+	
+	*Table title
+	if "`title'" != ""{
+		putdocx paragraph, halign(left) 
+		putdocx text ("Table `table_no' - `title'"), bold
+	}
+
+	*Table
+	putdocx table table`table_no' = data(_all) , halign(center)  layout(autofitc) `width' cellmargin(top, 1pt)   headerrow(`header_rows')
+	putdocx table table`table_no'(.,.), font(calibri, 9) 
+	qui putdocx describe table`table_no' 
+	local n_col =  r(ncols)
+	local n_row = r(nrows)
+	
+	*Formating header rows
+	putdocx table table`table_no'(1 (1) `header_rows' ,.), bold valign(center) halign(center) shading(papayawhip)     // font, alignment and shading for header rows can be updated here
+	
+	*Formatting "header columns"
+	putdocx table table`table_no'(.,1 (1) `header_cols'), halign(left)  // font and alignment for non header colums can be updated here
+
+	*Formating body of table
+	local body_col1 = `header_cols' + 1
+	local body_row1 = `header_rows' + 1
+	putdocx table table`table_no'(`body_row1' (1) `n_row',`body_col1' (1) `n_col'), halign(right)  // font and alignment for non header colums can be updated here
+	
+
+end
+
+local start 0
+local end 10
+*Creating tables
+foreach eg in $eg_list {
+	di "`eg'"
+	if `eg' >= `start' & `eg' <`end' {
+		putdocx clear
+		putdocx begin, font(calibri, 12)
+		putdocx paragraph, spacing(before, 20pt)
+		putx_tab, filename("ptb_eg`eg'.dta") table_no(1)
+		putdocx pagebreak
+		putdocx save "doc_`eg'.docx" , replace
+	}
+}
+
+local start 0
+local end 10
+*Creating markdown
+foreach eg in $eg_list {
+	di "`eg'"
+	if `eg' >= `start' & `eg' <`end' {
+		markdoc "$logs\ptb_eg`eg'.smcl", export(docx) replace // creating word doc of text
+	}
+}
+
+
+*Title page
+putdocx clear
+putdocx begin, font(calibri, 12)
+putdocx paragraph, halign(center)  style(Title)  spacing(before, 60pt)
+putdocx text ("Comprehensive examples for the use of pt_base ")	
+
+putdocx paragraph, halign(center) spacing(before, 30pt) spacing(after, 1.0)
+putdocx text ("Version 1.1.0"),  linebreak
+putdocx text ("Date: $S_DATE") 	  	
+
+putdocx pagebreak
+putdocx pagebreak
+
+putdocx save "doc_title.docx" , replace
+
+*Merging documents
+foreach eg in  $eg_list {
+	local merge_list `merge_list' ptb_eg`eg'.docx doc_`eg'.docx
+}
+
+di "`merge_list'"
+
+putdocx append doc_title.docx `merge_list', saving(pt_base_comprehensive_examples, replace) 
+
+
+
+
+
+

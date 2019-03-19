@@ -3,14 +3,16 @@
 This file gives examples demonstraing all the features of pt_base. It is arranged
 in the following sections:
 
-	-Section 1: Default table
-	-Section 2: By treatment group
-	-Section 3: Presenting data
-		-Section 3a catagorical variables
-	-Section 4: Gaps
-	-Section 5: Adding denominators
-	-Section 6: Reporting missing data
-	-Section 7: Labeling
+	- Section 1: Default table
+	- Section 2: By treatment group
+	- Section 3: Presenting data
+		- Section 3a catagorical variables
+	- Section 4: Gaps
+	- Section 5: Adding denominators
+	- Section 6: Reporting missing data
+	- Section 7: Labeling
+	- Section 8: Comments
+	- Section 9: If/In
 	
 The do file includes /***/ and /**/ before some commands. 
 These are Markdoc syntax which are included to allow the code to be reported in a word document with example tables. 
@@ -64,6 +66,7 @@ pt_base_intro `postname', eg_no(`eg_no') cols(2)
 This is the table obtained using default settings with no additional options specified.
 ***/
 
+/***/ post `postname' ("Variable") ("Summary")
 /***/ pt_base age gender ethnicity, post(`postname')
 
 
@@ -83,10 +86,11 @@ pt_base_intro `postname', eg_no(`eg_no') cols(3)
 
 /***
 #Section 2
-###2.1 Adding `over`
+###2.1 `over`
 To present data over a variable, for example treatment group, use the option 'over'
 ***/
 
+/***/ post `postname' ("Variable") ("Group1") ("Group2")
 /***/ pt_base age gender ethnicity, post(`postname') over(treat) 
 
 
@@ -100,12 +104,13 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(4) 
 
 /***
-###2.2
-The option `over_grps' can be used to specify the order of the treatment groups. 'overall()' can be given with _first_ or _last_. When `over` is specified `overall` summarises the whole dataset, with the position of the overall 
+###2.2 `overall()`
+'overall()' can be given with _first_ or _last_. When `over` is specified `overall` summarises the whole dataset, with the position of the overall 
 column in the table either first or last.
 ***/
 
-/***/ pt_base age gender ethnicity, post(`postname') over(treat) overall(first) 
+/***/ post `postname' ("Variable") ("Overall") ("Group1") ("Group2")
+/***/ pt_base age gender ethnicity, post(`postname') over(treat) overall(first)  
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')
@@ -118,9 +123,11 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(4) 
 
 /***
-###2.3
-The option over group can be used to change the order of treatment groups.
+###2.3 `over_grps()`
+The option `over_grps()` can be used to change the order of treatment groups.
 ***/
+
+/***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
 
 /***/ pt_base age gender ethnicity, post(`postname') over(treat) over_grps(1 0) overall(last)
 
@@ -143,10 +150,11 @@ When the option `type` is not specified pt_base decides whether to summarise dat
 Variables with 10 or more unique values will be treated as continuous, and summarised by mean (sd). Variables with 9 or less unique values will be treated as binary or catagorical.
 
 The defaults can be overidden using the type option. The option `type(skew)` can be used to present continuous data as median (IQR). 
-For binary variables the default is to consider the value 1 to be positive and to count the number of positives. If you want a different value considered as "positive" use the option `positive(_integer)_`.
+For binary variables the default is to consider the value 1 to be positive and to count the number of positives. If you want a different value considered as "positive" use the option `positive(#)`.
 Using `type(cat)` for binary variables presents sumaries for both levels of the variable.
 ***/
 
+/***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
 /***/ post `postname' ("Summaries") ("") ("") ("") 
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)
 /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)
@@ -177,7 +185,7 @@ pt_base_intro `postname', eg_no(`eg_no') cols(4)
 The option `decimal(#)` controls the number of decnimal places. `count_only` suppresses percentages for binary and catagorical variables.
 ***/
 
-
+/***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) decimal(3)
 /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) decimal(0)
 /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) per decimal(2)
@@ -203,10 +211,11 @@ The option `cat_levels()` orders the levels of catagorical variables. If a value
 `cat_tabs` can be used to change the indentation of catacorical value labels
 ***/
 
-
-label define gender 0 "Male" 1 "Female" 2 "Non-binary" , replace
-label values gender gender
-
+/***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
+/***/
+/***/label define gender 0 "Male" 1 "Female" 2 "Non-binary" , replace
+/***/label values gender gender
+/***/
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) 
 /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) 
 /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) 
@@ -230,6 +239,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5)
 `cat_col` puts the value label in their own column rather than as indented entries below the variable name. 
 When used in conjuction with putdocx and merge this can create a nice looking table.
 ***/
+
+/***/ post `postname' ("Variable") ("Cat level") ("Group1") ("Group2") ("Overall")
 
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col
 /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col
@@ -262,6 +273,7 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5)
 `cat_col` puts the value label in their own column rather than as indented entries below the variable name. 
 When used in conjuction with putdocx and merge this can create a nice looking table.
 ***/
+/***/ post `postname' ("Variable") ("") ("Group1") ("Group2") ("Overall")
 
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col
 /***/ pt_base qol qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1)
@@ -289,19 +301,23 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8)
 /***
 #5. Denominators
 The option `n_analysis(_string_)` can be used to include the number of nonmissing observations for each variable. This is used as the denominator when calculating percentages for catagorical or binary variables
-and will be the number of observations included when calculating the mean or median. There are three different ways the 'n_analysis()' option can be specified: 'cols', 'append', or 'brackets'.
+and will be the number of observations included when calculating the mean or median. There are three different ways the `n_analysis()` option can be specified: `cols`, `append`, or `brackets'.
 
 
 ##Denominators in columns
-When `n_analysis'(cols) is specified
-###5.1 `n_analysis(cols)` default
-When the option cols is specified the default is to place columns containing counts of nonmissing observations in each group before the columns containing the summaries. When denominators or missing data summaries are included in the table the options `miss_decimal(#)` and `su_decimal(#)` can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
+###5.1 `n_analysis(cols) su_decimal(#) miss_decimal(#)`
+
+When the option `n_analysis(cols)` is specified the default is to place columns containing counts of nonmissing observations in each group before the columns containing the summaries. 
+When denominators or missing data summaries are included in the table the options 
+`su_decimal(#)` and `miss_decimal(#)` can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
 ***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(cols)  miss_decimal(2) su_decimal(0)
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(cols)  miss_decimal(2) decimal(1)
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(cols) 
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(cols) 
+/***/ post `postname' ("Variable") ("") ("N 1") ("N 2") ("N Overall") ("Summary 1") ("Summary 2") ("Summary Overall")
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(cols)  miss_decimal(2) su_decimal(0)
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(cols)  miss_decimal(2) decimal(1)
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(cols) 
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(cols) 
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -315,14 +331,16 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(7) 
 
 /***
-###5.2 `n_analysis(cols cond) sum_cols_first
+###5.2 `n_analysis(cols cond) sum_cols_first`
 If the option `cond` is added to the `n_analysis()` option then denominaotrs will only be reported for variables with missing data.
 ***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)  gap(1) n_analysis(cols cond) sum_cols_first
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)  gap(1) n_analysis(cols cond) sum_cols_first
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)   gap(1) n_analysis(cols cond)  sum_cols_first
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)  gap(1) n_analysis(cols cond)  sum_cols_first
+/***/ post `postname' ("Variable")  ("Summary 1") ("Summary 2") ("Summary Overall") ("N 1") ("N 2") ("N Overall") 
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)   n_analysis(cols cond) sum_cols_first
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)   n_analysis(cols cond) sum_cols_first
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)    n_analysis(cols cond)  sum_cols_first
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)   n_analysis(cols cond)  sum_cols_first
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -335,16 +353,17 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(8) 
 
 /***
-###5.3 `n_analysis(cols cond %) order(group_over)
+###5.3 `n_analysis(cols cond %) order(group_over)`
 `order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `n_analysis() adds the percent of nonmissing observations. 
 The option `per` is specified as well to include a percentage sign.
 ***/
 
+/***/ post `postname' ("Variable") ("")    ("N 1") ("Summary 1") ("N 2") ("Summary 2") ("N Overall") ("Summary Overall")
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(cols cond %) order(group_over) per 
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(cols  cond %) order(group_over) per 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(cols cond %)  order(group_over)  per 
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(cols cond %)  order(group_over)  per 
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(cols cond %) order(group_over) per 
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(cols  cond %) order(group_over) per 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(cols cond %)  order(group_over)  per 
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(cols cond %)  order(group_over)  per 
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -357,15 +376,17 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(8) 
 
 /***
-###5.4 `n_analysis(cols cond %) order(group_over)
-`order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `n_analysis() adds the percent of nonmissing observations. 
+###5.4 `n_analysis(cols cond %) order(group_over)`
+`order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `n_analysis()` adds the percent of nonmissing observations. 
 The option `per` is specified as well to include a percentage sign.
 ***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(cols  %) order(group_over) sum_cols_first per 
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(cols  %) order(group_over) sum_cols_first per
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(cols  %)  order(group_over) sum_cols_first per
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(cols  %)   order(group_over) sum_cols_first per
+/***/ post `postname' ("Variable") ("")     ("Summary 1") ("N 1")  ("Summary 2") ("N 2") ("Summary Overall") ("N Overall") 
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(cols  %) order(group_over) sum_cols_first per 
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(cols  %) order(group_over) sum_cols_first per
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(cols  %)  order(group_over) sum_cols_first per
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(cols  %)   order(group_over) sum_cols_first per
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -380,19 +401,22 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5)
 
 /***
 ##Denominators as brackets or append
-###5.5 `n_analysis(brackets)`, `n_analysis(brackets cond %)`
+###5.5 `n_analysis(brackets) n_analysis(brackets cond %)`
 `n_analysis(brackets)` adds denominators in square brackets. `n_analysis(brackets)` The second half of the table shows that `n_analysis(brackets)` can also be used with the `cond` and `%` options. 
 ***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(brackets)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(brackets) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(brackets)  
+/***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
+
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(brackets)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(brackets) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(brackets)  
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) n_analysis(brackets)
   
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(brackets cond %)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(brackets cond %) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(brackets cond %)  
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(brackets cond %)  
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(brackets cond %)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(brackets cond %) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(brackets cond %)  
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(brackets cond %)  
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -407,20 +431,21 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(5) 
 
 /***
-###5.6 `n_analysis(append)`, `n_analysis(append cond %)`
+###5.6 `n_analysis(append) n_analysis(append cond %)`
 `n_analysis(append)` adds denominators in square brackets. `n_analysis(append)` The second half of the table shows that `n_analysis(append)` can also be used with the `cond` and `%` options. 
 ***/
 
+/***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(append)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(append) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(append)  
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(append)  
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) n_analysis(append)
   
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) n_analysis(append cond %)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) n_analysis(append cond %) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) n_analysis(append cond %)  
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) n_analysis(append cond %)  
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append cond %)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append cond %) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(append cond %)  
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(append cond %)  
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -444,19 +469,22 @@ pt_base_intro `postname', eg_no(`eg_no') cols(8)
 
 /***
 #6. Missing data
-The option `missing(_string_)` can be used to include the number of missing observations for each variable. There are three different ways the 'missing()' option can be specified: 'cols', 'append', or 'brackets'.
+The option `missing(_string_)` can be used to include the number of missing observations for each variable. There are three different ways the `missing()` option can be specified: `cols`, `append`, or `brackets`.
 
 
 ##Denominators in columns
-When `missing'(cols) is specified
-###6.1 `missing(cols)` default
-When the option cols is specified the default is to place columns containing counts of missing observations in each group before the columns containing the summaries. When denominators or missing data summaries are included in the table the options `miss_decimal(#)` and `su_decimal(#)` can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
-***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(cols)  miss_decimal(2) su_decimal(0)
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(cols)  miss_decimal(2) decimal(1)
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(cols) 
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(cols) 
+###6.1 `missing(cols) miss_decimal(#) su_decimal(#)` 
+When the option cols is specified the default is to place columns containing counts of missing observations in each group before the columns containing the summaries. 
+When denominators or missing data summaries are included in the table the options `miss_decimal(#)` and `su_decimal(#)` 
+can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
+***/
+/***/ post `postname' ("Variable") ("") ("N 1") ("N 2") ("N Overall") ("Summary 1") ("Summary 2") ("Summary Overall")
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols)  miss_decimal(2) su_decimal(0)
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols)  miss_decimal(2) decimal(1)
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(cols) 
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  missing(cols) 
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -470,14 +498,15 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(7) 
 
 /***
-###6.2 `missing(cols cond) sum_cols_first
+###6.2 `missing(cols cond) sum_cols_first`
 If the option `cond` is added to the `missing()` option then missing data  will only be reported for variables with missing data.
 ***/
+/***/ post `postname' ("Variable")  ("Summary 1") ("Summary 2") ("Summary Overall") ("N 1") ("N 2") ("N Overall") 
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)  gap(1) missing(cols cond) sum_cols_first
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)  gap(1) missing(cols cond) sum_cols_first
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)   gap(1) missing(cols cond)  sum_cols_first
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)  gap(1) missing(cols cond)  sum_cols_first
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)   missing(cols cond) sum_cols_first
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)   missing(cols cond) sum_cols_first
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)    missing(cols cond)  sum_cols_first
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)   missing(cols cond)  sum_cols_first
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -490,16 +519,17 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(8) 
 
 /***
-###6.3 `missing(cols cond %) order(group_over)
+###6.3 `missing(cols cond %) order(group_over)`
 `order(group_over)` group columns by the over variable first, placing the summary and missing data columns together. The `%` option wihtin `missing() adds the percent of missing observations. 
 The option `per` is specified as well to include a percentage sign.
 ***/
 
+/***/ post `postname' ("Variable") ("")    ("N 1") ("Summary 1") ("N 2") ("Summary 2") ("N Overall") ("Summary Overall")
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(cols cond %) order(group_over) per 
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(cols  cond %) order(group_over) per 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(cols cond %)  order(group_over)  per 
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(cols cond %)  order(group_over)  per 
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols cond %) order(group_over) per 
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols  cond %) order(group_over) per 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(cols cond %)  order(group_over)  per 
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  missing(cols cond %)  order(group_over)  per 
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -512,15 +542,17 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(8) 
 
 /***
-###6.4 `missing(cols cond %) order(group_over)
+###6.4 `missing(cols cond %) order(group_over)`
 `order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `missing() adds the percent of missing observations. 
 The option `per` is specified as well to include a percentage sign.
 ***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(cols  %) order(group_over) sum_cols_first per 
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(cols  %) order(group_over) sum_cols_first per
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(cols  %)  order(group_over) sum_cols_first per
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(cols  %)   order(group_over) sum_cols_first per
+/***/ post `postname' ("Variable") ("")     ("Summary 1") ("N 1")  ("Summary 2") ("N 2") ("Summary Overall") ("N Overall") 
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols  %) order(group_over) sum_cols_first per 
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols  %) order(group_over) sum_cols_first per
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(cols  %)  order(group_over) sum_cols_first per
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  missing(cols  %)   order(group_over) sum_cols_first per
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -535,19 +567,20 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5)
 
 /***
 ##Missing data as brackets or append
-###6.5 `missing(brackets)`, `missing(brackets cond %)`
+###6.5 `missing(brackets) missing(brackets cond %)`
 `missing(brackets)` adds denominators in square brackets. `missing(brackets)` The second half of the table shows that `missing(brackets)` can also be used with the `cond` and `%` options. 
 ***/
+/***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(brackets)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(brackets) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(brackets)  
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(brackets)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(brackets) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(brackets)  
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) missing(brackets)
   
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(brackets cond %)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(brackets cond %) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(brackets cond %)  
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(brackets cond %)  
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(brackets cond %)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(brackets cond %) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(brackets cond %)  
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  missing(brackets cond %)  
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -562,20 +595,22 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(5) 
 
 /***
-###5.6 `missing(append)`, `missing(append cond %)`
+###6.6 `missing(append) missing(append cond %)`
 `missing(append)` adds denominators in square brackets. `missing(append)` The second half of the table shows that `missing(append)` can also be used with the `cond` and `%` options. 
 ***/
 
+/***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(append)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(append) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(append)  
+
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(append)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(append) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(append)  
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) missing(append)
   
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1) missing(append cond %)  
-/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1) missing(append cond %) 
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap(1) missing(append cond %)  
-/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1) missing(append cond %)  
+/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(append cond %)  
+/***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(append cond %) 
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  missing(append cond %)  
+/***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  missing(append cond %)  
 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
@@ -598,6 +633,7 @@ pt_base_intro `postname', eg_no(`eg_no') cols(3)
 You can append text to the variable label with the `append_label()` option. The variable label can be completely overidden with the `var_lab()` option.  
 ***/
 
+/***/ post `postname' ("Variable")   ("Summary 1")  ("Summary 2") 
 
 /***/ pt_base age , post(`postname') over(treat)  over_grps(1, 0) type(cont)  n_analysis(append) append_label((years))
 /***/ pt_base qol, post(`postname') over(treat)   over_grps(1, 0) type(skew)  n_analysis(append)  append_label((higher scores mean better QoL)) 
@@ -624,7 +660,8 @@ The option `su_label(cols)` can be used to report the summary label in its own c
   
 ***/
 
-
+ /***/ post `postname' ("Variable") ("Summary label")  ("Summary 1")  ("Summary 2") 
+ 
 /***/ pt_base age , post(`postname') over(treat)  over_grps(1, 0) type(cont)  n_analysis(append) su_label(col)
 /***/ pt_base qol, post(`postname') over(treat)   over_grps(1, 0) type(skew)  n_analysis(append)  su_label(col)
 /***/ pt_base  gender  , post(`postname') over(treat)   over_grps(1, 0) type(bin)    n_analysis(append)   su_label(col)
@@ -645,10 +682,12 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(5) 
 
 /***
-###7.3  su_label(cols)` cat_col
+###7.3  su_label(cols) cat_col`
 
   
 ***/
+
+/***/ post `postname' ("Variable") ("Summary label") ("Cat_col") ("Summary 1")  ("Summary 2") 
 
 
 /***/ pt_base age , post(`postname') over(treat)  over_grps(1, 0) type(cont)  n_analysis(append) su_label(col) cat_col
@@ -669,14 +708,15 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(5) 
 
 /***
-###8.1 `comments(add a comment)`, `comment(no_comment)`
-A final column of comments can be included using the `comment()' option. If a comment is included for one row in the table, all rows with no comments must have `comment(no comment)' specified.
+###8.1 `comments(add a comment) comment(no_comment)`
+A final column of comments can be included using the `comment()` option. If a comment is included for one row in the table, all rows with no comments must have `comment(no comment)` specified.
 ***/
+/***/ post `postname' ("Variable")  ("Summary 1")  ("Summary 2") ("Overall") ("Comment") 
 
 
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)  missing(append)  comment(no comment)
 /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)   missing(append)  comment("QoL measured using SF-36 global")
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)   gap(1) missing(append)   comment(no comment)
+/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)    missing(append)   comment(no comment)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0)   missing(append) comment(Ethnicity not collected at all sites)
    
 
@@ -694,10 +734,11 @@ tempname postname
 pt_base_intro `postname', eg_no(`eg_no') cols(5) 
 
 /***
-###9.1 `if` and `in`
+###9.1 `if `in`
 `if` and `in` can be used with pt_base in the usual way for Stata commands.
 ***/
 
+/***/ post `postname' ("Variable")  ("Summary 1") ("")  ("Summary 2") ("Overall")
 
 /***/ pt_base age if ethnicity ==4 , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append)  
 /***/ pt_base qol if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append)  
@@ -713,7 +754,7 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5)
 /***/ pt_base age in 1/100 if ethnicity ==4 , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append) 
 /***/ pt_base qol in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(append) 
 /***/ pt_base  gender in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col  n_analysis(append) 
-/***/ pt_base ethnicity in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(2) n_analysis(append) 
+/***/ pt_base ethnicity in 1/100  if ethnicity ==4, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col  n_analysis(append) 
 
 /**/ pt_base_close `postname', eg_no(`eg_no')	
 *********************************

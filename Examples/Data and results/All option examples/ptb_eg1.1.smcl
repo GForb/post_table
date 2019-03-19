@@ -1,7 +1,15 @@
 {smcl}
 {com}{sf}{ul off}{txt}
 {com}. 
-. /***/ pt_base age gender ethnicity, post(`postname')
+. /***
+> #Section 1
+> ###1.1 Default options
+> This is the table obtained using default settings with no additional options specified.
+> ***/
+. 
+. /***/ post `postname' ("Variable") ("Summary")
+{txt}
+{com}. /***/ pt_base age gender ethnicity, post(`postname')
 
 
 

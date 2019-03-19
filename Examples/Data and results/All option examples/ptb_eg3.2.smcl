@@ -2,20 +2,13 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
-> ###3.1 `type()`
-> When the option `type` is not specified pt_base decides whether to summarise data as catagorical, binary or continuous based on the number of unique observations. 
-> Variables with 10 or more unique values will be treated as continuous, and summarised by mean (sd). Variables with 9 or less unique values will be treated as binary or catagorical.
-> 
-> The defaults can be overidden using the type option. The option `type(skew)` can be used to present continuous data as median (IQR). 
-> For binary variables the default is to consider the value 1 to be positive and to count the number of positives. If you want a different value considered as "positive" use the option `positive(#)`.
-> Using `type(cat)` for binary variables presents sumaries for both levels of the variable.
+> ###3.2 `decimal(#) count_only`
+> The option `decimal(#)` controls the number of decnimal places. `count_only` suppresses percentages for binary and catagorical variables.
 > ***/
 . 
 . /***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
 {txt}
-{com}. /***/ post `postname' ("Summaries") ("") ("") ("") 
-{txt}
-{com}. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)
+{com}. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) decimal(3)
 
 
 
@@ -43,7 +36,7 @@ Group overall
 {hline 13}{c +}{hline 57}
 {space 9}age {c |}{res}      1,000    44.75141    10.09038   18.73607   79.98365
 {txt}
-{com}. /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append)
+{com}. /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) decimal(0)
 
 
 
@@ -83,7 +76,7 @@ Group overall
  {res} 39.80885  50.07267  60.41745
 {txt}{hline 13}{c BT}{hline 30}
 
-{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)
+{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) per decimal(2)
 
 
 
@@ -115,7 +108,7 @@ Group overall
      Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
            {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
-{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) positive(1)
+{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append) count_only 
 
 
 
@@ -147,39 +140,7 @@ Group overall
      Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
            {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
-{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append)
-
-
-
-{res}****** gender ******
-
-               {txt}Group {c |}     N obs. Percent       N missing Percent
-{hline 21}{c +}{hline 43}
-                   1 {c |}{res}      506       100             0         0
-                   {txt}0 {c |}{res}      494       100             0         0
-             {txt}overall {c |}{res}     1000       100             0         0
-{txt}{hline 21}{c BT}{hline 43}
-
-{c TLC}{hline 19}{c TRC}
-{c |} Key{col 21}{c |}
-{c LT}{hline 19}{c RT}
-{c |}{space 5}{it:frequency}{col 21}{c |}
-{c |}{space 1}{it:column percentage}{col 21}{c |}
-{c BLC}{hline 19}{c BRC}
-
-           {c |}         treat
-    Female {c |}         0          1 {c |}     Total
-{hline 11}{c +}{hline 22}{c +}{hline 10}
-      Male {c |}{res}       233        248 {txt}{c |}{res}       481 
-           {txt}{c |}{res}     47.17      49.01 {txt}{c |}{res}     48.10 
-{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
-    Female {c |}{res}       261        258 {txt}{c |}{res}       519 
-           {txt}{c |}{res}     52.83      50.99 {txt}{c |}{res}     51.90 
-{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
-     Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
-           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
-{txt}
-{com}. /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)
+{com}. /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) per 
 
 
 
@@ -220,51 +181,7 @@ White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281
                 Total {c |}{res}       435        454 {txt}{c |}{res}       889 
                       {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
-{com}. /***/ 
-. /***/ post `postname' ("") ("") ("") ("") 
-{txt}
-{com}. /***/ post `postname' ("Missing data") ("") ("") ("") 
-{txt}
-{com}. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(misstable) su_label(append)
-
-
-
-{res}****** age ******
-
-               {txt}Group {c |}     N obs. Percent       N missing Percent
-{hline 21}{c +}{hline 43}
-                   1 {c |}{res}      506       100             0         0
-                   {txt}0 {c |}{res}      494       100             0         0
-             {txt}overall {c |}{res}     1000       100             0         0
-{txt}{hline 21}{c BT}{hline 43}
-
-{com}. /***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(misstable) su_label(append)
-
-
-
-{res}****** qol ******
-
-               {txt}Group {c |}     N obs. Percent       N missing Percent
-{hline 21}{c +}{hline 43}
-                   1 {c |}{res}      461  91.10672            45  8.893281
-                   {txt}0 {c |}{res}      444  89.87854            50  10.12146
-             {txt}overall {c |}{res}      905      90.5            95       9.5
-{txt}{hline 21}{c BT}{hline 43}
-
-{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(misstable)  su_label(append)
-
-
-
-{res}****** gender ******
-
-               {txt}Group {c |}     N obs. Percent       N missing Percent
-{hline 21}{c +}{hline 43}
-                   1 {c |}{res}      506       100             0         0
-                   {txt}0 {c |}{res}      494       100             0         0
-             {txt}overall {c |}{res}     1000       100             0         0
-{txt}{hline 21}{c BT}{hline 43}
-
-{com}. /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(misstable)  su_label(append)
+{com}. /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) count_only 
 
 
 
@@ -277,6 +194,34 @@ White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281
              {txt}overall {c |}{res}      889      88.9           111      11.1
 {txt}{hline 21}{c BT}{hline 43}
 
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+                      {c |}         treat
+            Ethnicity {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Other {c |}{res}        26         19 {txt}{c |}{res}        45 
+                      {txt}{c |}{res}      5.98       4.19 {txt}{c |}{res}      5.06 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Mixed {c |}{res}        70         61 {txt}{c |}{res}       131 
+                      {txt}{c |}{res}     16.09      13.44 {txt}{c |}{res}     14.74 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Asian or Asian Britis {c |}{res}       100        101 {txt}{c |}{res}       201 
+                      {txt}{c |}{res}     22.99      22.25 {txt}{c |}{res}     22.61 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+Black or Black Britis {c |}{res}       103        128 {txt}{c |}{res}       231 
+                      {txt}{c |}{res}     23.68      28.19 {txt}{c |}{res}     25.98 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281 
+                      {txt}{c |}{res}     31.26      31.94 {txt}{c |}{res}     31.61 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}       435        454 {txt}{c |}{res}       889 
+                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
 {com}. 
 . 
 . /**/ pt_base_close `postname', eg_no(`eg_no')   
