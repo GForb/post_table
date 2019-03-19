@@ -3,7 +3,7 @@
 {com}. 
 . /***
 > ###5.3 `n_analysis(cols cond %) order(group_over)`
-> `order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `n_analysis() adds the percent of nonmissing observations. 
+> `order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `n_analysis()` adds the percent of nonmissing observations. 
 > The option `per` is specified as well to include a percentage sign.
 > ***/
 . 

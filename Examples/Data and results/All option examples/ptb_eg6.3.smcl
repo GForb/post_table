@@ -3,7 +3,7 @@
 {com}. 
 . /***
 > ###6.3 `missing(cols cond %) order(group_over)`
-> `order(group_over)` group columns by the over variable first, placing the summary and missing data columns together. The `%` option wihtin `missing() adds the percent of missing observations. 
+> `order(group_over)` group columns by the over variable first, placing the summary and missing data columns together. The `%` option wihtin `missing()` adds the percent of missing observations. 
 > The option `per` is specified as well to include a percentage sign.
 > ***/
 . 
