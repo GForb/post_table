@@ -21,7 +21,7 @@ These are Markdoc syntax which are included to allow the code to be reported in 
 
 
 cd "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
-global test "N:\Automating reporting\Git repository\post_table\Testing\Test data"  // saving test files in directory
+global test "N:\Automating reporting\Git repository\post_table\Testing\pt_base\Test data"  // saving test files in directory
 
 *************Programms to open and close post files***************
 cap prog drop pt_base_intro
