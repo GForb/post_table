@@ -208,8 +208,6 @@ label define gender 0 "Male" 1 "Female" 2 "Non-binary" , replace
 label values gender gender
 
 /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) 
-/***/ pt_base qol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) 
-/***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) 
 /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append)   cat_levels(0 1 2) cat_tabs(0)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_tabs(2)
 
@@ -263,10 +261,8 @@ pt_base_intro `postname', eg_no(`eg_no') cols(5)
 When used in conjuction with putdocx and merge this can create a nice looking table.
 ***/
 
-/***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col
-/***/ pt_base qol qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col gap(1)
+/***/ pt_base age qol , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col gap(1)
 /***/ pt_base  gender smoking alcohol , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append)  cat_col gap_end(1)
-/***/ pt_base  gender  , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat) var_lab(Gender) su_label(append)   cat_col  gap(1)
 /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append)   cat_levels(4 3 2 1 0) cat_col gap(1)
 
 

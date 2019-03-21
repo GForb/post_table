@@ -1,13 +1,13 @@
 {smcl}
 {com}{sf}{ul off}{txt}
 {com}. 
-. /***
+. /***    
 > ###7.3  `su_label(cols) cat_col`
-> 
+> When `su_label(cols)` and `cat_col` are both specified the column containing the catagory names comes after the column with the summary labels.
 >   
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("Summary label") ("Cat_col") ("Summary 1")  ("Summary 2") 
+. /***/ post `postname' ("Variable") ("Summary label") ("Cat_col") ("Summary 1") ("Summary 0")
 {txt}
 {com}. 
 . 
@@ -94,7 +94,7 @@ Group 0
      Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
            {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
-{com}. /***/ pt_base ethnicity, post(`postname') over(treat)    over_grps(1, 0) type(cat) n_analysis(append)  cat_levels(4 3 2 1 0)  gap(2)   su_label(col) cat_col
+{com}. /***/ pt_base ethnicity, post(`postname') over(treat)    over_grps(1, 0) type(cat) n_analysis(append)  cat_levels(4 3 2 1 0)   su_label(col) cat_col
 
 
 

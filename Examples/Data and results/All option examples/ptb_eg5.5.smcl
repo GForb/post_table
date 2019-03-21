@@ -5,9 +5,10 @@
 > ##Denominators as brackets or append
 > ###5.5 `n_analysis(brackets) n_analysis(brackets cond %)`
 > `n_analysis(brackets)` adds denominators in square brackets. `n_analysis(brackets)` The second half of the table shows that `n_analysis(brackets)` can also be used with the `cond` and `%` options. 
+> I'm not sure it makes sense to specify % and brackets but it is possible.
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
+. /***/ post `postname' ("Variable") ("")     ("Summary 1") ("Summary 0") ("Summary Overall") 
 {txt}
 {com}. 
 . 

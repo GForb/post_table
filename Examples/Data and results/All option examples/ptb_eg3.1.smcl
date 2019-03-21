@@ -2,6 +2,7 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
+> #3 Presenting data
 > ###3.1 `type()`
 > When the option `type` is not specified pt_base decides whether to summarise data as catagorical, binary or continuous based on the number of unique observations. 
 > Variables with 10 or more unique values will be treated as continuous, and summarised by mean (sd). Variables with 9 or less unique values will be treated as binary or catagorical.
@@ -9,9 +10,12 @@
 > The defaults can be overidden using the type option. The option `type(skew)` can be used to present continuous data as median (IQR). 
 > For binary variables the default is to consider the value 1 to be positive and to count the number of positives. If you want a different value considered as "positive" use the option `positive(#)`.
 > Using `type(cat)` for binary variables presents sumaries for both levels of the variable.
+> 
+> `type misstable` presents a table summarising missing data.
+> 
 > ***/
 . 
-. /***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
+. /***/ post `postname' ("Variable")  ("Group1") ("Group0") ("Overall")
 {txt}
 {com}. /***/ post `postname' ("Summaries") ("") ("") ("") 
 {txt}
@@ -115,7 +119,7 @@ Group overall
      Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
            {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
-{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) positive(1)
+{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(bin)  su_label(append) positive(0) var_lab(Males)
 
 
 
@@ -225,7 +229,7 @@ White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281
 {txt}
 {com}. /***/ post `postname' ("Missing data") ("") ("") ("") 
 {txt}
-{com}. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(misstable) su_label(append)
+{com}. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(misstable) su_label(append) 
 
 
 
@@ -251,7 +255,7 @@ White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281
              {txt}overall {c |}{res}      905      90.5            95       9.5
 {txt}{hline 21}{c BT}{hline 43}
 
-{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(misstable)  su_label(append)
+{com}. /***/ pt_base  gender , post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(misstable)  su_label(append) 
 
 
 

@@ -2,11 +2,12 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
+> #9 If and In
 > ###9.1 `if in`
 > `if` and `in` can be used with pt_base in the usual way for Stata commands.
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("") ("Summary 1")   ("Summary 2") ("Overall")
+. /***/ post `postname' ("Variable") ("") ("Summary 1") ("Summary 0") ("Overall")
 {txt}
 {com}. 
 . /***/ pt_base age if ethnicity ==4 , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append)  

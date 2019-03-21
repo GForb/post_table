@@ -2,12 +2,11 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
-> ###6.4 `missing(cols cond %) order(group_over)`
-> `order(group_over)` group columns by the over variable first, placing the summary and dednominator columns together. The `%` option wihtin `missing()` adds the percent of missing observations. 
-> The option `per` is specified as well to include a percentage sign.
+> ###6.4 `order(group_over) sum_cols_first`
+> `order(group_over)`  can be combined with `sum_cols_first`.
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("")     ("Summary 1") ("N 1")  ("Summary 2") ("N 2") ("Summary Overall") ("N Overall") 
+. /***/ post `postname' ("Variable") ("")     ("Summary 1") ("Missing 1")  ("Summary 0") ("Missing 0") ("Summary Overall") ("N Overall") 
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols  %) order(group_over) sum_cols_first per 

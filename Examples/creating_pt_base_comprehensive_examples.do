@@ -1,5 +1,7 @@
 cd "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
 
+global logs "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
+
 *looping over examples
 local egs1 1
 local egs2 3
@@ -101,9 +103,6 @@ foreach eg in  $eg_list {
 di "`merge_list'"
 
 putdocx append doc_title.docx `merge_list', saving(pt_base_comprehensive_examples, replace) 
-
-
-
 
 
 

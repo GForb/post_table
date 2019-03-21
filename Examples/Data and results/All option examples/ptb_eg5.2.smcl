@@ -3,10 +3,10 @@
 {com}. 
 . /***
 > ###5.2 `n_analysis(cols cond) sum_cols_first`
-> If the option `cond` is added to the `n_analysis()` option then denominaotrs will only be reported for variables with missing data.
+> If the option `sum_cols_first` is given, columns with summary statistics appear before columns with denominators. If the option `cond` is added to the `n_analysis()` option then denominaotrs will only be reported for variables with missing data.
 > ***/
 . 
-. /***/ post `postname' ("Variable")  ("Summary 1") ("Summary 2") ("Summary Overall") ("N 1") ("N 2") ("N Overall") 
+. /***/ post `postname' ("Variable")  ("Summary 1") ("Summary 0") ("Summary Overall") ("N 1") ("N 0") ("N Overall") 
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)   n_analysis(cols cond) sum_cols_first

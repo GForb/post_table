@@ -63,12 +63,6 @@ if "`comment1'" == "no comment" local comment ("")
 if "`comment1'" != "" & "`comment1'" != "no comment" local comment ("`comment'")
 if "`comment1'" != "" local comment_blank ("")
 
-*Type missing
-if "`type'" == "misstable" {
-	local type  bin
-	local positive .
-	local miss_opt  missing // used to include missing values in summary tables
-}
 
 *Missing
 foreach w in `missing' {
@@ -162,13 +156,16 @@ local type1 = "`type'" // resetting type variable to be that given by command
 
 	*Adding summary labels and measure label
 	if "`type1'" == "cont" local measure1 "mean (sd)"
-	if "`type1'" == "bin" | "`type1'" == "cat" {
+	if "`type1'" == "bin" | "`type1'" == "cat" | "`type1'" == "misstable" {
 		local measure1 "n (%)"
 		if "`count_only'" != "" local measure1 "n"
 	}
 	if "`type1'" == "skew"  local measure1 "median (IQR)"
-	if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
-	if "`n_analysis'" == "brackets" local measure1 "`measure1' [n included in analysis]"
+	if "`cond'" == "" | ("`cond'" !="" & `miss_overall' >0) {
+		if "`miss_per'" != "" | "`n_analysis_per'" != "" local p " (%)"
+		if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
+		if "`n_analysis'" == "brackets" local measure1 "`measure1' [N`p']"
+	}
 	
 	if "`su_label_text'" != "" local measure1 `su_label_text'
 	if "`su_label'" == "append" local measure_append =" - `measure1'"
@@ -263,9 +260,9 @@ local type1 = "`type'" // resetting type variable to be that given by command
 			local brackets_`i'
 			if "`missing'" == "brackets" local brackets_`i' "[`missing_`i'']"
 			if "`n_analysis'" == "brackets" local brackets_`i' "[`inanalysis_`i'']"
+		
+		if "`cond'" == "cond" & `miss_overall' == 0 local brackets_`i'	""
 		}
-		if "`cond'" == "cond" & `miss_overall' == 0 local brackets_`i'	
-	
 		
 	
 	*last line of table
@@ -303,8 +300,8 @@ local type1 = "`type'" // resetting type variable to be that given by command
 		**********************
 		
 		*Calculating counts and percentages for each level of catagorical variable
-		if "`over'" != "" tab `v' `over', col `miss_opt' // displaying output
-		if "`over'" == "" tab `v', `miss_opt'  // displaying output
+		if "`over'" != "" tab `v' `over', col  // displaying output
+		if "`over'" == "" tab `v'  // displaying output
 		local val_label: value label `v' // storing the value label names for catagorical variable in local macro
 
 		local levels "`cat_levels'"
@@ -338,14 +335,27 @@ local type1 = "`type'" // resetting type variable to be that given by command
 	
 		
 		*********Posting***********
-			if "`su_label'" == "col" local measure_post ("")
+			local measure_post2 ""
+			if "`su_label'" == "col" {
+				local measure_post2 ("")
+				local measure_post ""	
+			}
 			local tab "`tab1'"
 			if "`cat_col'" != "" {
 				if `row' == 1 {
 					local ccol `var_label'
-					if "`su_label'" == "col" local measure_post ("`measure1'")
+					if "`su_label'" == "col" {
+						local measure_post ("`measure1'")
+						local measure_post2 ""
+					}
 				}
-				if `row' > 1 local ccol ("")
+				if `row' > 1  {
+					local ccol  ("")
+					if "`su_label'" == "col" {
+						local measure_post ("")
+						local measure_post2 ""
+					}
+				}
 				local tab ""
 			}
 
@@ -361,10 +371,10 @@ local type1 = "`type'" // resetting type variable to be that given by command
 				}
 				
 				if "`sum_cols_first'" == "" {
-					post `postname' `ccol' `measure_post'  ("`tab'`value_name'")  `inan_cols' `miss_cols' `summaries' `comment_blank'
+					post `postname' `ccol' `measure_post'  ("`tab'`value_name'") `measure_post2' `inan_cols' `miss_cols' `summaries' `comment_blank'
 				}
 				else {
-					post `postname' `ccol' `measure_post' ("`tab'`value_name'")   `summaries' `inan_cols' `miss_cols'  `comment_blank'
+					post `postname' `ccol' `measure_post' ("`tab'`value_name'") `measure_post2'   `summaries' `inan_cols' `miss_cols'  `comment_blank'
 				}
 			}
 			if "`order'" == "group_over" {
@@ -382,58 +392,77 @@ local type1 = "`type'" // resetting type variable to be that given by command
 					}
 					local summaries `summaries' `treat_cols`i''
 				}
-				post `postname' `ccol' `measure_post' ("`tab'`value_name'")   `summaries' `comment_blank'
+				post `postname' `ccol' `measure_post' ("`tab'`value_name'") `measure_post2'  `summaries' `comment_blank'
 			}
 		}
 	} 
 	else {
 
 *Other variable types
-	foreach i in `over_grps' {
+		foreach i in `over_grps' {
 			
-		*Continuous variables, mean sd	
-		if "`type1'" == "cont" {
-			di "Group `i'"
-			if "`i'" == "overall" su `v' 
-			if "`i'" != "overall" su `v' if  `over' == `i'
-			local mean = string(r(mean), "%12.`su_decimal'f")
-			local sd = string(r(sd), "%12.`su_decimal'f")
-			local su_`i' ("`mean' (`sd') `brackets_`i''")  
-		}
+			*Continuous variables, mean sd	
+			if "`type1'" == "cont" {
+				di "Group `i'"
+				if "`i'" == "overall" su `v' 
+				if "`i'" != "overall" su `v' if  `over' == `i'
+				local mean = string(r(mean), "%12.`su_decimal'f")
+				local sd = string(r(sd), "%12.`su_decimal'f")
+				local su_`i' ("`mean' (`sd') `brackets_`i''")  
+			}
 	
-		*Binary variables
-		if "`type1'" == "bin" {
-			if "`i'" == "overall" qui count if `v'==`positive'
-			if "`i'" != "overall" qui count if `v'==`positive' & `over' == `i'
-			scalar count_treat_positive_`i' = r(N)
-			local n = count_treat_positive_`i'
-			if "`count_only'" == ""{	
-				local percent = count_treat_positive_`i'/`N_`i''*100  // N_`i' is taken from denominators section
-				local per_str = string(`percent', "%12.`su_decimal'f")
-				local per_str (`per_str'`per')
+			*Binary variables
+			if "`type1'" == "bin" {
+				if "`i'" == "overall" qui count if `v'==`positive'
+				if "`i'" != "overall" qui count if `v'==`positive' & `over' == `i'
+				scalar count_treat_positive_`i' = r(N)
+				local n = count_treat_positive_`i'
+				if "`count_only'" == ""{	
+					local percent = count_treat_positive_`i'/`N_`i''*100  // N_`i' is taken from denominators section
+					local per_str = string(`percent', "%12.`su_decimal'f")
+					local per_str (`per_str'`per')
+				}
+			
+				local su_`i' ("`n' `per_str' `brackets_`i''") 
+			}
+	
+		*Contnuous variables, median IQR
+			if "`type1'" == "skew" {
+				di "Group `i'"
+				if "`i'" == "overall" tabstat `v', stats(q) save
+				if "`i'" != "overall" tabstat `v' if  `over' == `i', stats(q) save
+				mat define A = r(StatTotal) 
+				local median = string(A[2,1], "%12.`su_decimal'f")
+				local q1 = string(A[1,1], "%12.`su_decimal'f")
+				local q3 = string(A[3,1], "%12.`su_decimal'f")
+				local su_`i' ("`median' (`q1'-`q3') `brackets_`i''") 
 			}
 			
-			local su_`i' ("`n' `per_str' `brackets_`i''") 
+			*Misstable
+			if "`type1'" == "misstable" {
+				if "`i'" == "overall" qui count if `v'==.
+				if "`i'" != "overall" qui count if `v'==. & `over' == `i'
+				scalar count_treat_positive_`i' = r(N)
+				local n = count_treat_positive_`i'
+				if "`count_only'" == ""{
+					if "`i'" == "overall" qui count
+					if "`i'" != "overall" qui count if `over' == `i'
+					local N_`i'_all = r(N)
+					local percent = count_treat_positive_`i'/`N_`i'_all'*100 
+					local per_str = string(`percent', "%12.`su_decimal'f")
+					local per_str (`per_str'`per')
+				}
+				local su_`i' ("`n' `per_str' `brackets_`i''") 
+			}	
+		
+		}
+		
+		if "`type1'" == "bin" {
+			if "`over'" != "" tab `v' `over', col // displaying output
+			if "`over'" == "" tab `v'  
 		}
 	
-	*Contnuous variables, median IQR
-		if "`type1'" == "skew" {
-			di "Group `i'"
-			if "`i'" == "overall" tabstat `v', stats(q) save
-			if "`i'" != "overall" tabstat `v' if  `over' == `i', stats(q) save
-			mat define A = r(StatTotal) 
-			local median = string(A[2,1], "%12.`su_decimal'f")
-			local q1 = string(A[1,1], "%12.`su_decimal'f")
-			local q3 = string(A[3,1], "%12.`su_decimal'f")
-			local su_`i' ("`median' (`q1'-`q3') `brackets_`i''") 
-		}
-	}
-	if "`type1'" == "bin" {
-		if "`miss_opt'" == "" {
-				if "`over'" != "" tab `v' `over', col // displaying output
-				if "`over'" == "" tab `v'  
-		}
-	}
+
 	
 	*********Posting***********
 			if "`order'" == "group_sum" {

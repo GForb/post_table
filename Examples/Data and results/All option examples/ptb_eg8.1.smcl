@@ -2,10 +2,11 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
+> #8 Comments
 > ###8.1 `comments(add a comment) comment(no_comment)`
 > A final column of comments can be included using the `comment()` option. If a comment is included for one row in the table, all rows with no comments must have `comment(no comment)` specified.
 > ***/
-. /***/ post `postname' ("Variable")  ("Summary 1")  ("Summary 2") ("Overall") ("Comment") 
+. /***/ post `postname' ("Variable")  ("Summary 1") ("Summary 0") ("Overall") ("Comment") 
 {txt}
 {com}. 
 . 

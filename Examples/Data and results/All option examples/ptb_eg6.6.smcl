@@ -6,7 +6,7 @@
 > `missing(append)` adds denominators in square brackets. `missing(append)` The second half of the table shows that `missing(append)` can also be used with the `cond` and `%` options. 
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
+. /***/ post `postname' ("Variable") ("")     ("Summary 1") ("Summary 0") ("Summary Overall") 
 {txt}
 {com}. 
 . 

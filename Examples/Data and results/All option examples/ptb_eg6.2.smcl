@@ -5,7 +5,7 @@
 > ###6.2 `missing(cols cond) sum_cols_first`
 > If the option `cond` is added to the `missing()` option then missing data  will only be reported for variables with missing data.
 > ***/
-. /***/ post `postname' ("Variable")  ("Summary 1") ("Summary 2") ("Summary Overall") ("N 1") ("N 2") ("N Overall") 
+. /***/ post `postname' ("Variable")  ("Summary 1") ("Summary 0") ("Summary Overall") ("Missing 1") ("Missing 0") ("N Overall") 
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append)   missing(cols cond) sum_cols_first

@@ -6,7 +6,7 @@
 > `n_analysis(append)` adds denominators in square brackets. `n_analysis(append)` The second half of the table shows that `n_analysis(append)` can also be used with the `cond` and `%` options. 
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("")     ("Summary 1")  ("Summary 2")  ("Summary Overall") 
+. /***/ post `postname' ("Variable") ("")     ("Summary 1") ("Summary 0") ("Summary Overall") 
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(append)  

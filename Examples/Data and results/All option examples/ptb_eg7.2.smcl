@@ -7,7 +7,7 @@
 >   
 > ***/
 . 
-.  /***/ post `postname' ("Variable") ("Summary label")  ("Summary 1")  ("Summary 2") 
+.  /***/ post `postname' ("Variable") ("Summary label")  ("Summary 1") ("Summary 0")
 {txt}
 {com}.  
 . /***/ pt_base age , post(`postname') over(treat)  over_grps(1, 0) type(cont)  n_analysis(append) su_label(col)

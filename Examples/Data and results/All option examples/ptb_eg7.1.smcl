@@ -3,13 +3,13 @@
 {com}. 
 . /***
 > #7 Labelling rows
-> ###7.1 `var_label() append_label(string) su_label(append) su_label_text`
->  If the option `su_label()` is not specified no summary label is given with the variable label. `su_label_text()` adds a custom summary label.
+> ###7.1 `var_lab() append_label(string) su_label(append) su_label_text`
+>  If the option `su_label()` is not specified no summary label is given with the variable label (if the option `su_label(append)` is given the default label is added). `su_label_text()` adds a custom summary label.
 >  
 > You can append text to the variable label with the `append_label()` option. The variable label can be completely overidden with the `var_lab()` option.  
 > ***/
 . 
-. /***/ post `postname' ("Variable")   ("Summary 1")  ("Summary 2") 
+. /***/ post `postname' ("Variable")   ("Summary 1")  ("Summary 0")
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  over_grps(1, 0) type(cont)  n_analysis(append) append_label((years))

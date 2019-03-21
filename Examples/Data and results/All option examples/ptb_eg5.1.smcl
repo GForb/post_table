@@ -3,22 +3,21 @@
 {com}. 
 . /***
 > #5. Denominators
-> The option `n_analysis(_string_)` can be used to include the number of nonmissing observations for each variable. This is used as the denominator when calculating percentages for catagorical or binary variables
-> and will be the number of observations included when calculating the mean or median. There are three different ways the `n_analysis()` option can be specified: `cols`, `append`, or `brackets'.
+> The option `n_analysis(string)` can be used to include the number of nonmissing observations for each variable. This is used as the denominator when calculating percentages for catagorical or binary variables
+> and will be the number of observations included when calculating the mean or median. There are three different ways the `n_analysis()` option can be specified: `cols`, `append`, or `brackets`.
 > 
 > 
 > ##Denominators in columns
 > ###5.1 `n_analysis(cols) su_decimal(#) miss_decimal(#)`
 > 
 > When the option `n_analysis(cols)` is specified the default is to place columns containing counts of nonmissing observations in each group before the columns containing the summaries. 
-> When denominators or missing data summaries are included in the table the options 
-> `su_decimal(#)` and `miss_decimal(#)` can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
+> 
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("") ("N 1") ("N 2") ("N Overall") ("Summary 1") ("Summary 2") ("Summary Overall")
+. /***/ post `postname' ("Variable") ("") ("N 1") ("N 0") ("N Overall") ("Summary 1") ("Summary 0") ("Summary Overall")
 {txt}
 {com}. 
-. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(cols)  miss_decimal(2) su_decimal(0)
+. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  n_analysis(cols)  
 
 
 
@@ -46,7 +45,7 @@ Group overall
 {hline 13}{c +}{hline 57}
 {space 9}age {c |}{res}      1,000    44.75141    10.09038   18.73607   79.98365
 {txt}
-{com}. /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(cols)  miss_decimal(2) decimal(1)
+{com}. /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  n_analysis(cols)
 
 
 

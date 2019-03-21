@@ -4,13 +4,14 @@
 . /***
 > ###6.3 `missing(cols cond %) order(group_over)`
 > `order(group_over)` group columns by the over variable first, placing the summary and missing data columns together. The `%` option wihtin `missing()` adds the percent of missing observations. 
-> The option `per` is specified as well to include a percentage sign.
+> The option `per` is specified as well to include a percentage sign. When denominators or missing data summaries are included in the table the options `miss_decimal(#)` and `su_decimal(#)` 
+> can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("")    ("N 1") ("Summary 1") ("N 2") ("Summary 2") ("N Overall") ("Summary Overall")
+. /***/ post `postname' ("Variable") ("")    ("Missing 1") ("Summary 1") ("Missing 0") ("Summary 0") ("N Overall") ("Summary Overall")
 {txt}
 {com}. 
-. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols cond %) order(group_over) per 
+. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols cond %) order(group_over) per  miss_decimal(2) su_decimal(0)
 
 
 
@@ -38,7 +39,7 @@ Group overall
 {hline 13}{c +}{hline 57}
 {space 9}age {c |}{res}      1,000    44.75141    10.09038   18.73607   79.98365
 {txt}
-{com}. /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols  cond %) order(group_over) per 
+{com}. /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols  cond %) order(group_over) per  miss_decimal(2) decimal(1)
 
 
 

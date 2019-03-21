@@ -2,12 +2,11 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
-> #Gaps
+> #4. Gaps
 > ###4.1 `gap(#) gap_end(#)`
-> `cat_col` puts the value label in their own column rather than as indented entries below the variable name. 
-> When used in conjuction with putdocx and merge this can create a nice looking table.
+> `gap(#)` adds # blank lines after each variable. `gap_end(#)` adds # lines at the end of all variables given for the `pt_base` command.
 > ***/
-. /***/ post `postname' ("Variable") ("") ("Group1") ("Group2") ("Overall")
+. /***/ post `postname' ("Variable") ("") ("Group1") ("Group0") ("Overall")
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col

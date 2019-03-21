@@ -6,7 +6,7 @@
 > The option `over_grps()` can be used to change the order of treatment groups.
 > ***/
 . 
-. /***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
+. /***/ post `postname' ("Variable")  ("Group1") ("Group0") ("Overall")
 {txt}
 {com}. 
 . /***/ pt_base age gender ethnicity, post(`postname') over(treat) over_grps(1 0) overall(last)

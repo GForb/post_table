@@ -5,10 +5,11 @@
 > ##Catagorical variables
 > ###3.4 `cat_col`
 > `cat_col` puts the value label in their own column rather than as indented entries below the variable name. 
+> When using the `cat_col` option, it must be specified for all lines of the table, not just those lines that contain catagorical variables. This is to ensure the correct number of columns is produced.
 > When used in conjuction with putdocx and merge this can create a nice looking table.
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("Cat level") ("Group1") ("Group2") ("Overall")
+. /***/ post `postname' ("Variable") ("Cat level") ("Group1") ("Group0") ("Overall")
 {txt}
 {com}. 
 . /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col
@@ -185,10 +186,6 @@ White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281
                       {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
 {com}. 
-. /***
-> Note: When using the `cat_col` option, it must be specified for all lines of the table, not just those lines that contain catagorical variables. This is to ensure the correct number of columns is produced.
-> ***/
-. 
 . 
 . /**/ pt_base_close `postname', eg_no(`eg_no')   
 {smcl}

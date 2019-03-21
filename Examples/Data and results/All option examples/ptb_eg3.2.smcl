@@ -2,11 +2,11 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
-> ###3.2 `decimal(#) count_only`
-> The option `decimal(#)` controls the number of decnimal places. `count_only` suppresses percentages for binary and catagorical variables.
+> ###3.2 `decimal(#) count_only` `per`
+> The option `decimal(#)` controls the number of decnimal places. `count_only` suppresses percentages for binary and catagorical variables. The option `per` adds a % sign after percents reported in the table.
 > ***/
 . 
-. /***/ post `postname' ("Variable")  ("Group1") ("Group2") ("Overall")
+. /***/ post `postname' ("Variable")  ("Group1") ("Group0") ("Overall")
 {txt}
 {com}. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) decimal(3)
 
@@ -139,47 +139,6 @@ Group overall
 {txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
      Total {c |}{res}       494        506 {txt}{c |}{res}     1,000 
            {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
-{txt}
-{com}. /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) per 
-
-
-
-{res}****** ethnicity ******
-
-               {txt}Group {c |}     N obs. Percent       N missing Percent
-{hline 21}{c +}{hline 43}
-                   1 {c |}{res}      454  89.72332            52  10.27668
-                   {txt}0 {c |}{res}      435  88.05668            59  11.94332
-             {txt}overall {c |}{res}      889      88.9           111      11.1
-{txt}{hline 21}{c BT}{hline 43}
-
-{c TLC}{hline 19}{c TRC}
-{c |} Key{col 21}{c |}
-{c LT}{hline 19}{c RT}
-{c |}{space 5}{it:frequency}{col 21}{c |}
-{c |}{space 1}{it:column percentage}{col 21}{c |}
-{c BLC}{hline 19}{c BRC}
-
-                      {c |}         treat
-            Ethnicity {c |}         0          1 {c |}     Total
-{hline 22}{c +}{hline 22}{c +}{hline 10}
-                Other {c |}{res}        26         19 {txt}{c |}{res}        45 
-                      {txt}{c |}{res}      5.98       4.19 {txt}{c |}{res}      5.06 
-{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
-                Mixed {c |}{res}        70         61 {txt}{c |}{res}       131 
-                      {txt}{c |}{res}     16.09      13.44 {txt}{c |}{res}     14.74 
-{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
-Asian or Asian Britis {c |}{res}       100        101 {txt}{c |}{res}       201 
-                      {txt}{c |}{res}     22.99      22.25 {txt}{c |}{res}     22.61 
-{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
-Black or Black Britis {c |}{res}       103        128 {txt}{c |}{res}       231 
-                      {txt}{c |}{res}     23.68      28.19 {txt}{c |}{res}     25.98 
-{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
-White or White Britis {c |}{res}       136        145 {txt}{c |}{res}       281 
-                      {txt}{c |}{res}     31.26      31.94 {txt}{c |}{res}     31.61 
-{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
-                Total {c |}{res}       435        454 {txt}{c |}{res}       889 
-                      {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
 {txt}
 {com}. /***/ pt_base ethnicity, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(cat)  su_label(append) count_only 
 

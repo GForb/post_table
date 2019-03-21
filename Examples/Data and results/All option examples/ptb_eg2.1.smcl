@@ -2,12 +2,12 @@
 {com}{sf}{ul off}{txt}
 {com}. 
 . /***
-> #Section 2
+> #2. Presenting summaries over another variable
 > ###2.1 `over`
-> To present data over a variable, for example treatment group, use the option 'over'
+> To present data over a variable, for example treatment group, use the option `over`
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("Group1") ("Group2")
+. /***/ post `postname' ("Variable") ("Group0") ("Group1")
 {txt}
 {com}. /***/ pt_base age gender ethnicity, post(`postname') over(treat) 
 {res}{txt}0 1

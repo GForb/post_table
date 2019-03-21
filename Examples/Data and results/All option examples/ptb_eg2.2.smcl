@@ -3,11 +3,11 @@
 {com}. 
 . /***
 > ###2.2 `overall()`
-> 'overall()' can be given with _first_ or _last_. When `over` is specified `overall` summarises the whole dataset, with the position of the overall 
+> `overall()` can be given with _first_ or _last_. When `over` is specified `overall` summarises the whole dataset, with the position of the overall 
 > column in the table either first or last.
 > ***/
 . 
-. /***/ post `postname' ("Variable") ("Overall") ("Group1") ("Group2")
+. /***/ post `postname' ("Variable") ("Overall") ("Group0") ("Group1")
 {txt}
 {com}. /***/ pt_base age gender ethnicity, post(`postname') over(treat) overall(first)  
 {res}{txt}0 1

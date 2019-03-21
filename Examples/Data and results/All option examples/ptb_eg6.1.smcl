@@ -3,20 +3,19 @@
 {com}. 
 . /***
 > #6. Missing data
-> The option `missing(_string_)` can be used to include the number of missing observations for each variable. There are three different ways the `missing()` option can be specified: `cols`, `append`, or `brackets`.
+> The option `missing(string)` can be used to include the number of missing observations for each variable. There are three different ways the `missing()` option can be specified: `cols`, `append`, or `brackets`.
 > 
 > 
-> ##Denominators in columns
+> ##Missing data in columns
 > 
 > ###6.1 `missing(cols) miss_decimal(#) su_decimal(#)` 
 > When the option cols is specified the default is to place columns containing counts of missing observations in each group before the columns containing the summaries. 
-> When denominators or missing data summaries are included in the table the options `miss_decimal(#)` and `su_decimal(#)` 
-> can be used to independently control the number of decimal places reported for summary statistics and the percent of missing/nonmissing observations.
+> 
 > ***/
-. /***/ post `postname' ("Variable") ("") ("N 1") ("N 2") ("N Overall") ("Summary 1") ("Summary 2") ("Summary Overall")
+. /***/ post `postname' ("Variable") ("") ("Missing 1") ("Missing 0") ("N Overall") ("Summary 1") ("Summary 0") ("Summary Overall")
 {txt}
 {com}. 
-. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols)  miss_decimal(2) su_decimal(0)
+. /***/ pt_base age , post(`postname') over(treat)  overall(last) over_grps(1, 0) type(cont) su_label(append) cat_col  missing(cols)  
 
 
 
@@ -44,7 +43,7 @@ Group overall
 {hline 13}{c +}{hline 57}
 {space 9}age {c |}{res}      1,000    44.75141    10.09038   18.73607   79.98365
 {txt}
-{com}. /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols)  miss_decimal(2) decimal(1)
+{com}. /***/ pt_base qol, post(`postname') over(treat)  overall(last)  over_grps(1, 0) type(skew) su_label(append) cat_col  missing(cols)  
 
 
 
