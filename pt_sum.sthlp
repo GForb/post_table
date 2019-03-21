@@ -68,7 +68,7 @@
 {title:Description}
 
 {pstd}
-{cmd:pt_base} is part of the {cmd:post_table} package. The command can be used to build a baseline table, or other table of summary statistics. 
+{cmd:pt_sum} is part of the {cmd:post_table} package. The command can be used to build a baseline table, or other table of summary statistics. 
 The command requires a post file to have been opened with the required number of columns and the data type for each column as string. You must pass the name of the postfile to the command with postname(). 
 The command then posts lines to the post file with summary statistics for the variables in varlist. 
 All variables must be numeric; binary or categorical variable must have their values encoded as numbers. If variables and values are labeled the command used labels to name rows in the table by default.
@@ -80,7 +80,7 @@ All variables must be numeric; binary or categorical variable must have their va
 
 {pstd}
 Examples can be found on the {browse "https://github.com/GForb/post_table/tree/master/Examples":github page} for the package. 
-The document {browse "https://github.com/GForb/post_table/tree/master/Examples/all_option_examples.do":pt_base_comprehensive_examples.pdf} includes code and the corresponding output for all options and is intended as a comprehensive guide.
+The document {browse "https://github.com/GForb/post_table/tree/master/Examples/all_option_examples.do":pt_sum_example	.pdf} includes code and the corresponding output for all options and is intended as a comprehensive guide.
 
 
 
