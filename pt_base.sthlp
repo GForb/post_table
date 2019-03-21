@@ -29,6 +29,9 @@
 {synopthdr}
 {synoptline}
 
+{syntab:Main}
+{synopt:{opt postfile(postname)}} Provide name of an open postfile.{p_end}
+
 {syntab:Over levels of a variable}
 {synopt:{opt over(varname)}}Summarise variables over {it:varname}{p_end}
 {synopt:{opt over_grps(numlist)}}Specify the order levels of the {cmd:over }variable are to be reported. Default is ascending{p_end}
@@ -75,7 +78,7 @@
 {synopt:{opt append_label(string)}}Append text to variable label{p_end}
 
 {syntab:Setting decimal places}
-{synopt:{opt decimal(#)}}Decimal places for any decimals presented. {cmd:su_decimal} or {cmd:miss_decimal} take precidence over {cmd:decimal}.{p_end}
+{synopt:{opt decimal(#)}}Decimal places for any decimals presented. {cmd:su_decimal} or {cmd:miss_decimal} take precedence over {cmd:decimal}.{p_end}
 {synopt:{opt su_decimal(#)}}Decimal places used when presenting summary statistics.{p_end}
 {synopt:{opt miss_decimal(#)}}Decimal places used when presenting percent missing or percent with non missing observations.{p_end}
 

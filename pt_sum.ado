@@ -1,7 +1,7 @@
 capture program drop pt_sum
 
 prog define pt_sum
-syntax varlist(numeric) [if], postname(string) stats(namelist) ///
+syntax varlist(numeric) [if] [in] , POSTname(string) stats(namelist) ///
 	[ ///
 	over(varname) ///
 	over_grps(numlist) ///
@@ -18,7 +18,7 @@ syntax varlist(numeric) [if], postname(string) stats(namelist) ///
 	]
 
 *************IF****************
-if "`if'" != "" {
+if "`if'" != "" | "`in'" != "" {
 	preserve
 	keep `if'
 }
@@ -35,7 +35,7 @@ if "`over'" != "" {
 if "`over'" == "" local over_grps overall
  
 *setting default for order
-if "`order'" == "" local order group_treat
+if "`order'" == "" local order group_over
 
 *Checking valid stats specified
 local stats_list "N", "missing", "mean_sd", "median_iqr", "range" // list of permited stats
@@ -96,7 +96,7 @@ foreach v in `varlist' {
 			}
 		}
 	}
-	if "`order'" == "group_treat" {
+	if "`order'" == "group_over" {
 		local summaries ""
 		foreach i in `over_grps' {
 			foreach s in `stats' {
@@ -106,10 +106,10 @@ foreach v in `varlist' {
 	}
 	
 	*Comments
-	if "`comment'" != "" & "`comment'" != "no comment" local comment ("`comment'")
-	if "`comment'" == "no comment" local comment ("")
+	if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+	if "`comment'" == "no comment" local comment1 ("")
 	
-	post `postname' `var_label' `summaries' `comment'
+	post `postname' `var_label' `summaries' `comment1'
 
 		
 
@@ -119,23 +119,25 @@ foreach v in `varlist' {
 *Gaps
 	local summaries ""
 	foreach i in `over_grps' {
-		local summaries `summaries' ("")	
-		if "`comment'" != "" local comment ("")
-	}
-	if `gap' > 0 {
-		forvalues i = 1 (1) `gap' {
-			post `postname' ("")  `summaries' `comment'
+		foreach s in `stats' {
+			local summaries `summaries' ("")	
+			if "`comment'" != "" local comment1 ("")
+		}
+		if `gap' > 0 {
+			forvalues i = 1 (1) `gap' {
+				post `postname' ("")  `summaries' `comment1'
+			}
 		}
 	}
 }
 	
 if `gap_end' > 0 {
 	forvalues i = 1 (1) `gap_end' {
-			post `postname' ("")  `summaries' `comment'
+			post `postname' ("")  `summaries' `comment1'
 		}
 	}
 
 *************IF****************
-if "`if'" != "" restore
+if "`if'" != "" | "`in'" != ""  restore
 
 end
