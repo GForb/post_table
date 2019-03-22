@@ -1,5 +1,5 @@
-global ref_data "N:\Automating reporting\Git repository\post_table\Testing\Reference data"
-global test_data "N:\Automating reporting\Git repository\post_table\Testing\Test data"
+global ref_data "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Reference data"
+global test_data "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Test data"
 
 cd "$ref_data"
 local files: dir . files "*dta"

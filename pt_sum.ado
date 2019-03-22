@@ -20,7 +20,7 @@ syntax varlist(numeric) [if] [in] , POSTname(string) stats(namelist) ///
 *************IF****************
 if "`if'" != "" | "`in'" != "" {
 	preserve
-	keep `if'
+	keep `if' `in'	
 }
 
 ***************************Processing options***********************************

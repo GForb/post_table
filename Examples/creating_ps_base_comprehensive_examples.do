@@ -38,7 +38,7 @@ end
 local start 0
 local end 10
 *Creating tables
-forvalues eg = 1 (1) 5 {
+foreach eg in 1 (1) 5 {
 	di "`eg'"
 	if `eg' >= `start' & `eg' <=`end' {
 		putdocx clear
@@ -46,27 +46,27 @@ forvalues eg = 1 (1) 5 {
 		putdocx paragraph, spacing(before, 20pt)
 		putx_tab, filename("pts_eg`eg'.dta") table_no(1)
 		putdocx pagebreak
-		putdocx save "pts_doc_`eg'.docx" , replace
+		putdocx save "doc_`eg'.docx" , replace
 	}
 }
 
 local start 0
 local end 10
 *Creating markdown
-forvalues eg = 1 (1) 5 {
+foreach eg in 1 (1) 5 {
 	di "`eg'"
 	if `eg' >= `start' & `eg' <`end' {
 		qui markdoc "$logs\pts_eg`eg'.smcl", export(docx) replace // creating word doc of text
 	}
 }
 
-local refresh_title 1
+local refresh_title 0
 if `refresh_title' ==1 {
 	*Title page
 	putdocx clear
 	putdocx begin, font(calibri, 12)
 	putdocx paragraph, halign(center)  style(Title)  spacing(before, 60pt)
-	putdocx text ("Comprehensive examples for the use of pt_sum")	
+	putdocx text ("Comprehensive examples for the use of pt_base ")	
 
 	putdocx paragraph, halign(center) spacing(before, 20pt) spacing(after, 1.0)
 	putdocx text ("Version 1.1.0"),  linebreak
@@ -75,16 +75,16 @@ if `refresh_title' ==1 {
 	putdocx pagebreak
 	putdocx pagebreak
 
-	putdocx save "pts_doc_title.docx" , replace
+	putdocx save "doc_title.docx" , replace
 }
 *Merging documents
-forvalues eg =  1 (1) 5 {
-	local merge_list `merge_list' pts_eg`eg'.docx pts_doc_`eg'.docx
+foreach eg in  $eg_list {
+	local merge_list `merge_list' ptb_eg`eg'.docx doc_`eg'.docx
 }
 
 di "`merge_list'"
 
-putdocx append pts_doc_title.docx `merge_list', saving(pt_sum_comprehensive_examples, replace) 
+putdocx append doc_title.docx `merge_list', saving(pt_sum_comprehensive_examples, replace) 
 
 
 

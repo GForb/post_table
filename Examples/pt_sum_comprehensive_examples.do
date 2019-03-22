@@ -26,9 +26,10 @@ end
 
 cap prog drop  pt_sum_close
 prog define  pt_sum_close 
+local dir "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
 	syntax namelist, eg_no(numlist max=1)
 	postclose `namelist'	
-	use "pts_eg`eg_no'.dta", clear
+	use "`dir'\\pts_eg`eg_no'.dta", clear
 	format _all %-100s
 	qui compress _all
 	qui save "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Test data\pts_eg`eg_no'.dta", replace
@@ -48,22 +49,18 @@ end
 
 
 *********************************
-local eg_no 1.1
+local eg_no 1
 tempname postname
 pt_sum_intro `postname', eg_no(`eg_no') cols(5) 
 
 /***
-#1. Default
-###1.1 Default options
-This is the table obtained using default settings with no additional options specified.
+
+###1 Default options
+Ther are four statistics available with pts_sum. Statistics can be arranged in any order. Options `gap()` and `gap_end()` can be used to add gaps between rows.
 ***/
 
 /***/ post `postname' ("") ("N") ("Mean (sd)") ("Median (IQR)") ("Range")
 /***/ pt_sum age qol bmi  , postname(`postname') stats(N mean_sd median_iqr range) gap_end(1)
-
-/***
-Statistics can be arranged in any order
-***/
 
 /***/ post `postname' ("") ("N")   ("Range") ("Median (IQR)") ("Mean (sd)")
 /***/ pt_sum age qol bmi  , postname(`postname') stats(N range  median_iqr mean_sd)
@@ -73,14 +70,15 @@ Statistics can be arranged in any order
 *********************************
 
 
-local eg_no 1.2
+local eg_no 2
 tempname postname
 pt_sum_intro `postname', eg_no(`eg_no') cols(5) 
 
 
 /***
-###1.2 Default options
-This is the table obtained using default settings with no additional options specified.
+###2 `over()`
+The option `over()` can be used to present statsitics over another variable, for example treatment group. `over_grps` can be used to set the order in which the groups appear in.
+ `order(group_sum)` groups the columns by treatment group then by summary statistic.
 ***/
 
 /***/ post `postname' ("") ("Group 0") ("") ("Group 1") ("") 
@@ -97,7 +95,7 @@ Statistics can be arranged in any order
 
 
 /***
-Summaries can be grouped by `over` group or by `statistic type.
+Summaries can be grouped by `over` group or by statistic type.
 ***/
 
 /***/ post `postname' ("") ("Mean (sd)") ("") ("Median (IQR)") ("")   
@@ -112,14 +110,14 @@ Summaries can be grouped by `over` group or by `statistic type.
 
 
 
-local eg_no 1.3
+local eg_no 3
 tempname postname
 pt_sum_intro `postname', eg_no(`eg_no') cols(7) 
 
 
 /***
-###1.3 Default options
-This is the table obtained using default settings with no additional options specified.
+###3 `overall()`
+When `over()` is specified, `overall()` can be used to a column summarising the wholde dataset. `overall(first)` positions the overall column first, `overall(last)` positions the column last.
 ***/
 
 /***/ post `postname' ("") ("Group 0") ("") ("Group 1") ("")  ("Overall") ("") 
@@ -140,14 +138,15 @@ Summaries can be grouped by `over` group or by `statistic type.
 *********************************
 
 
-local eg_no 1.4
+local eg_no 4
 tempname postname
 pt_sum_intro `postname', eg_no(`eg_no') cols(6) 
 
 
 /***
-###1.4 Decimals, variable names and comments.
-This is the table obtained using default settings with no additional options specified.
+###4 Decimals, variable names and comments.
+`decimal(#)`, `range_decimal(#)` and `med_iqr_decimal(#)` set the number of decimal places to be used (default is 1). `comment()` can be used to add a comment. 
+`var_lab` and `append_label` can be used to append text to variable labels.
 ***/
 
 
@@ -155,6 +154,28 @@ This is the table obtained using default settings with no additional options spe
 /***/ pt_sum age  , postname(`postname') stats(N mean_sd median_iqr range)  var_lab("Custom variable name") comment("The decimal option sets the decimal places") decimal(0) 
 /***/ pt_sum  bmi  , postname(`postname') stats(N mean_sd median_iqr range) append_label("- you can add extra text") comment("no comment") 
 /***/ pt_sum  qol , postname(`postname') stats(N mean_sd median_iqr range)  comment("You can have different numbers of d.p. for different summaries") decimal(2) range_decimal(0) med_iqr_decimal(1)
+
+
+
+/**/ pt_sum_close `postname', eg_no(`eg_no')
+*********************************
+
+
+local eg_no 5
+tempname postname
+pt_sum_intro `postname', eg_no(`eg_no') cols(5) 
+
+
+/***
+###5 `if` and `in`
+`if` and `in` can be used in the normal way
+***/
+
+
+/***/ post `postname' ("") ("N") ("Mean (sd)") ("Median (IQR)") ("Range")
+/***/ pt_sum age if age > 40 , postname(`postname') stats(N mean_sd median_iqr range)
+/***/ pt_sum  bmi if bmi in 1/10  , postname(`postname') stats(N mean_sd median_iqr range)
+/***/ pt_sum  qol in 1/10 if qol > 50 , postname(`postname') stats(N mean_sd median_iqr range)  
 
 
 

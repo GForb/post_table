@@ -1,0 +1,2076 @@
+{smcl}
+{txt}{sf}{ul off}  - use "`dir'\eg_data2", clear
+  = use "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples\eg_data2", clear
+  - local results pts_eg`eg_no'
+  = local results pts_eg1.3
+  - tempname postname
+  - forvalues i = 1 (1) `cols' {c -(}
+  = forvalues i = 1 (1) 7 {c -(}
+  - local post_cols `post_cols' col`i'
+  = local post_cols  col1
+  - {c )-}
+  - local post_cols `post_cols' col`i'
+  = local post_cols col1 col2
+  - {c )-}
+  - local post_cols `post_cols' col`i'
+  = local post_cols col1 col2 col3
+  - {c )-}
+  - local post_cols `post_cols' col`i'
+  = local post_cols col1 col2 col3 col4
+  - {c )-}
+  - local post_cols `post_cols' col`i'
+  = local post_cols col1 col2 col3 col4 col5
+  - {c )-}
+  - local post_cols `post_cols' col`i'
+  = local post_cols col1 col2 col3 col4 col5 col6
+  - {c )-}
+  - local post_cols `post_cols' col`i'
+  = local post_cols col1 col2 col3 col4 col5 col6 col7
+  - {c )-}
+  - qui postfile `namelist' str100(`post_cols') using "`dir'\\`results'.dta", replace
+  = qui postfile __000002 str100(col1 col2 col3 col4 col5 col6 col7) using "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples\pts_eg1.3.dta", replace
+  {hline 55} end pt_sum_intro {hline}
+
+{com}. 
+. 
+. /***
+> ###1.3 Default options
+> This is the table obtained using default settings with no additional options specified.
+> ***/
+. 
+. /***/ post `postname' ("") ("Group 0") ("") ("Group 1") ("")  ("Overall") ("") 
+{txt}
+{com}. /***/ post `postname' ("")  ("Mean (sd)")  ("Median (IQR)")  ("Mean (sd)")  ("Median (IQR)") ("Mean (sd)")  ("Median (IQR)")
+{txt}
+{com}. /***/ pt_sum age qol bmi  , postname(`postname') stats(mean_sd  median_iqr) gap_end(1) over(treat) overall(first)
+{txt}  {hline 59} begin pt_sum {hline}
+  - syntax varlist(numeric) [if] [in] , POSTname(string) stats(namelist) [ over(varname) over_grps(numlist) overall(string) order(string) gap(integer 0) gap_end(integer 0) decimal(integer 1) range_decimal(integer 1) med_iqr_decimal(integer 1) append_label(string) var_lab(string) comment(string) ]
+  - if "`if'" != "" | "`in'" != "" {c -(}
+  = if "" != "" | "" != "" {c -(}
+    preserve
+    keep `if'
+    {c )-}
+  - if "`over'" != "" {c -(}
+  = if "treat" != "" {c -(}
+  - if "`over_grps'" == "" levelsof `over', local(over_grps)
+  = if "" == "" levelsof treat, local(over_grps)
+    {hline 55} begin levelsof {hline}
+    - version 15.0
+    - mata: st_rclear()
+{res}    {txt}- syntax varname [if] [in] [, Separate(str) MISSing Local(name local) Clean MATROW(name) MATCELL(name) HEXadecimal ]
+    - if ("`missing'" == "") {c -(}
+    = if ("" == "") {c -(}
+    - marksample touse, strok
+    - {c )-}
+    - else {c -(}
+      marksample touse, strok novarlist
+      {c )-}
+    - if (`"`separate'"' == "") {c -(}
+    = if (`""' == "") {c -(}
+    - local separate " "
+    - {c )-}
+    - local typ : type `varlist'
+    = local typ : type treat
+    - if ("`typ'" == "strL") {c -(}
+    = if ("float" == "strL") {c -(}
+      NoHexadecimal `hexadecimal'
+      NoMatrow `matrow'
+      LevelsOfStrL `varlist' if `touse', separate(`"`separate'"') `clean' matcell(`matcell')
+      {c )-}
+    - else if (substr("`typ'", 1, 3) == "str") {c -(}
+    = else if (substr("float", 1, 3) == "str") {c -(}
+      NoHexadecimal `hexadecimal'
+      NoMatrow `matrow'
+      local isclean = ("`clean'" != "")
+      mata: LevelsOfString("`varlist'", "`touse'", `"`separate'"', `isclean', "`matcell'")
+      {c )-}
+    - else {c -(}
+    - local isint = inlist("`typ'", "byte", "int", "long")
+    = local isint = inlist("float", "byte", "int", "long")
+    - mata: LevelsOfReal("`varlist'", "`touse'", `"`separate'"', `isint', 1, "`matrow'", "`matcell'", "`hexadecimal'" != "")
+    = mata: LevelsOfReal("treat", "__000003", `" "', 0, 1, "", "", "" != "")
+{res}    {txt}- if ("`usetab'" == "usetab") {c -(}
+    = if ("" == "usetab") {c -(}
+      cap LevelsOfTab `varlist' if `touse', `missing' separate(`"`separate'"') matrow(`matrow') matcell(`matcell') `hexadecimal'
+      if (_rc) {c -(}
+      mata: LevelsOfReal("`varlist'", "`touse'", `"`separate'"', `isint', 0, "`matrow'", "`matcell'", "`hexadecimal'" != "")
+      {c )-}
+      {c )-}
+    - {c )-}
+    - if ("`local'" != "") {c -(}
+    = if ("over_grps" != "") {c -(}
+    - c_local `local' `"`r(levels)'"'
+    = c_local over_grps `"0 1"'
+    - {c )-}
+    - di as text `"`r(levels)'"'
+    = di as text `"0 1"'
+0 1
+    {hline 57} end levelsof {hline}
+  - if "`overall'" == "first" local over_grps overall `over_grps'
+  = if "first" == "first" local over_grps overall 0 1
+  - if "`overall'" == "last" local over_grps `over_grps' overall
+  = if "first" == "last" local over_grps overall 0 1 overall
+  - {c )-}
+  - if "`over'" == "" local over_grps overall
+  = if "treat" == "" local over_grps overall
+  - if "`order'" == "" local order group_over
+  = if "" == "" local order group_over
+  - local stats_list "N", "missing", "mean_sd", "median_iqr", "range"
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - if inlist("`s'", "`stats_list'") ==0 {c -(}
+  = if inlist("mean_sd", "N", "missing", "mean_sd", "median_iqr", "range") ==0 {c -(}
+    di "stats option incorrectly specified. stats must be one of: `stats_list'"
+    exit
+    {c )-}
+  - {c )-}
+  - if inlist("`s'", "`stats_list'") ==0 {c -(}
+  = if inlist("median_iqr", "N", "missing", "mean_sd", "median_iqr", "range") ==0 {c -(}
+    di "stats option incorrectly specified. stats must be one of: `stats_list'"
+    exit
+    {c )-}
+  - {c )-}
+  - if `range_decimal' ==1 local range_decimal = `decimal'
+  = if 1 ==1 local range_decimal = 1
+  - if `med_iqr_decimal' ==1 local med_iqr_decimal = `decimal'
+  = if 1 ==1 local med_iqr_decimal = 1
+  - foreach v in `varlist' {c -(}
+  = foreach v in age qol bmi {c -(}
+  - local var_label `var_lab'
+  = local var_label 
+  - if "`var_lab'" == "" local var_label:variable label `v'
+  = if "" == "" local var_label:variable label age
+  - local var_label `var_label' `append_label'
+  = local var_label Age 
+  - local var_label ("`var_label'")
+  = local var_label ("Age")
+  - di _newline(3) "****** `v' ******" _newline(1)
+  = di _newline(3) "****** age ******" _newline(1)
+
+
+
+****** age ******
+
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - di "Group  `i'"
+  = di "Group  overall"
+Group  overall
+  - if "`i'" == "overall" su `v', detail
+  = if "overall" == "overall" su age, detail
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}  21.8495       18.73607
+{txt} 5%    {res} 28.19199        19.5597
+{txt}10%    {res} 31.82518        19.6057       {txt}Obs         {res}      1,000
+{txt}25%    {res} 37.72828       20.72693       {txt}Sum of Wgt. {res}      1,000
+
+{txt}50%    {res} 44.58735                      {txt}Mean          {res} 44.75141
+                        {txt}Largest       Std. Dev.     {res} 10.09038
+{txt}75%    {res} 51.50417       70.68008
+{txt}90%    {res} 58.11494       70.92197       {txt}Variance      {res} 101.8157
+{txt}95%    {res} 62.07549       77.65178       {txt}Skewness      {res} .0845107
+{txt}99%    {res} 67.92893       79.98365       {txt}Kurtosis      {res} 2.822212
+  {txt}- if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "overall" != "overall" su age if treat == overall, detail
+  - local N_`i' = r(N)
+  = local N_overall = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_overall = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_overall = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_overall = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_overall = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_overall = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_overall = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_overall = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_overall 44.8 (10.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_overall 44.6 (37.7-51.5)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_overall 18.7 - 80.0
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "overall" == "overall" qui count if missing(age) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "overall" != "overall" qui count if missing(age) ==. & treat == overall
+  - local missing_`i' = r(N)
+  = local missing_overall = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  0"
+Group  0
+  - if "`i'" == "overall" su `v', detail
+  = if "0" == "overall" su age, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "0" != "overall" su age if treat == 0, detail
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 21.83717       18.73607
+{txt} 5%    {res} 27.31555       20.87734
+{txt}10%    {res} 31.36581       21.00463       {txt}Obs         {res}        494
+{txt}25%    {res} 37.98506       21.26371       {txt}Sum of Wgt. {res}        494
+
+{txt}50%    {res} 44.10923                      {txt}Mean          {res} 44.59293
+                        {txt}Largest       Std. Dev.     {res} 10.12291
+{txt}75%    {res} 51.39442       68.82354
+{txt}90%    {res}  57.9375       70.35209       {txt}Variance      {res} 102.4734
+{txt}95%    {res} 62.05003       70.68008       {txt}Skewness      {res} .0880706
+{txt}99%    {res}  67.8514       79.98365       {txt}Kurtosis      {res} 2.839418
+  {txt}- local N_`i' = r(N)
+  = local N_0 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_0 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_0 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_0 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_0 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_0 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_0 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_0 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_0 44.6 (10.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_0 44.1 (38.0-51.4)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_0 18.7 - 80.0
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "0" == "overall" qui count if missing(age) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "0" != "overall" qui count if missing(age) ==. & treat == 0
+  - local missing_`i' = r(N)
+  = local missing_0 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  1"
+Group  1
+  - if "`i'" == "overall" su `v', detail
+  = if "1" == "overall" su age, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "1" != "overall" su age if treat == 1, detail
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 22.57098        19.5597
+{txt} 5%    {res} 28.68756        19.6057
+{txt}10%    {res} 31.99091       20.72693       {txt}Obs         {res}        506
+{txt}25%    {res}  37.5342       20.89186       {txt}Sum of Wgt. {res}        506
+
+{txt}50%    {res} 44.99636                      {txt}Mean          {res} 44.90614
+                        {txt}Largest       Std. Dev.     {res} 10.06612
+{txt}75%    {res} 51.54602       69.71539
+{txt}90%    {res} 58.34389       70.44794       {txt}Variance      {res} 101.3267
+{txt}95%    {res} 62.30239       70.92197       {txt}Skewness      {res} .0815555
+{txt}99%    {res} 68.00646       77.65178       {txt}Kurtosis      {res} 2.805177
+  {txt}- local N_`i' = r(N)
+  = local N_1 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_1 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_1 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_1 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_1 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_1 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_1 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_1 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_1 44.9 (10.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_1 45.0 (37.5-51.5)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_1 19.6 - 77.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "1" == "overall" qui count if missing(age) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "1" != "overall" qui count if missing(age) ==. & treat == 1
+  - local missing_`i' = r(N)
+  = local missing_1 = r(N)
+  - {c )-}
+  - if "`order'" == "group_sum" {c -(}
+  = if "group_over" == "group_sum" {c -(}
+    local summaries ""
+    foreach s in `stats' {c -(}
+    foreach i in `over_grps' {c -(}
+    local summaries `summaries' ("``s'_`i''")
+    {c )-}
+    {c )-}
+    {c )-}
+  - if "`order'" == "group_over" {c -(}
+  = if "group_over" == "group_over" {c -(}
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries  ("44.8 (10.1)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("44.8 (10.1)") ("44.6 (37.7-51.5)")
+  - {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("44.8 (10.1)") ("44.6 (37.7-51.5)") ("44.6 (10.1)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("44.8 (10.1)") ("44.6 (37.7-51.5)") ("44.6 (10.1)") ("44.1 (38.0-51.4)")
+  - {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("44.8 (10.1)") ("44.6 (37.7-51.5)") ("44.6 (10.1)") ("44.1 (38.0-51.4)") ("44.9 (10.1)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("44.8 (10.1)") ("44.6 (37.7-51.5)") ("44.6 (10.1)") ("44.1 (38.0-51.4)") ("44.9 (10.1)") ("45.0 (37.5-51.5)")
+  - {c )-}
+  - {c )-}
+  - {c )-}
+  - if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+  = if "" != "" & "" != "no comment" local comment1 ("")
+  - if "`comment'" == "no comment" local comment1 ("")
+  = if "" == "no comment" local comment1 ("")
+  - post `postname' `var_label' `summaries' `comment1'
+  = post __000002 ("Age") ("44.8 (10.1)") ("44.6 (37.7-51.5)") ("44.6 (10.1)") ("44.1 (38.0-51.4)") ("44.9 (10.1)") ("45.0 (37.5-51.5)") 
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries  ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - {c )-}
+  - local var_label `var_lab'
+  = local var_label 
+  - if "`var_lab'" == "" local var_label:variable label `v'
+  = if "" == "" local var_label:variable label qol
+  - local var_label `var_label' `append_label'
+  = local var_label Quality of life 
+  - local var_label ("`var_label'")
+  = local var_label ("Quality of life")
+  - di _newline(3) "****** `v' ******" _newline(1)
+  = di _newline(3) "****** qol ******" _newline(1)
+
+
+
+****** qol ******
+
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - di "Group  `i'"
+  = di "Group  overall"
+Group  overall
+  - if "`i'" == "overall" su `v', detail
+  = if "overall" == "overall" su qol, detail
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 15.52554       6.087381
+{txt} 5%    {res} 24.74591       7.690888
+{txt}10%    {res}  29.8982       10.20058       {txt}Obs         {res}        905
+{txt}25%    {res} 39.80885       12.04689       {txt}Sum of Wgt. {res}        905
+
+{txt}50%    {res} 50.07267                      {txt}Mean          {res} 49.95431
+                        {txt}Largest       Std. Dev.     {res} 15.21096
+{txt}75%    {res} 60.41745       90.75674
+{txt}90%    {res} 69.49487       90.86417       {txt}Variance      {res} 231.3733
+{txt}95%    {res} 74.58212       91.56386       {txt}Skewness      {res} .0201611
+{txt}99%    {res} 85.91319        99.6441       {txt}Kurtosis      {res} 2.850515
+  {txt}- if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "overall" != "overall" su qol if treat == overall, detail
+  - local N_`i' = r(N)
+  = local N_overall = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_overall = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_overall = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_overall = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_overall = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_overall = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_overall = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_overall = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_overall 50.0 (15.2)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_overall 50.1 (39.8-60.4)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_overall 6.1 - 99.6
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "overall" == "overall" qui count if missing(qol) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "overall" != "overall" qui count if missing(qol) ==. & treat == overall
+  - local missing_`i' = r(N)
+  = local missing_overall = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  0"
+Group  0
+  - if "`i'" == "overall" su `v', detail
+  = if "0" == "overall" su qol, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "0" != "overall" su qol if treat == 0, detail
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 13.93196       7.690888
+{txt} 5%    {res} 25.06524       10.20058
+{txt}10%    {res} 29.65285       12.04689       {txt}Obs         {res}        444
+{txt}25%    {res} 39.00128       13.31557       {txt}Sum of Wgt. {res}        444
+
+{txt}50%    {res} 49.60532                      {txt}Mean          {res}  49.4619
+                        {txt}Largest       Std. Dev.     {res} 15.14267
+{txt}75%    {res} 59.21922       86.02437
+{txt}90%    {res} 69.29897       86.08652       {txt}Variance      {res} 229.3004
+{txt}95%    {res} 74.58212       86.91632       {txt}Skewness      {res}-.0166383
+{txt}99%    {res} 83.82485       87.66695       {txt}Kurtosis      {res} 2.774083
+  {txt}- local N_`i' = r(N)
+  = local N_0 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_0 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_0 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_0 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_0 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_0 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_0 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_0 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_0 49.5 (15.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_0 49.6 (39.0-59.2)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_0 7.7 - 87.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "0" == "overall" qui count if missing(qol) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "0" != "overall" qui count if missing(qol) ==. & treat == 0
+  - local missing_`i' = r(N)
+  = local missing_0 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  1"
+Group  1
+  - if "`i'" == "overall" su `v', detail
+  = if "1" == "overall" su qol, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "1" != "overall" su qol if treat == 1, detail
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 17.79064       6.087381
+{txt} 5%    {res} 24.74591       15.03743
+{txt}10%    {res} 30.11221       15.57102       {txt}Obs         {res}        461
+{txt}25%    {res} 40.56173       16.99796       {txt}Sum of Wgt. {res}        461
+
+{txt}50%    {res}  50.7649                      {txt}Mean          {res} 50.42856
+                        {txt}Largest       Std. Dev.     {res} 15.27786
+{txt}75%    {res} 60.73298       90.75674
+{txt}90%    {res}  70.1771       90.86417       {txt}Variance      {res} 233.4131
+{txt}95%    {res} 74.32983       91.56386       {txt}Skewness      {res} .0530766
+{txt}99%    {res} 87.70103        99.6441       {txt}Kurtosis      {res}  2.91192
+  {txt}- local N_`i' = r(N)
+  = local N_1 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_1 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_1 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_1 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_1 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_1 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_1 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_1 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_1 50.4 (15.3)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_1 50.8 (40.6-60.7)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_1 6.1 - 99.6
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "1" == "overall" qui count if missing(qol) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "1" != "overall" qui count if missing(qol) ==. & treat == 1
+  - local missing_`i' = r(N)
+  = local missing_1 = r(N)
+  - {c )-}
+  - if "`order'" == "group_sum" {c -(}
+  = if "group_over" == "group_sum" {c -(}
+    local summaries ""
+    foreach s in `stats' {c -(}
+    foreach i in `over_grps' {c -(}
+    local summaries `summaries' ("``s'_`i''")
+    {c )-}
+    {c )-}
+    {c )-}
+  - if "`order'" == "group_over" {c -(}
+  = if "group_over" == "group_over" {c -(}
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries  ("50.0 (15.2)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("50.0 (15.2)") ("50.1 (39.8-60.4)")
+  - {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("50.0 (15.2)") ("50.1 (39.8-60.4)") ("49.5 (15.1)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("50.0 (15.2)") ("50.1 (39.8-60.4)") ("49.5 (15.1)") ("49.6 (39.0-59.2)")
+  - {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("50.0 (15.2)") ("50.1 (39.8-60.4)") ("49.5 (15.1)") ("49.6 (39.0-59.2)") ("50.4 (15.3)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("50.0 (15.2)") ("50.1 (39.8-60.4)") ("49.5 (15.1)") ("49.6 (39.0-59.2)") ("50.4 (15.3)") ("50.8 (40.6-60.7)")
+  - {c )-}
+  - {c )-}
+  - {c )-}
+  - if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+  = if "" != "" & "" != "no comment" local comment1 ("")
+  - if "`comment'" == "no comment" local comment1 ("")
+  = if "" == "no comment" local comment1 ("")
+  - post `postname' `var_label' `summaries' `comment1'
+  = post __000002 ("Quality of life") ("50.0 (15.2)") ("50.1 (39.8-60.4)") ("49.5 (15.1)") ("49.6 (39.0-59.2)") ("50.4 (15.3)") ("50.8 (40.6-60.7)") 
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries  ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - {c )-}
+  - local var_label `var_lab'
+  = local var_label 
+  - if "`var_lab'" == "" local var_label:variable label `v'
+  = if "" == "" local var_label:variable label bmi
+  - local var_label `var_label' `append_label'
+  = local var_label BMI 
+  - local var_label ("`var_label'")
+  = local var_label ("BMI")
+  - di _newline(3) "****** `v' ******" _newline(1)
+  = di _newline(3) "****** bmi ******" _newline(1)
+
+
+
+****** bmi ******
+
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - di "Group  `i'"
+  = di "Group  overall"
+Group  overall
+  - if "`i'" == "overall" su `v', detail
+  = if "overall" == "overall" su bmi, detail
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 19.67865        17.3584
+{txt} 5%    {res} 21.74364       18.78148
+{txt}10%    {res} 22.54486       18.93155       {txt}Obs         {res}        897
+{txt}25%    {res}   23.637       19.03281       {txt}Sum of Wgt. {res}        897
+
+{txt}50%    {res}  24.9003                      {txt}Mean          {res} 24.98906
+                        {txt}Largest       Std. Dev.     {res} 2.051125
+{txt}75%    {res} 26.31453       30.70486
+{txt}90%    {res} 27.61133       30.79895       {txt}Variance      {res} 4.207113
+{txt}95%    {res} 28.38387       31.06334       {txt}Skewness      {res} .0151219
+{txt}99%    {res} 29.94238       31.70209       {txt}Kurtosis      {res} 3.289855
+  {txt}- if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "overall" != "overall" su bmi if treat == overall, detail
+  - local N_`i' = r(N)
+  = local N_overall = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_overall = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_overall = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_overall = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_overall = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_overall = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_overall = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_overall = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_overall 25.0 (2.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_overall 24.9 (23.6-26.3)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_overall 17.4 - 31.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "overall" == "overall" qui count if missing(bmi) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "overall" != "overall" qui count if missing(bmi) ==. & treat == overall
+  - local missing_`i' = r(N)
+  = local missing_overall = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  0"
+Group  0
+  - if "`i'" == "overall" su `v', detail
+  = if "0" == "overall" su bmi, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "0" != "overall" su bmi if treat == 0, detail
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 19.40889        17.3584
+{txt} 5%    {res} 21.65774       18.78148
+{txt}10%    {res} 22.36327       19.03281       {txt}Obs         {res}        441
+{txt}25%    {res} 23.59851       19.30614       {txt}Sum of Wgt. {res}        441
+
+{txt}50%    {res} 24.87224                      {txt}Mean          {res} 24.93702
+                        {txt}Largest       Std. Dev.     {res} 2.136256
+{txt}75%    {res} 26.27832       30.70486
+{txt}90%    {res} 27.52073       30.79895       {txt}Variance      {res} 4.563588
+{txt}95%    {res} 28.40195       31.06334       {txt}Skewness      {res}-.0025868
+{txt}99%    {res} 30.22829       31.70209       {txt}Kurtosis      {res} 3.507158
+  {txt}- local N_`i' = r(N)
+  = local N_0 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_0 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_0 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_0 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_0 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_0 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_0 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_0 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_0 24.9 (2.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_0 24.9 (23.6-26.3)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_0 17.4 - 31.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "0" == "overall" qui count if missing(bmi) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "0" != "overall" qui count if missing(bmi) ==. & treat == 0
+  - local missing_`i' = r(N)
+  = local missing_0 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  1"
+Group  1
+  - if "`i'" == "overall" su `v', detail
+  = if "1" == "overall" su bmi, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "1" != "overall" su bmi if treat == 1, detail
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 20.40422       18.93155
+{txt} 5%    {res} 21.83435       19.23465
+{txt}10%    {res}  22.6678       20.25409       {txt}Obs         {res}        456
+{txt}25%    {res} 23.66607       20.28401       {txt}Sum of Wgt. {res}        456
+
+{txt}50%    {res} 24.93318                      {txt}Mean          {res} 25.03938
+                        {txt}Largest       Std. Dev.     {res} 1.966335
+{txt}75%    {res} 26.36146       29.88777
+{txt}90%    {res} 27.71109       29.94238       {txt}Variance      {res} 3.866473
+{txt}95%    {res} 28.38027       30.06819       {txt}Skewness      {res} .0508776
+{txt}99%    {res} 29.81652       30.38391       {txt}Kurtosis      {res} 2.939871
+  {txt}- local N_`i' = r(N)
+  = local N_1 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_1 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_1 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_1 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_1 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_1 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_1 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_1 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_1 25.0 (2.0)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_1 24.9 (23.7-26.4)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_1 18.9 - 30.4
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "1" == "overall" qui count if missing(bmi) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "1" != "overall" qui count if missing(bmi) ==. & treat == 1
+  - local missing_`i' = r(N)
+  = local missing_1 = r(N)
+  - {c )-}
+  - if "`order'" == "group_sum" {c -(}
+  = if "group_over" == "group_sum" {c -(}
+    local summaries ""
+    foreach s in `stats' {c -(}
+    foreach i in `over_grps' {c -(}
+    local summaries `summaries' ("``s'_`i''")
+    {c )-}
+    {c )-}
+    {c )-}
+  - if "`order'" == "group_over" {c -(}
+  = if "group_over" == "group_over" {c -(}
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries  ("25.0 (2.1)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("25.0 (2.1)") ("24.9 (23.6-26.3)")
+  - {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("25.0 (2.1)") ("24.9 (23.6-26.3)") ("24.9 (2.1)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("25.0 (2.1)") ("24.9 (23.6-26.3)") ("24.9 (2.1)") ("24.9 (23.6-26.3)")
+  - {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("25.0 (2.1)") ("24.9 (23.6-26.3)") ("24.9 (2.1)") ("24.9 (23.6-26.3)") ("25.0 (2.0)")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("25.0 (2.1)") ("24.9 (23.6-26.3)") ("24.9 (2.1)") ("24.9 (23.6-26.3)") ("25.0 (2.0)") ("24.9 (23.7-26.4)")
+  - {c )-}
+  - {c )-}
+  - {c )-}
+  - if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+  = if "" != "" & "" != "no comment" local comment1 ("")
+  - if "`comment'" == "no comment" local comment1 ("")
+  = if "" == "no comment" local comment1 ("")
+  - post `postname' `var_label' `summaries' `comment1'
+  = post __000002 ("BMI") ("25.0 (2.1)") ("24.9 (23.6-26.3)") ("24.9 (2.1)") ("24.9 (23.6-26.3)") ("25.0 (2.0)") ("24.9 (23.7-26.4)") 
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in overall 0 1 {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries  ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in mean_sd median_iqr {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - {c )-}
+  - if `gap_end' > 0 {c -(}
+  = if 1 > 0 {c -(}
+  - forvalues i = 1 (1) `gap_end' {c -(}
+  = forvalues i = 1 (1) 1 {c -(}
+  - post `postname' ("") `summaries' `comment1'
+  = post __000002 ("") ("") ("") ("") ("") ("") ("") 
+  - {c )-}
+  - {c )-}
+  - if "`if'" != "" | "`in'" != "" restore
+  = if "" != "" | "" != "" restore
+  {hline 61} end pt_sum {hline}
+
+{com}. 
+. 
+. /***
+> Summaries can be grouped by `over` group or by `statistic type.
+> ***/
+. 
+. /***/ post `postname' ("") ("N") ("") ("")  ("Range") ("")    ("") 
+{txt}
+{com}. /***/ post `postname' ("") ("Group 1")  ("Group 0")  ("Overall")  ("Group 1")  ("Group 0")    ("Overall")
+{txt}
+{com}. /***/ pt_sum age bmi qol , postname(`postname') stats(N range ) over(treat) over_grps(1 0) gap_end(1) overall(last) order(group_sum)
+{txt}  {hline 59} begin pt_sum {hline}
+  - syntax varlist(numeric) [if] [in] , POSTname(string) stats(namelist) [ over(varname) over_grps(numlist) overall(string) order(string) gap(integer 0) gap_end(integer 0) decimal(integer 1) range_decimal(integer 1) med_iqr_decimal(integer 1) append_label(string) var_lab(string) comment(string) ]
+  - if "`if'" != "" | "`in'" != "" {c -(}
+  = if "" != "" | "" != "" {c -(}
+    preserve
+    keep `if'
+    {c )-}
+  - if "`over'" != "" {c -(}
+  = if "treat" != "" {c -(}
+  - if "`over_grps'" == "" levelsof `over', local(over_grps)
+  = if "1 0" == "" levelsof treat, local(over_grps)
+  - if "`overall'" == "first" local over_grps overall `over_grps'
+  = if "last" == "first" local over_grps overall 1 0
+  - if "`overall'" == "last" local over_grps `over_grps' overall
+  = if "last" == "last" local over_grps 1 0 overall
+  - {c )-}
+  - if "`over'" == "" local over_grps overall
+  = if "treat" == "" local over_grps overall
+  - if "`order'" == "" local order group_over
+  = if "group_sum" == "" local order group_over
+  - local stats_list "N", "missing", "mean_sd", "median_iqr", "range"
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - if inlist("`s'", "`stats_list'") ==0 {c -(}
+  = if inlist("N", "N", "missing", "mean_sd", "median_iqr", "range") ==0 {c -(}
+    di "stats option incorrectly specified. stats must be one of: `stats_list'"
+    exit
+    {c )-}
+  - {c )-}
+  - if inlist("`s'", "`stats_list'") ==0 {c -(}
+  = if inlist("range", "N", "missing", "mean_sd", "median_iqr", "range") ==0 {c -(}
+    di "stats option incorrectly specified. stats must be one of: `stats_list'"
+    exit
+    {c )-}
+  - {c )-}
+  - if `range_decimal' ==1 local range_decimal = `decimal'
+  = if 1 ==1 local range_decimal = 1
+  - if `med_iqr_decimal' ==1 local med_iqr_decimal = `decimal'
+  = if 1 ==1 local med_iqr_decimal = 1
+  - foreach v in `varlist' {c -(}
+  = foreach v in age bmi qol {c -(}
+  - local var_label `var_lab'
+  = local var_label 
+  - if "`var_lab'" == "" local var_label:variable label `v'
+  = if "" == "" local var_label:variable label age
+  - local var_label `var_label' `append_label'
+  = local var_label Age 
+  - local var_label ("`var_label'")
+  = local var_label ("Age")
+  - di _newline(3) "****** `v' ******" _newline(1)
+  = di _newline(3) "****** age ******" _newline(1)
+
+
+
+****** age ******
+
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - di "Group  `i'"
+  = di "Group  1"
+Group  1
+  - if "`i'" == "overall" su `v', detail
+  = if "1" == "overall" su age, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "1" != "overall" su age if treat == 1, detail
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 22.57098        19.5597
+{txt} 5%    {res} 28.68756        19.6057
+{txt}10%    {res} 31.99091       20.72693       {txt}Obs         {res}        506
+{txt}25%    {res}  37.5342       20.89186       {txt}Sum of Wgt. {res}        506
+
+{txt}50%    {res} 44.99636                      {txt}Mean          {res} 44.90614
+                        {txt}Largest       Std. Dev.     {res} 10.06612
+{txt}75%    {res} 51.54602       69.71539
+{txt}90%    {res} 58.34389       70.44794       {txt}Variance      {res} 101.3267
+{txt}95%    {res} 62.30239       70.92197       {txt}Skewness      {res} .0815555
+{txt}99%    {res} 68.00646       77.65178       {txt}Kurtosis      {res} 2.805177
+  {txt}- local N_`i' = r(N)
+  = local N_1 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_1 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_1 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_1 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_1 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_1 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_1 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_1 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_1 44.9 (10.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_1 45.0 (37.5-51.5)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_1 19.6 - 77.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "1" == "overall" qui count if missing(age) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "1" != "overall" qui count if missing(age) ==. & treat == 1
+  - local missing_`i' = r(N)
+  = local missing_1 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  0"
+Group  0
+  - if "`i'" == "overall" su `v', detail
+  = if "0" == "overall" su age, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "0" != "overall" su age if treat == 0, detail
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 21.83717       18.73607
+{txt} 5%    {res} 27.31555       20.87734
+{txt}10%    {res} 31.36581       21.00463       {txt}Obs         {res}        494
+{txt}25%    {res} 37.98506       21.26371       {txt}Sum of Wgt. {res}        494
+
+{txt}50%    {res} 44.10923                      {txt}Mean          {res} 44.59293
+                        {txt}Largest       Std. Dev.     {res} 10.12291
+{txt}75%    {res} 51.39442       68.82354
+{txt}90%    {res}  57.9375       70.35209       {txt}Variance      {res} 102.4734
+{txt}95%    {res} 62.05003       70.68008       {txt}Skewness      {res} .0880706
+{txt}99%    {res}  67.8514       79.98365       {txt}Kurtosis      {res} 2.839418
+  {txt}- local N_`i' = r(N)
+  = local N_0 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_0 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_0 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_0 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_0 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_0 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_0 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_0 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_0 44.6 (10.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_0 44.1 (38.0-51.4)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_0 18.7 - 80.0
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "0" == "overall" qui count if missing(age) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "0" != "overall" qui count if missing(age) ==. & treat == 0
+  - local missing_`i' = r(N)
+  = local missing_0 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  overall"
+Group  overall
+  - if "`i'" == "overall" su `v', detail
+  = if "overall" == "overall" su age, detail
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}  21.8495       18.73607
+{txt} 5%    {res} 28.19199        19.5597
+{txt}10%    {res} 31.82518        19.6057       {txt}Obs         {res}      1,000
+{txt}25%    {res} 37.72828       20.72693       {txt}Sum of Wgt. {res}      1,000
+
+{txt}50%    {res} 44.58735                      {txt}Mean          {res} 44.75141
+                        {txt}Largest       Std. Dev.     {res} 10.09038
+{txt}75%    {res} 51.50417       70.68008
+{txt}90%    {res} 58.11494       70.92197       {txt}Variance      {res} 101.8157
+{txt}95%    {res} 62.07549       77.65178       {txt}Skewness      {res} .0845107
+{txt}99%    {res} 67.92893       79.98365       {txt}Kurtosis      {res} 2.822212
+  {txt}- if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "overall" != "overall" su age if treat == overall, detail
+  - local N_`i' = r(N)
+  = local N_overall = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_overall = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_overall = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_overall = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_overall = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_overall = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_overall = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_overall = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_overall 44.8 (10.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_overall 44.6 (37.7-51.5)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_overall 18.7 - 80.0
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "overall" == "overall" qui count if missing(age) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "overall" != "overall" qui count if missing(age) ==. & treat == overall
+  - local missing_`i' = r(N)
+  = local missing_overall = r(N)
+  - {c )-}
+  - if "`order'" == "group_sum" {c -(}
+  = if "group_sum" == "group_sum" {c -(}
+  - local summaries ""
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries  ("506")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("506") ("494")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("506") ("494") ("1000")
+  - {c )-}
+  - {c )-}
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("506") ("494") ("1000") ("19.6 - 77.7")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("506") ("494") ("1000") ("19.6 - 77.7") ("18.7 - 80.0")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("506") ("494") ("1000") ("19.6 - 77.7") ("18.7 - 80.0") ("18.7 - 80.0")
+  - {c )-}
+  - {c )-}
+  - {c )-}
+  - if "`order'" == "group_over" {c -(}
+  = if "group_sum" == "group_over" {c -(}
+    local summaries ""
+    foreach i in `over_grps' {c -(}
+    foreach s in `stats' {c -(}
+    local summaries `summaries' ("``s'_`i''")
+    {c )-}
+    {c )-}
+    {c )-}
+  - if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+  = if "" != "" & "" != "no comment" local comment1 ("")
+  - if "`comment'" == "no comment" local comment1 ("")
+  = if "" == "no comment" local comment1 ("")
+  - post `postname' `var_label' `summaries' `comment1'
+  = post __000002 ("Age") ("506") ("494") ("1000") ("19.6 - 77.7") ("18.7 - 80.0") ("18.7 - 80.0") 
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries  ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - {c )-}
+  - local var_label `var_lab'
+  = local var_label 
+  - if "`var_lab'" == "" local var_label:variable label `v'
+  = if "" == "" local var_label:variable label bmi
+  - local var_label `var_label' `append_label'
+  = local var_label BMI 
+  - local var_label ("`var_label'")
+  = local var_label ("BMI")
+  - di _newline(3) "****** `v' ******" _newline(1)
+  = di _newline(3) "****** bmi ******" _newline(1)
+
+
+
+****** bmi ******
+
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - di "Group  `i'"
+  = di "Group  1"
+Group  1
+  - if "`i'" == "overall" su `v', detail
+  = if "1" == "overall" su bmi, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "1" != "overall" su bmi if treat == 1, detail
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 20.40422       18.93155
+{txt} 5%    {res} 21.83435       19.23465
+{txt}10%    {res}  22.6678       20.25409       {txt}Obs         {res}        456
+{txt}25%    {res} 23.66607       20.28401       {txt}Sum of Wgt. {res}        456
+
+{txt}50%    {res} 24.93318                      {txt}Mean          {res} 25.03938
+                        {txt}Largest       Std. Dev.     {res} 1.966335
+{txt}75%    {res} 26.36146       29.88777
+{txt}90%    {res} 27.71109       29.94238       {txt}Variance      {res} 3.866473
+{txt}95%    {res} 28.38027       30.06819       {txt}Skewness      {res} .0508776
+{txt}99%    {res} 29.81652       30.38391       {txt}Kurtosis      {res} 2.939871
+  {txt}- local N_`i' = r(N)
+  = local N_1 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_1 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_1 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_1 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_1 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_1 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_1 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_1 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_1 25.0 (2.0)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_1 24.9 (23.7-26.4)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_1 18.9 - 30.4
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "1" == "overall" qui count if missing(bmi) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "1" != "overall" qui count if missing(bmi) ==. & treat == 1
+  - local missing_`i' = r(N)
+  = local missing_1 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  0"
+Group  0
+  - if "`i'" == "overall" su `v', detail
+  = if "0" == "overall" su bmi, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "0" != "overall" su bmi if treat == 0, detail
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 19.40889        17.3584
+{txt} 5%    {res} 21.65774       18.78148
+{txt}10%    {res} 22.36327       19.03281       {txt}Obs         {res}        441
+{txt}25%    {res} 23.59851       19.30614       {txt}Sum of Wgt. {res}        441
+
+{txt}50%    {res} 24.87224                      {txt}Mean          {res} 24.93702
+                        {txt}Largest       Std. Dev.     {res} 2.136256
+{txt}75%    {res} 26.27832       30.70486
+{txt}90%    {res} 27.52073       30.79895       {txt}Variance      {res} 4.563588
+{txt}95%    {res} 28.40195       31.06334       {txt}Skewness      {res}-.0025868
+{txt}99%    {res} 30.22829       31.70209       {txt}Kurtosis      {res} 3.507158
+  {txt}- local N_`i' = r(N)
+  = local N_0 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_0 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_0 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_0 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_0 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_0 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_0 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_0 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_0 24.9 (2.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_0 24.9 (23.6-26.3)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_0 17.4 - 31.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "0" == "overall" qui count if missing(bmi) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "0" != "overall" qui count if missing(bmi) ==. & treat == 0
+  - local missing_`i' = r(N)
+  = local missing_0 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  overall"
+Group  overall
+  - if "`i'" == "overall" su `v', detail
+  = if "overall" == "overall" su bmi, detail
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 19.67865        17.3584
+{txt} 5%    {res} 21.74364       18.78148
+{txt}10%    {res} 22.54486       18.93155       {txt}Obs         {res}        897
+{txt}25%    {res}   23.637       19.03281       {txt}Sum of Wgt. {res}        897
+
+{txt}50%    {res}  24.9003                      {txt}Mean          {res} 24.98906
+                        {txt}Largest       Std. Dev.     {res} 2.051125
+{txt}75%    {res} 26.31453       30.70486
+{txt}90%    {res} 27.61133       30.79895       {txt}Variance      {res} 4.207113
+{txt}95%    {res} 28.38387       31.06334       {txt}Skewness      {res} .0151219
+{txt}99%    {res} 29.94238       31.70209       {txt}Kurtosis      {res} 3.289855
+  {txt}- if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "overall" != "overall" su bmi if treat == overall, detail
+  - local N_`i' = r(N)
+  = local N_overall = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_overall = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_overall = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_overall = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_overall = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_overall = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_overall = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_overall = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_overall 25.0 (2.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_overall 24.9 (23.6-26.3)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_overall 17.4 - 31.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "overall" == "overall" qui count if missing(bmi) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "overall" != "overall" qui count if missing(bmi) ==. & treat == overall
+  - local missing_`i' = r(N)
+  = local missing_overall = r(N)
+  - {c )-}
+  - if "`order'" == "group_sum" {c -(}
+  = if "group_sum" == "group_sum" {c -(}
+  - local summaries ""
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries  ("456")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("456") ("441")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("456") ("441") ("897")
+  - {c )-}
+  - {c )-}
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("456") ("441") ("897") ("18.9 - 30.4")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("456") ("441") ("897") ("18.9 - 30.4") ("17.4 - 31.7")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("456") ("441") ("897") ("18.9 - 30.4") ("17.4 - 31.7") ("17.4 - 31.7")
+  - {c )-}
+  - {c )-}
+  - {c )-}
+  - if "`order'" == "group_over" {c -(}
+  = if "group_sum" == "group_over" {c -(}
+    local summaries ""
+    foreach i in `over_grps' {c -(}
+    foreach s in `stats' {c -(}
+    local summaries `summaries' ("``s'_`i''")
+    {c )-}
+    {c )-}
+    {c )-}
+  - if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+  = if "" != "" & "" != "no comment" local comment1 ("")
+  - if "`comment'" == "no comment" local comment1 ("")
+  = if "" == "no comment" local comment1 ("")
+  - post `postname' `var_label' `summaries' `comment1'
+  = post __000002 ("BMI") ("456") ("441") ("897") ("18.9 - 30.4") ("17.4 - 31.7") ("17.4 - 31.7") 
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries  ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - {c )-}
+  - local var_label `var_lab'
+  = local var_label 
+  - if "`var_lab'" == "" local var_label:variable label `v'
+  = if "" == "" local var_label:variable label qol
+  - local var_label `var_label' `append_label'
+  = local var_label Quality of life 
+  - local var_label ("`var_label'")
+  = local var_label ("Quality of life")
+  - di _newline(3) "****** `v' ******" _newline(1)
+  = di _newline(3) "****** qol ******" _newline(1)
+
+
+
+****** qol ******
+
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - di "Group  `i'"
+  = di "Group  1"
+Group  1
+  - if "`i'" == "overall" su `v', detail
+  = if "1" == "overall" su qol, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "1" != "overall" su qol if treat == 1, detail
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 17.79064       6.087381
+{txt} 5%    {res} 24.74591       15.03743
+{txt}10%    {res} 30.11221       15.57102       {txt}Obs         {res}        461
+{txt}25%    {res} 40.56173       16.99796       {txt}Sum of Wgt. {res}        461
+
+{txt}50%    {res}  50.7649                      {txt}Mean          {res} 50.42856
+                        {txt}Largest       Std. Dev.     {res} 15.27786
+{txt}75%    {res} 60.73298       90.75674
+{txt}90%    {res}  70.1771       90.86417       {txt}Variance      {res} 233.4131
+{txt}95%    {res} 74.32983       91.56386       {txt}Skewness      {res} .0530766
+{txt}99%    {res} 87.70103        99.6441       {txt}Kurtosis      {res}  2.91192
+  {txt}- local N_`i' = r(N)
+  = local N_1 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_1 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_1 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_1 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_1 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_1 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_1 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_1 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_1 50.4 (15.3)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_1 50.8 (40.6-60.7)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_1 6.1 - 99.6
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "1" == "overall" qui count if missing(qol) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "1" != "overall" qui count if missing(qol) ==. & treat == 1
+  - local missing_`i' = r(N)
+  = local missing_1 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  0"
+Group  0
+  - if "`i'" == "overall" su `v', detail
+  = if "0" == "overall" su qol, detail
+  - if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "0" != "overall" su qol if treat == 0, detail
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 13.93196       7.690888
+{txt} 5%    {res} 25.06524       10.20058
+{txt}10%    {res} 29.65285       12.04689       {txt}Obs         {res}        444
+{txt}25%    {res} 39.00128       13.31557       {txt}Sum of Wgt. {res}        444
+
+{txt}50%    {res} 49.60532                      {txt}Mean          {res}  49.4619
+                        {txt}Largest       Std. Dev.     {res} 15.14267
+{txt}75%    {res} 59.21922       86.02437
+{txt}90%    {res} 69.29897       86.08652       {txt}Variance      {res} 229.3004
+{txt}95%    {res} 74.58212       86.91632       {txt}Skewness      {res}-.0166383
+{txt}99%    {res} 83.82485       87.66695       {txt}Kurtosis      {res} 2.774083
+  {txt}- local N_`i' = r(N)
+  = local N_0 = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_0 = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_0 = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_0 = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_0 = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_0 = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_0 = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_0 = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_0 49.5 (15.1)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_0 49.6 (39.0-59.2)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_0 7.7 - 87.7
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "0" == "overall" qui count if missing(qol) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "0" != "overall" qui count if missing(qol) ==. & treat == 0
+  - local missing_`i' = r(N)
+  = local missing_0 = r(N)
+  - {c )-}
+  - di "Group  `i'"
+  = di "Group  overall"
+Group  overall
+  - if "`i'" == "overall" su `v', detail
+  = if "overall" == "overall" su qol, detail
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 15.52554       6.087381
+{txt} 5%    {res} 24.74591       7.690888
+{txt}10%    {res}  29.8982       10.20058       {txt}Obs         {res}        905
+{txt}25%    {res} 39.80885       12.04689       {txt}Sum of Wgt. {res}        905
+
+{txt}50%    {res} 50.07267                      {txt}Mean          {res} 49.95431
+                        {txt}Largest       Std. Dev.     {res} 15.21096
+{txt}75%    {res} 60.41745       90.75674
+{txt}90%    {res} 69.49487       90.86417       {txt}Variance      {res} 231.3733
+{txt}95%    {res} 74.58212       91.56386       {txt}Skewness      {res} .0201611
+{txt}99%    {res} 85.91319        99.6441       {txt}Kurtosis      {res} 2.850515
+  {txt}- if "`i'" != "overall" su `v' if `over' == `i', detail
+  = if "overall" != "overall" su qol if treat == overall, detail
+  - local N_`i' = r(N)
+  = local N_overall = r(N)
+  - foreach s in mean sd {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local mean_overall = string(r(mean), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`decimal'f")
+  = local sd_overall = string(r(sd), "%12.1f")
+  - {c )-}
+  - foreach s in p50 p25 p75 {c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p50_overall = string(r(p50), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p25_overall = string(r(p25), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`med_iqr_decimal'f")
+  = local p75_overall = string(r(p75), "%12.1f")
+  - {c )-}
+  - foreach s in min max{c -(}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local min_overall = string(r(min), "%12.1f")
+  - {c )-}
+  - local `s'_`i' = string(r(`s'), "%12.`range_decimal'f")
+  = local max_overall = string(r(max), "%12.1f")
+  - {c )-}
+  - local mean_sd_`i' `mean_`i'' (`sd_`i'')
+  = local mean_sd_overall 50.0 (15.2)
+  - local median_iqr_`i' `p50_`i'' (`p25_`i''-`p75_`i'')
+  = local median_iqr_overall 50.1 (39.8-60.4)
+  - local range_`i' `min_`i'' - `max_`i''
+  = local range_overall 6.1 - 99.6
+  - if "`i'" == "overall" qui count if missing(`v') ==.
+  = if "overall" == "overall" qui count if missing(qol) ==.
+  - if "`i'" != "overall" qui count if missing(`v') ==. & `over' == `i'
+  = if "overall" != "overall" qui count if missing(qol) ==. & treat == overall
+  - local missing_`i' = r(N)
+  = local missing_overall = r(N)
+  - {c )-}
+  - if "`order'" == "group_sum" {c -(}
+  = if "group_sum" == "group_sum" {c -(}
+  - local summaries ""
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries  ("461")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("461") ("444")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("461") ("444") ("905")
+  - {c )-}
+  - {c )-}
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("461") ("444") ("905") ("6.1 - 99.6")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("461") ("444") ("905") ("6.1 - 99.6") ("7.7 - 87.7")
+  - {c )-}
+  - local summaries `summaries' ("``s'_`i''")
+  = local summaries ("461") ("444") ("905") ("6.1 - 99.6") ("7.7 - 87.7") ("6.1 - 99.6")
+  - {c )-}
+  - {c )-}
+  - {c )-}
+  - if "`order'" == "group_over" {c -(}
+  = if "group_sum" == "group_over" {c -(}
+    local summaries ""
+    foreach i in `over_grps' {c -(}
+    foreach s in `stats' {c -(}
+    local summaries `summaries' ("``s'_`i''")
+    {c )-}
+    {c )-}
+    {c )-}
+  - if "`comment'" != "" & "`comment'" != "no comment" local comment1 ("`comment'")
+  = if "" != "" & "" != "no comment" local comment1 ("")
+  - if "`comment'" == "no comment" local comment1 ("")
+  = if "" == "no comment" local comment1 ("")
+  - post `postname' `var_label' `summaries' `comment1'
+  = post __000002 ("Quality of life") ("461") ("444") ("905") ("6.1 - 99.6") ("7.7 - 87.7") ("6.1 - 99.6") 
+  - local summaries ""
+  - foreach i in `over_grps' {c -(}
+  = foreach i in 1 0 overall {c -(}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries  ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - foreach s in `stats' {c -(}
+  = foreach s in N range {c -(}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - local summaries `summaries' ("")
+  = local summaries ("") ("") ("") ("") ("") ("")
+  - if "`comment'" != "" local comment1 ("")
+  = if "" != "" local comment1 ("")
+  - {c )-}
+  - if `gap' > 0 {c -(}
+  = if 0 > 0 {c -(}
+    forvalues i = 1 (1) `gap' {c -(}
+    post `postname' ("") `summaries' `comment1'
+    {c )-}
+    {c )-}
+  - {c )-}
+  - {c )-}
+  - if `gap_end' > 0 {c -(}
+  = if 1 > 0 {c -(}
+  - forvalues i = 1 (1) `gap_end' {c -(}
+  = forvalues i = 1 (1) 1 {c -(}
+  - post `postname' ("") `summaries' `comment1'
+  = post __000002 ("") ("") ("") ("") ("") ("") ("") 
+  - {c )-}
+  - {c )-}
+  - if "`if'" != "" | "`in'" != "" restore
+  = if "" != "" | "" != "" restore
+  {hline 61} end pt_sum {hline}
+
+{com}. 
+. 
+. /**/ pt_sum_close `postname', eg_no(`eg_no')
+{txt}  {hline 53} begin pt_sum_close {hline}
+  - local dir "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
+  - syntax namelist, eg_no(numlist max=1)
+  - postclose `namelist'
+  = postclose __000002
+  - use "`dir'\\pts_eg`eg_no'.dta", clear
+  = use "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples\\pts_eg1.3.dta", clear
+  - format _all %-100s
+  - qui compress _all
+  - qui save "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Test data\pts_eg`eg_no'.dta", replace
+  = qui save "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Test data\pts_eg1.3.dta", replace
+  - qui log close
+{smcl}
+{txt}{sf}{ul off}
