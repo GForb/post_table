@@ -12,8 +12,6 @@ To run table 3, an excel named
 */
 
 
-cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
-
 
 
 *******************This code section of code can be esited to change the table style***************************
@@ -75,7 +73,7 @@ putdocx text ("5. Baseline table examples"), bold underline font(calibri, 12)
 *Tables
 
 *Table 1
-putx_tab, filename("bl_example1.dta") table_no(1) title("First example")  width(12)
+putx_tab, filename("Examples\Results\bl_example1.dta") table_no(1) title("First example")  width(12)
 *Merging cells
 forvalues i = 1 (1) 7 {
 	putdocx table table1(`i',1), colspan(2)
@@ -89,7 +87,7 @@ putdocx pagebreak
 
 *Table 2
 
-putx_tab, filename("bl_example2.dta") table_no(2) title("Second example") header_rows(2) 
+putx_tab, filename("Examples\Results\bl_example2.dta") table_no(2) title("Second example") header_rows(2) 
 putdocx table table2(1,3), colspan(2) halign(center)  // megering cells must be done using putdocx. See help putdocx for more details
 putdocx table table2(1,4), colspan(2) halign(center)   // note you must take into account the merge that has already occured when specifying column numbers.
   
@@ -105,9 +103,9 @@ putdocx table table2(22,1), rowspan(4)
 
 *Table from excel
 putdocx pagebreak
-import excel using example_excel, clear
-save excel_example, replace
-putx_tab, filename("excel_example.dta") table_no(3) title("Some data from a spreadsheet") 
+import excel using "Examples\Data\example_excel", clear
+save "Examples\Data\excel_example", replace
+putx_tab, filename("Examples\Data\excel_example.dta") table_no(3) title("Some data from a spreadsheet") 
 *Editing the alignment from default 
 putdocx table table3(.,.), halign(left) 
 
@@ -115,4 +113,4 @@ putdocx pagebreak
 
 
 *Saving document
-putdocx save "bl_examples" , replace
+putdocx save "Examples\Results\bl_examples" , replace

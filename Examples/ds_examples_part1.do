@@ -21,14 +21,12 @@ To obtain datasets in more useful formats either export to excel or run the file
 */
 
 
-cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
-
-use "eg_data2", clear // load your dataset
+use "Examples\Data\eg_data2", clear // load your dataset
 
 ********Example 1***********
 *Continuous variables using pt_sum
 tempname postname
-postfile `postname'  str60 variable str20(sum1 sum2 sum3) using ds_example1, replace // open postfile with the required number of columns, variables must be strings, names are not important
+postfile `postname'  str60 variable str20(sum1 sum2 sum3) using Examples\Results\ds_example1, replace // open postfile with the required number of columns, variables must be strings, names are not important
 
 post `postname' ("Variable") ("N") ("mean (sd)") ("Range")  // post a row of headers
 pt_sum age bmi qol, postname(`postname') stats(N mean_sd  range) // replace age bmi and qol on this line with a list of continuous variables from your dataset
@@ -38,7 +36,7 @@ postclose `postname'
 ********Example 1***********
 *Over treatment groups
 tempname postname
-postfile `postname'  str60 variable str20(sum1 sum2 sum3 sum4 sum5 sum6 sum7 sum8 sum9) using ds_example2, replace // open postfile with the required number of columns, variables must be strings, names are not important
+postfile `postname'  str60 variable str20(sum1 sum2 sum3 sum4 sum5 sum6 sum7 sum8 sum9) using Examples\Results\ds_example2, replace // open postfile with the required number of columns, variables must be strings, names are not important
 
 post `postname' ("") ("Overall") ("") ("") ("Group1") ("") ("")  ("Group2") ("") ("")  // post any rows of headers you would like
 post `postname' ("Variable") ("N") ("mean (sd)") ("Range") ("N") ("mean (sd)") ("Range")  ("N") ("mean (sd)") ("Range") // post some more headers
@@ -50,9 +48,9 @@ postclose `postname'
 *Viewing output
 
 *Example 1
-use ds_example1, clear
+use Examples\Results\ds_example1, clear
 browse
 
 *Example 2
-use ds_example2 
+use Examples\Results\ds_example2 
 browse

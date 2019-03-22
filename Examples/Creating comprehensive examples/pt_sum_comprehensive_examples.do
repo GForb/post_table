@@ -11,7 +11,7 @@ These are Markdoc syntax which are included to allow the code to be reported in 
 *************Programms to open and close post files***************
 cap prog drop pt_sum_intro
 prog define pt_sum_intro
-local dir "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
+	local dir "Examples\Creating comprehensive examples\Output"
 	syntax namelist, eg_no(numlist max=1) cols(integer)
 	cap log close
 	qui log using pts_eg`eg_no'.smcl, replace nomsg
@@ -26,13 +26,14 @@ end
 
 cap prog drop  pt_sum_close
 prog define  pt_sum_close 
-local dir "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
+	local dir "Examples\Creating comprehensive examples\Output"
+	local test_dir "Testing\pt_sum\Test data"
 	syntax namelist, eg_no(numlist max=1)
 	postclose `namelist'	
-	use "`dir'\\pts_eg`eg_no'.dta", clear
+	use "`dir'\pts_eg`eg_no'.dta", clear
 	format _all %-100s
 	qui compress _all
-	qui save "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Test data\pts_eg`eg_no'.dta", replace
+	qui save "`test_dir'\pts_eg`eg_no'.dta", replace
 	qui log close
 end
 

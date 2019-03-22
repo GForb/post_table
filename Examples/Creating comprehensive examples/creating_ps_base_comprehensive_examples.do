@@ -1,7 +1,5 @@
-cd "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
 
-global logs "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
-
+cd "N:\Automating reporting\Git repository\post_table\Examples\Creating comprehensive examples\Output"
 
 cap prog drop putx_tab
 prog  putx_tab
@@ -38,7 +36,7 @@ end
 local start 0
 local end 10
 *Creating tables
-foreach eg in 1 (1) 5 {
+forvalues eg = 1 (1) 5 {
 	di "`eg'"
 	if `eg' >= `start' & `eg' <=`end' {
 		putdocx clear
@@ -53,10 +51,10 @@ foreach eg in 1 (1) 5 {
 local start 0
 local end 10
 *Creating markdown
-foreach eg in 1 (1) 5 {
+forvalues eg = 1 (1) 5 {
 	di "`eg'"
 	if `eg' >= `start' & `eg' <`end' {
-		qui markdoc "$logs\pts_eg`eg'.smcl", export(docx) replace // creating word doc of text
+		qui markdoc "pts_eg`eg'.smcl", export(docx) replace // creating word doc of text
 	}
 }
 
@@ -66,7 +64,7 @@ if `refresh_title' ==1 {
 	putdocx clear
 	putdocx begin, font(calibri, 12)
 	putdocx paragraph, halign(center)  style(Title)  spacing(before, 60pt)
-	putdocx text ("Comprehensive examples for the use of pt_base ")	
+	putdocx text ("Comprehensive examples for the use of pt_sum")	
 
 	putdocx paragraph, halign(center) spacing(before, 20pt) spacing(after, 1.0)
 	putdocx text ("Version 1.1.0"),  linebreak
@@ -75,16 +73,17 @@ if `refresh_title' ==1 {
 	putdocx pagebreak
 	putdocx pagebreak
 
-	putdocx save "doc_title.docx" , replace
+	putdocx save "pts_doc_title.docx" , replace
 }
 *Merging documents
-foreach eg in  $eg_list {
-	local merge_list `merge_list' ptb_eg`eg'.docx doc_`eg'.docx
+
+
+forvalues eg = 1 (1) 5 {
+	local merge_list `merge_list' pts_eg`eg'.docx  doc_`eg'.docx
 }
 
 di "`merge_list'"
-
-putdocx append doc_title.docx `merge_list', saving(pt_sum_comprehensive_examples, replace) 
+putdocx append pts_doc_title.docx `merge_list'	, saving(pt_sum_comprehensive_examples, replace) 
 
 
 

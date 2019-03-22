@@ -1,6 +1,5 @@
-cd "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
+cd "N:\Automating reporting\Git repository\post_table\Examples\Creating comprehensive examples\Output"
 
-global logs "N:\Automating reporting\Git repository\post_table\Examples\Data and results\All option examples"
 
 
 cap prog drop putx_tab
@@ -56,7 +55,7 @@ local end 10
 forvalues eg = 1 (1) 5 {
 	di "`eg'"
 	if `eg' >= `start' & `eg' <`end' {
-		qui markdoc "$logs\pts_eg`eg'.smcl", export(docx) replace // creating word doc of text
+		qui markdoc "pts_eg`eg'.smcl", export(docx) replace // creating word doc of text
 	}
 }
 

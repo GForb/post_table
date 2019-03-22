@@ -9,26 +9,30 @@ See the do file _post_table_example_ for examples of syntax and the do file _put
 
 An example workflow using the package to create a baseline table is:
 
-````
+````stata
 	use data, clear
 	
 	*Opening postfile and posting header rows
-	postfile postname str100(col col2 col3 col4), using Table_1, replace
-	post postname ("Variable") ("Intervention") ("") ("Control") ("")
-	post postname ("Variable") ("N") ("Summary") ("N") ("Summary")
+	tempname postname
+	postfile `postname' str100(col col2 col3 col4 col5) using Table_1, replace
+	post `postname' ("") ("Intervention") ("") ("Control") ("")
+	post `postname' ("Variable") ("N") ("Summary") ("N") ("Summary")
 
 	*post_table command
-	pt_table _list of baseline variables_, postfile(postname) n_analysis(cols) over(treatment_group) su_label(append)
+	pt_base age bmi qol ethnicity smoking alcohol , post(`postname') n_analysis(cols) over(treat) su_label(append) order(group_treat)
 
-	postclose postname
+	postclose `postname'
 	
 	*Creating table in Micorosoft Word
 	use Table_1.dta, clear
+	cap putdocx clear
 	putdocx begin
 	putdocx table Table_1 = data(_all)
-	putdocx table table`table_no'(.,.), font(calibri, 9)  border(all, single, lightgray, 0.5pt)
+	putdocx table Table_1(.,.), font(calibri, 9)  border(all, single, lightgray, 0.5pt)
 	putdocx table Table_1(1,2), colspan(2)
 	putdocx table Table_1(1,3), colspan(2)
+	putdocx table Table_1(1 2,.), bold
+	putdocx table Table_1(.,2 (1) 5), halign(center)
 	putdocx save Table_1, replace
 ````
 
