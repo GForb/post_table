@@ -33,4 +33,5 @@ An example workflow using the package to create a baseline table is:
 ````
 
 Note: If you want to use <sup>superscripts</sup> or <sub>subscripts</sub> in tables the unicode characters can be copied from https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
-ᵃ ᵇ ᶜ ᵈ	ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ	ᵛ ʷ ˣ ʸ ᶻ ⁰ ¹ ² ³  ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ 
+
+ᵃ ᵇ ᶜ ᵈ	ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ	ᵛ ʷ ˣ ʸ ᶻ  ¹ ² ³
