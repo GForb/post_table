@@ -123,10 +123,10 @@ foreach v in `varlist' {
 			local summaries `summaries' ("")	
 			if "`comment'" != "" local comment1 ("")
 		}
-		if `gap' > 0 {
-			forvalues i = 1 (1) `gap' {
-				post `postname' ("")  `summaries' `comment1'
-			}
+	}
+	if `gap' > 0 {
+		forvalues i = 1 (1) `gap' {
+			post `postname' ("")  `summaries' `comment1'
 		}
 	}
 }
