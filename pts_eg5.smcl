@@ -1,0 +1,90 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. 
+. 
+. /***
+> ###5 `if` and `in`
+> `if` and `in` can be used in the normal way
+> ***/
+. 
+. 
+. /***/ post `postname' ("") ("N") ("Mean (sd)") ("Median (IQR)") ("Range")
+{txt}
+{com}. /***/ pt_sum age if age > 40 , postname(`postname') stats(N mean_sd median_iqr range)
+{txt}(327 observations deleted)
+
+
+
+****** age ******
+
+Group  overall
+
+                             Age
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 40.14511       40.05585
+{txt} 5%    {res} 40.89933       40.06425
+{txt}10%    {res} 42.07242       40.08278       {txt}Obs         {res}        673
+{txt}25%    {res} 44.48105       40.09959       {txt}Sum of Wgt. {res}        673
+
+{txt}50%    {res}  49.1074                      {txt}Mean          {res} 50.17432
+                        {txt}Largest       Std. Dev.     {res} 7.034779
+{txt}75%    {res} 54.42161       70.68008
+{txt}90%    {res} 60.36003       70.92197       {txt}Variance      {res} 49.48812
+{txt}95%    {res} 63.30847       77.65178       {txt}Skewness      {res} .8155907
+{txt}99%    {res} 69.71539       79.98365       {txt}Kurtosis      {res} 3.407804
+{txt}
+{com}. /***/ pt_sum  bmi if bmi in 1/10  , postname(`postname') stats(N mean_sd median_iqr range)
+{txt}(990 observations deleted)
+
+
+
+****** bmi ******
+
+Group  overall
+
+                             BMI
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 23.63594       23.63594
+{txt} 5%    {res} 23.63594       24.26961
+{txt}10%    {res} 23.95277       24.41769       {txt}Obs         {res}         10
+{txt}25%    {res} 24.41769        24.9003       {txt}Sum of Wgt. {res}         10
+
+{txt}50%    {res} 25.72928                      {txt}Mean          {res} 25.58971
+                        {txt}Largest       Std. Dev.     {res} 1.306271
+{txt}75%    {res} 26.36149       26.19947
+{txt}90%    {res} 27.32702       26.36149       {txt}Variance      {res} 1.706344
+{txt}95%    {res} 27.99526       26.65877       {txt}Skewness      {res} .2176963
+{txt}99%    {res} 27.99526       27.99526       {txt}Kurtosis      {res} 2.332437
+{txt}
+{com}. /***/ pt_sum  qol in 1/10 if qol > 50 , postname(`postname') stats(N mean_sd median_iqr range)  
+{txt}(996 observations deleted)
+
+
+
+****** qol ******
+
+Group  overall
+
+                       Quality of life
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res} 51.66963       51.66963
+{txt} 5%    {res} 51.66963       54.37482
+{txt}10%    {res} 51.66963       56.54313       {txt}Obs         {res}          4
+{txt}25%    {res} 53.02223       59.35824       {txt}Sum of Wgt. {res}          4
+
+{txt}50%    {res} 55.45898                      {txt}Mean          {res} 55.48646
+                        {txt}Largest       Std. Dev.     {res} 3.261451
+{txt}75%    {res} 57.95069       51.66963
+{txt}90%    {res} 59.35824       54.37482       {txt}Variance      {res} 10.63706
+{txt}95%    {res} 59.35824       56.54313       {txt}Skewness      {res} .0248837
+{txt}99%    {res} 59.35824       59.35824       {txt}Kurtosis      {res}  1.72726
+{txt}
+{com}. 
+. 
+. 
+. /**/ pt_sum_close `postname', eg_no(`eg_no')
+{smcl}
+{com}{sf}{ul off}

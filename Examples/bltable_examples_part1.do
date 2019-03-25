@@ -21,14 +21,15 @@ To obtain datasets in more useful formats either export to excel or run the file
 */
 
 
-cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
+cd "N:\Automating reporting\Git repository\post_table"
 
-use "eg_data2", clear // load your dataset
+
+use "Examples\Data\eg_data2", clear // load your dataset
 
 ********Example 1***********
 tempname postname
 
-postfile `postname'  str60 variable  str50 (cat sum)   using bl_example1, replace
+postfile `postname'  str60 variable  str50 (cat sum)   using "Examples\Results\bl_example1", replace
 count
 local N = r(N)
 post `postname' ("Baseline Characteristics") ("") ("Randomised (N = `N')")
@@ -41,51 +42,37 @@ postclose `postname'
 
 
 
+
+
 ********Example 2***********
 *Over treatment group
-use "eg_data2", clear // load your dataset
+use "Examples\Data\eg_data2", clear // load your dataset
 
 tempname postname
 
-postfile `postname'  str60 variable  str50 (cat sum1 sum2 sum3 sum4 sum5 sum6)   using bl_example2, replace
-
-post `postname' ("Baseline Characteristics") ("") ("Group 0") ("") ("Group 1") ("") ("Overall") ("")
-post `postname' ("") ("") ("N") ("Summary") ("N") ("Summary") ("N") ("Summary")
-pt_base age bmi qol  gender alcohol smoking site ethnicity sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) overall(last) order(group_treat)
-	
-
-postclose `postname'
-use bl_example2, clear 
-
-********Example 3***********
-*Over treatment group
-use "eg_data2", clear // load your dataset
-
-tempname postname
-
-postfile `postname'  str60 variable  str50 (cat sum1 sum2 sum3 sum4 )   using bl_example2, replace
+postfile `postname'  str60 variable  str50 (cat sum1 sum2 sum3 sum4 )   using "Examples\Results\bl_example2", replace
 
 post `postname' ("Baseline Characteristics") ("") ("Group 0") ("") ("Group 1") ("") 
 post `postname' ("") ("") ("N") ("Summary") ("N") ("Summary") 
 
-pt_base age bmi qol  gender alcohol smoking site ethnicity , postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
+pt_base age bmi qol  gender alcohol smoking site ethnicity , postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_over)
 
 post `postname' ("No. of children") ("") ("") ("") ("N") ("") 
 
-pt_base sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
+pt_base sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_over)
 	
 
 postclose `postname'
-use bl_example2, clear 
+ 
 
 
 *Viewing output
 
 *Example 1
-use bl_example1, clear 	
+use "Examples\Results\bl_example1", clear 	
 browse
 compress _all
 
 *Example 2
-use bl_example2
+use "Examples\Results\bl_example2"
 browse

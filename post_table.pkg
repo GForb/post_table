@@ -3,3 +3,4 @@ d post_table: a set of commands to help produce trial reports
 F pt_base.ado
 F pt_sum.ado
 F pt_base.sthlp
+F pt_sum.sthlp

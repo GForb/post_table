@@ -1,17 +1,7 @@
 /*
 #Instructions
 This do file creates a word document combining the ds example and the bl example as well as creating a title page.
-
-
 */
-
-
-cd  "N:\Automating reporting\Git repository\post_table\Examples\Data and results" // set path for where your data is stored and results will be saved
-
-
-
-
-**********************************************************************************************************
 
 
 *Creating word document
@@ -23,7 +13,7 @@ putdocx paragraph, halign(center)
 putdocx text ("Automating trial reports"), bold underline font(calibri, 36) linebreak 
 
 putdocx paragraph, halign(center)  spacing(before, 30pt)
-putdocx image logo1.png // Add trial logo im	age here
+putdocx image Examples\Data\logo1.png // Add trial logo im	age here
 
 putdocx paragraph, halign(center) spacing(before, 20pt) spacing(after, 1.8)
 putdocx text ("Version 0.1"),  linebreak
@@ -37,9 +27,9 @@ putdocx pagebreak
 
 
 *Saving document
-putdocx save example_title_page, replace
+putdocx save Examples\Results\example_title_page, replace
 
 *Merging with a document already written, and the tables we saw earlier
-putdocx append example_title_page example_doc ds_examples bl_examples example_conclusions, saving(example_report, replace)
+putdocx append Examples\Results\example_title_page Examples\Data\example_doc Examples\Results\ds_examples Examples\Results\bl_examples Examples\Data\example_conclusions, saving(Examples\Results\example_report, replace)
 
 
