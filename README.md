@@ -3,7 +3,7 @@
 
 To install via stata enter the following command:
 
-`net install post_table, from("https://raw.githubusercontent.com/GForb/post_table_base/master")`
+`net install post_table, from("https://raw.githubusercontent.com/GForb/post_table_base/master") replace`
 
 See the do files in the Examples folder for syntax and examples of how to create word documents with from your do file.
 
