@@ -12,7 +12,7 @@ To run table 3, an excel named
 */
 
 
-
+cd "N:\Automating reporting\Git repository\post_table"
 
 *******************This code section of code can be esited to change the table style***************************
 cap prog drop putx_tab

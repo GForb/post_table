@@ -21,6 +21,7 @@ To obtain datasets in more useful formats either export to excel or run the file
 */
 
 
+cd "N:\Automating reporting\Git repository\post_table"
 
 
 use "Examples\Data\eg_data2", clear // load your dataset
@@ -54,11 +55,11 @@ postfile `postname'  str60 variable  str50 (cat sum1 sum2 sum3 sum4 )   using "E
 post `postname' ("Baseline Characteristics") ("") ("Group 0") ("") ("Group 1") ("") 
 post `postname' ("") ("") ("N") ("Summary") ("N") ("Summary") 
 
-pt_base age bmi qol  gender alcohol smoking site ethnicity , postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
+pt_base age bmi qol  gender alcohol smoking site ethnicity , postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_over)
 
 post `postname' ("No. of children") ("") ("") ("") ("N") ("") 
 
-pt_base sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_treat)
+pt_base sons daughters, postname(`postname') su_label(append) n_analysis(cols) cat_col over(treat) order(group_over)
 	
 
 postclose `postname'
