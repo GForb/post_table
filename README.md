@@ -29,13 +29,13 @@ An example workflow using the package to create a baseline table is:
 	putdocx begin
 	putdocx table Table_1 = data(_all)
 	putdocx table Table_1(.,.), font(calibri, 9)  border(all, single, lightgray, 0.5pt)
-	putdocx table Table_1(1,2), colspan(2)
-	putdocx table Table_1(1,3), colspan(2)
+	putdocx table Table_1(1,2), colspan(2) // merging header cells 
+	putdocx table Table_1(1,3), colspan(2) // merging header cells
 	putdocx table Table_1(1 2,.), bold
 	putdocx table Table_1(.,2 (1) 5), halign(center)
 	putdocx save Table_1, replace
 ````
 
-Note: If you want to use <sup>superscripts</sup> or <sub>subscripts</sub> in tables the unicode characters can be copied from https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
+Note: If you want to use <sup>superscripts</sup> or <sub>subscripts</sub> in tables the unicode characters can be copied from the line below or https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
 
 ᵃ ᵇ ᶜ ᵈ	ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ	ᵛ ʷ ˣ ʸ ᶻ  ¹ ² ³
