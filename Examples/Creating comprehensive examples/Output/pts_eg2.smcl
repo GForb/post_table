@@ -251,7 +251,7 @@ Group  0
 {com}. 
 . 
 . /***
-> Summaries can be grouped by `over` group or by `statistic type.
+> Summaries can be grouped by `over` group or by statistic type.
 > ***/
 . 
 . /***/ post `postname' ("") ("Mean (sd)") ("") ("Median (IQR)") ("")   

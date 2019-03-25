@@ -20,6 +20,7 @@ These are Markdoc syntax which are included to allow the code to be reported in 
 */
 
 
+cd "N:\Automating reporting\Git repository\post_table"
 
 
 *************Programms to open and close post files***************

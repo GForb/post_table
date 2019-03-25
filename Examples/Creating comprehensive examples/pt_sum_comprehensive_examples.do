@@ -8,13 +8,16 @@ These are Markdoc syntax which are included to allow the code to be reported in 
 /***/ and /**/  should not be included if copying the code for use.
 */
 
+cd "N:\Automating reporting\Git repository\post_table"
+
+
 *************Programms to open and close post files***************
 cap prog drop pt_sum_intro
 prog define pt_sum_intro
 	local dir "Examples\Creating comprehensive examples\Output"
 	syntax namelist, eg_no(numlist max=1) cols(integer)
 	cap log close
-	qui log using pts_eg`eg_no'.smcl, replace nomsg
+	qui log using "`dir'\pts_eg`eg_no'.smcl", replace nomsg
 	use "`dir'\eg_data2", clear
 	local results pts_eg`eg_no'
 	tempname postname
