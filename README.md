@@ -1,5 +1,5 @@
 ﻿# post_table
-*post_table_base* is a Stata package to help with reporting clinical trial results. The package contains two commands, pt_base and pt_sum, that add rows to an open postfile, which can then be turned into tables for microsoft word with _putdocx_, or into another document format with another second stage package.
+*post_table* is a Stata package to help with reporting clinical trial results. The package contains two commands, pt_base and pt_sum, that add rows to an open postfile, which can then be turned into tables for microsoft word with _putdocx_, or into another document format with another second stage package.
 
 To install via stata enter the following command:
 
