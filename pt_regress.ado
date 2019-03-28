@@ -1,69 +1,5 @@
-*Subroutines
-prog define ptsr_p_format, rclass
-	if `1' >=0.01 local p = string(`1', "%3.2f")
-	if `1' >=0.001 & `1' < 0.01 local p = string(`1', "%4.3f")
-	if `1' < 0.001 local p = "<0.001"
-	return local p "`p'"
-end
-
-prog define ptsr_estimates, rclass
-syntax varname, [exp decimal(integer, 1) icc]
-
-mat A = r(table)
-if "`exp'" != "" {
-	local exp1 exp(
-	local exp2 )
-}
-local col_ov = colnumb(`over')
-
-*Extracting extiamte and confidence interval
-foreach r of b ul ll  {
-	local row = rownumb(A,"`r'")
-	local `r' = `exp1'A[`row',`col_ov']`exp2'
-	local `r' = string(`coef', "%12.`est_decimal'f")
-}
-return local est ("`b' (`ll', `ul')")
-
-*Extracting and formatting p-value
-local row_pvalue = rownumb(A,"pvalue")
-local p1 = A[`row_pvalue',`col_ov']
-ptsr_p_format `p1'
-local p r(p)
-local p ("`p'")
-return local p ("`p'")
-
-*Extractig and storing ICC
-if "`icc'" != "" {
-	estat icc
-	local icc = r(icc2)
-	ptsr_p_format `icc'
-	local icc_str r(p)
-	local post_icc ("`icc_str'")
-	return local icc `post_icc'
-}
-end
-
-prog define ptsr_type 	
-syntax varname
-qui inspect `varname'
-		if r(N_unique) < 3 return local type "bin"
-		if r(N_unique) >=3 & r(N_unique) < 10 return local type "cat"
-		if r(N_unique) >= 10 | r(N_unique) ==. return local type "cont"
-end
-
-
-prog define ptsr_cat
-end
-prog define ptsr_bin
-end
-prog define ptsr_cont varname
-
-end
-prog define ptsr_skew
-end
 
 capture program drop pt_regress
-
 prog define pt_regress
 version 15.1
 syntax varlist(numeric max = 1), POSTname(string) ///
@@ -253,4 +189,99 @@ if `gap' > 0 {
 end
 
 
+* ##Subroutines
+*-------------------------------------------------------------------------------
+
+prog define ptsr_p_format, rclass
+	if `1' >=0.01 local p = string(`1', "%3.2f")
+	if `1' >=0.001 & `1' < 0.01 local p = string(`1', "%4.3f")
+	if `1' < 0.001 local p = "<0.001"
+	return local p "`p'"
+end
+
+prog define ptsr_estimates, rclass
+syntax varname, [exp decimal(integer, 1) icc]
+
+mat A = r(table)
+if "`exp'" != "" {
+	local exp1 exp(
+	local exp2 )
+}
+local col_ov = colnumb(`over')
+
+*Extracting extiamte and confidence interval
+foreach r of b ul ll  {
+	local row = rownumb(A,"`r'")
+	local `r' = `exp1'A[`row',`col_ov']`exp2'
+	local `r' = string(`coef', "%12.`est_decimal'f")
+}
+return local est ("`b' (`ll', `ul')")
+
+*Extracting and formatting p-value
+local row_pvalue = rownumb(A,"pvalue")
+local p1 = A[`row_pvalue',`col_ov']
+ptsr_p_format `p1'
+local p r(p)
+local p ("`p'")
+return local p ("`p'")
+
+*Extractig and storing ICC
+if "`icc'" != "" {
+	estat icc
+	local icc = r(icc2)
+	ptsr_p_format `icc'
+	local icc_str r(p)
+	local post_icc ("`icc_str'")
+	return local icc `post_icc'
+}
+end
+
+prog define ptsr_type, rclass	
+syntax varname
+qui inspect `varname'
+		if r(N_unique) < 3 return local type "bin"
+		if r(N_unique) >=3 & r(N_unique) < 10 return local type "cat"
+		if r(N_unique) >= 10 | r(N_unique) ==. return local type "cont"
+end
+
+prog define ptsr_cat, rclass
+end
+
+prog define ptsr_bin, rclass
+	syntax varname, lvl [over(varname) su_decimal(integer, 1) brackets count_only per positive]
+	if "`lvl'" == "overall" qui count if !missing(`varname')
+	if "`lvl'" != "overall" qui count if !missin(`varname') & `over' == `lvl'
+	local N = r(N)
+	
+	if "`lvl'" == "overall" qui count if `varname'==`positive'
+	if "`lvl'" != "overall" qui count if `varname'==`positive' & `over' == `lvl'
+	local n = r(N)
+	if "`count_only'" == ""{	
+		local percent = `n'/`N'*100
+		local per_str = string(`percent', "%12.`su_decimal'f")
+		local per_str (`per_str'`per')
+	}	
+	return local sum ("`n' `per_str' `brackets'") 
+end
+
+prog define ptsr_cont, rclass
+syntax varname, lvl [over(varname) su_decimal(integer, 1) brackets]
+	if "`lvl'" == "overall" su `varname' 
+	if "`lvl'" != "overall" su `varname' if  `over' == `lvl'
+	local mean = string(r(mean), "%12.`su_decimal'f")
+	local sd = string(r(sd), "%12.`su_decimal'f")
+	return local sum ("`mean' (`sd') `brackets'")  
+end
+
+prog define ptsr_skew, rclass
+syntax varname, lvl [over(varname) su_decimal(integer, 1) brackets]
+	if "`lvl'" == "overall" tabstat `varname', stats(q) save
+	if "`lvl'" != "overall" tabstat `varname' if  `over' == `lvl', stats(q) save
+	tempname A
+	mat define `A' = r(StatTotal) 
+	local median = string(A[2,1], "%12.`su_decimal'f")
+	local q1 = string(A[1,1], "%12.`su_decimal'f")
+	local q3 = string(A[3,1], "%12.`su_decimal'f")
+	return local sum `"("`median' (`q1'-`q3') `brackets'")"' 
+end
 
