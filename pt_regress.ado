@@ -323,18 +323,23 @@ cap prog drop pt_parse_anylist
 prog pt_parse_anylist, sclass
 	tokenize `"`0'"', parse("(" ")")
 	local section = 1
+	local section_increase = 0
 	local i = 0
 	while !inlist(`"``++i''"',"", ",", "if", "in") {
+		if `section_increase' == 1 {
+			local section = `section' + 1
+			local `section_increase' = 0
+		}
 		local j = `i' + 1
-		di `"``i''"'
 		if "``j''"' == "(" {
-			local  type`++section' ``i''
+			if `"`varlist`section''"' != "" local section = `section' + 1
+			local  type`section' ``i''
 			local i = `i' + 2
 			while `"``++j''"' != ")" {
 				local i = `i' + 1
 				local varlist`section' `varlist`section'' ``j''
 			}
-			local section = `section' + 1
+			local section_increase = 1
 		}
 		else if `"``i''"' != ")" {
 			local varlist`section' `varlist`section'' ``i''
@@ -342,13 +347,13 @@ prog pt_parse_anylist, sclass
 	}
 	sreturn clear
 	forvalues i = 1 (1) `section' {
-		sreturn local section`i' `"`varlist`i''"'
-		sreturn local type`i' `"`type`i''"'
+			sreturn local section`i' `"`varlist`i''"'
+			sreturn local type`i' `"`type`i''"'
 	}
 	sreturn local n_sections = `section'
 end
 
-cap prog drop pt_parse_options
+cap prog drop pt_parse_options  // this is supurlefous. Delete
 prog pt_parse_options, sclass
 	gettoken token 0: 0, bind parse(", ") 
 	while !inlist(`"`token'"',"", ",") {
@@ -361,18 +366,17 @@ prog pt_parse_options, sclass
 
 end
 
-cap prog drop pt_implement_base
-prog pt_implement_base
-	syntax anylist [if] [in], *
-	
-	pt_parse_options `0'
-	local options `s(options)'
-	local 0 `s(anylist)'
-	pt_parse_anylist2 `s(anylist)'
+cap prog drop pt_base2
+prog pt_base2, rclass
+	syntax anything [if] [in] [, Type(string) *]
+	di `"`anything'"'
+	pt_parse_anylist `anything'
 	forvalues i = 1 (1) `s(n_sections)' {
 		local section`i' `s(section`i')'
 		local type`i' `s(type`i')'
-		pt_base `section`i'' `if' `in', `options' type(`type`i'')
+		if "`type'" != "" local type type(`type')
+		if "`type`i''" != "" local type type(`type`i'')
+		return local pt_base`i' `"`section`i'' `if' `in', `options' `type'"'
 	}
 	
 end
