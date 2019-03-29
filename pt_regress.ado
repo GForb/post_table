@@ -353,18 +353,6 @@ prog pt_parse_anylist, sclass
 	sreturn local n_sections = `section'
 end
 
-cap prog drop pt_parse_options  // this is supurlefous. Delete
-prog pt_parse_options, sclass
-	gettoken token 0: 0, bind parse(", ") 
-	while !inlist(`"`token'"',"", ",") {
-		local anylist `anylist' `token'
-		gettoken token 0: 0, bind  parse(", ") 
-	}
-	sreturn clear
-	sreturn local anylist `"`anylist'"'
-	sreturn local options `"`0'"'
-
-end
 
 cap prog drop pt_base2
 prog pt_base2, rclass
