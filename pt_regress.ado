@@ -291,27 +291,33 @@ prog define pt_post_summaries_create, rclass
 syntax ,su(string)  [n(string) sum_cols_first order(string)]
 
 if "`order'" == "" local order group_sum
-if "`order'" == "group_sum" {
-	if "`sum_cols_first" == "" return local sum `"`su' `n'"'
-	if "`sum_cols_first" != "" return local sum `"`n' `su'"'
-}
-/*
-if "`order'" == "group_over" {
-	if `"`n'"' == "" {
-		return local sum `"`su'"'
+if `"`n'"' == "" return local sum `"`su'"'
+else {
+	if "`order'" == "group_sum" {
+		if "`sum_cols_first'" == "" return local sum `"`n' `su'"'
+		if "`sum_cols_first'" != "" return local sum `"`su' `n'"'
 	}
-	else {
+
+	if "`order'" == "group_over" {
 		tokenize `n'
-		whilst `"`i'"' != "" {
-			local n_`i' `i++'
+		local i = 0
+		while `"``++i''"' != "" {
+			local n_`i' ``i''
 		}
 		tokenize `su'
-		whilst `"`i'"' != "" {
-			if "`sum_cols_first" == "" = local sum `sum' `"`n_`i'' `i'"'
-			if "`sum_cols_first" != "" return local `sum' `"`i' `n_`i''"'
+		local i = 0
+		while `"``++i''"' != "" {
+			if "`sum_cols_first'" == ""  local sum `sum' `n_`i'' ``i''
+			if "`sum_cols_first'" != "" local sum `sum' ``i'' `n_`i''
 		}
 		return local sum `"`sum'"'
 	}
 }
-*/
+
 end
+
+cap prog drop pt_parse
+prog pt_parse, sclass
+	tokenize `0', parse("(" ")")
+end
+

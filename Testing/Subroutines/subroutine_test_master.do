@@ -13,6 +13,7 @@ do test_pt_su_mean_sd
 do test_pt_su_median_iqr 
 do test_pt_su_n_per 
 do test_pt_format_p
+pt_post_summaries_create
 
 *Level 2 routines
 do test_pt_su_estimates
