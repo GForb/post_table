@@ -8,6 +8,9 @@ if "$master_set_ado" == "" do "$host_ado"
 
 local test 0
 di _newline(1) "Test `++test'"
-pt-base_parse cont(age)
-di "`s(parsed)'"
-assert "`r(age, type(cont))'" == "age, type(cont" 
+pt_parse gender cont(age qol) ethnicity
+sreturn list
+assert "`s(section1))'" == "gender"
+assert "`s(section2))'" == "age qol, type(cont)"
+assert "`s(section3))'" == "ethnicity" 	
+assert `s(n_sections))'  == 3	

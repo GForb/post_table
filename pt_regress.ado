@@ -316,8 +316,63 @@ else {
 
 end
 
-cap prog drop pt_parse
-prog pt_parse, sclass
-	tokenize `0', parse("(" ")")
+* ## Parsing syntax
+*-------------------------------------------------------------------------------
+
+cap prog drop pt_parse_anylist
+prog pt_parse_anylist, sclass
+	tokenize `"`0'"', parse("(" ")")
+	local section = 1
+	local i = 0
+	while !inlist(`"``++i''"',"", ",", "if", "in") {
+		local j = `i' + 1
+		di `"``i''"'
+		if "``j''"' == "(" {
+			local  type`++section' ``i''
+			local i = `i' + 2
+			while `"``++j''"' != ")" {
+				local i = `i' + 1
+				local varlist`section' `varlist`section'' ``j''
+			}
+			local section = `section' + 1
+		}
+		else if `"``i''"' != ")" {
+			local varlist`section' `varlist`section'' ``i''
+		}
+	}
+	sreturn clear
+	forvalues i = 1 (1) `section' {
+		sreturn local section`i' `"`varlist`i''"'
+		sreturn local type`i' `"`type`i''"'
+	}
+	sreturn local n_sections = `section'
 end
 
+cap prog drop pt_parse_options
+prog pt_parse_options, sclass
+	gettoken token 0: 0, bind parse(", ") 
+	while !inlist(`"`token'"',"", ",") {
+		local anylist `anylist' `token'
+		gettoken token 0: 0, bind  parse(", ") 
+	}
+	sreturn clear
+	sreturn local anylist `"`anylist'"'
+	sreturn local options `"`0'"'
+
+end
+
+cap prog drop pt_implement_base
+prog pt_implement_base
+	syntax anylist [if] [in], *
+	
+	pt_parse_options `0'
+	local options `s(options)'
+	local 0 `s(anylist)'
+	pt_parse_anylist2 `s(anylist)'
+	forvalues i = 1 (1) `s(n_sections)' {
+		local section`i' `s(section`i')'
+		local type`i' `s(type`i')'
+		pt_base `section`i'' `if' `in', `options' type(`type`i'')
+	}
+	
+end
