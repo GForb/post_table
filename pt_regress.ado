@@ -353,6 +353,41 @@ prog pt_parse_anylist, sclass
 	sreturn local n_sections = `section'
 end
 
+cap prog drop pt_parse_anylist2
+prog pt_parse_anylist2, sclass
+	local section_increase = 1
+	gettoken part 0: 0, bind
+	while !inlist(`"`part'"',"", ",", "if", "in") {
+		if `section_increase' == 1 {
+			local section = `section' + 1
+			local section_increase = 0
+		}
+		local part: subinstr local part "(" " ( "
+		local word: word count `part'
+		if `word' ==1 local varlist`section' `varlist`section'' `part'
+		if `word' >1 {
+			if `"`varlist`section''"' != "" local section = `section' + 1 
+			local part: subinstr local part ")" " ) "
+			*local part: subinstr local part "," " , "
+			gettoken sub_part part: part
+			if !inlist(`"`sub_part'"',"(") local type`section' `sub_part'
+			while !inlist(`"`part'"',"") {
+				gettoken sub_part part: part
+				if !inlist(`"`sub_part'"',"(", ")") local varlist`section' `varlist`section'' `sub_part'
+			}
+			local section_increase = 1
+		}
+		gettoken part 0: 0, bind
+	}
+
+	sreturn clear
+	forvalues i = 1 (1) `section' {
+			sreturn local section`i' `"`varlist`i''"'
+			sreturn local type`i' `"`type`i''"'
+	}
+	sreturn local n_sections = `section'
+end
+
 
 cap prog drop pt_base2
 prog pt_base2, rclass
