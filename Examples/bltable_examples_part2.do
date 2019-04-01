@@ -11,6 +11,7 @@ To run table 3, an excel named
 
 */
 
+version 15.1
 
 cd "N:\Automating reporting\Git repository\post_table"
 
