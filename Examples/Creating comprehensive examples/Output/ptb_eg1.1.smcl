@@ -61,7 +61,16 @@ Group overall
                  Total {c |}{res}        889      100.00
 {txt}
 {com}. 
-. 
-. /**/ pt_base_close `postname', eg_no(`eg_no')
-{smcl}
-{com}{sf}{ul off}
+{txt}end of do-file
+
+{com}. help putdocx
+
+. help predict
+
+. help sem
+
+. help sureg
+
+. help suest
+
+. exit, clear

@@ -33,7 +33,7 @@ pt_sum age bmi qol, postname(`postname') stats(N mean_sd  range) // replace age 
 postclose `postname'
 
 
-********Example 1***********
+********Example 2***********
 *Over treatment groups
 tempname postname
 postfile `postname'  str60 variable str20(sum1 sum2 sum3 sum4 sum5 sum6 sum7 sum8 sum9) using Examples\Results\ds_example2, replace // open postfile with the required number of columns, variables must be strings, names are not important
