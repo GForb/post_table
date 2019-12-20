@@ -151,7 +151,7 @@ foreach v in `varlist' {
 		local miss_non_miss_brackets_`grp' `s(miss_non_miss_brackets)'
 		
 		*Summaries
-		pt_summary_`type1' `v', ///
+		pt_summarise_`type1' `v', ///
 			 decimal(integer 1)  brackets(string) per count_only positive(integer 1)
 	}
 
