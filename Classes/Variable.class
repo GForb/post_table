@@ -6,6 +6,7 @@ class Variable {
     double decimal_places
 	string percent_sign
 	double n_all_records
+    double include_completeness_percent
 
     *Completeness
     double n_missing
@@ -14,6 +15,8 @@ class Variable {
 	double n_complete
 	string percent_complete
 	string n_percent_complete
+    string missing_summary
+    string complete_summary
 	
     *Disticnt Records
     double n_distinct_nonmissing
@@ -21,11 +24,12 @@ class Variable {
 }
 
 prog .new
-syntax varname, [label(string) decimal_places(integer 1) percent_sign]
+syntax varname, [label(string) decimal_places(integer 1) percent_sign missing_complete_percent(integer 0)]
 	.varname = "`varlist'"
 	.set_variable_label `label'
     .decimal_places = `decimal_places'
     .set_percent_sign `percent_sign'
+    .include_missing_complete_percent = `missing_complete_percent'
 end
 
 prog set_percent_sign
@@ -51,6 +55,8 @@ prog .get_stats
 	.count_missing
 	.count_complete
 	.count_distinct_non_missing
+    .set_complete_summary
+    .set_missing_summary
 end
 
 prog .count_all_records
@@ -92,9 +98,20 @@ prog .output_n_percent
 	.n_percent`name' = "`numerator' (`percent_string')"
 end
 
-prog .summary
-    exit `.`.summary''
+prog set_missing_summary
+    if `.include_missing_complete_percent' {
+        .missing_summary = "`.n_percent_missing'"
+    }
+    else {
+        .missing_summary = "`.n_missing'"
+    }
 end
 
-
-
+prog set_complete_summary
+    if `.include_missing_complete_percent' {
+        .complete_summary = "`.n_percent_complete'"
+    }
+    else {
+        .complete_summary = "`.n_complete'"
+    }
+end

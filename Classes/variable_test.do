@@ -46,4 +46,12 @@ assert "`.test_variable.percent_complete'" == "90%"
 assert "`.test_variable.n_percent_complete'" == "90 (90%)"
 
 assert `.test_variable.n_distinct_nonmissing' == 90
- 
+
+assert "`.test_variable.missing_summary'" == "10"
+assert "`.test_variable.complete_summary'" == "90"
+
+.test_variable.include_missing_complete_percent = 1
+.test_variable.get_stats
+
+assert "`.test_variable.missing_summary'" == "10 (10%)"
+assert "`.test_variable.complete_summary'" == "90 (90%)"
