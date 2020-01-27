@@ -1,0 +1,49 @@
+class CatagoricalVariable {
+    array levels
+    array n
+    array percent
+    array n_percent
+    array summary
+}, inherit(Variable)
+
+prog .new
+    .Super.new `0'
+    .get_levels
+end
+
+prog .get_levels
+    levelsof `.varname', separate(",") local(levels)
+    .levels = {`levels'}
+end
+
+prog .get_stats
+    .Super.get_stats
+    .calculate_n_percent_by_level
+    .summary = .n_percent
+end
+
+prog .set_summary
+    foreach 
+end
+
+prog .calculate_n_percent_by_level
+    qui count if !missing(`.varname')
+    local denominator = r(N)
+    forvalues i = 1 (1) `.levels.arrnels' {
+        count if `.varname' == `.levels[`i']'
+        local numerator = r(N)
+        output_n_percent_catagorical `numerator' `denominator' `i'
+    }
+end
+
+prog .output_n_percent_catagorical
+	args numerator denominator index
+	.n[`index'] = `numerator'
+	local percent = `numerator'/`denominator'*100
+	local percent_string = string(`percent', "%12.`.decimal_places'f")
+    if "`.percent_sign'" != "" {
+        local percent_string `percent_string'%
+    }
+	.percent[`index'] = "`percent_string'"
+	.n_percent[`index'] = "`numerator' (`percent_string')"
+end

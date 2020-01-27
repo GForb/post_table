@@ -1,0 +1,48 @@
+version 13
+class ContinuousVariable {
+
+	string mean
+	string sd
+	string median
+	string q1
+	string q3
+	string min
+	string max
+	string mean_sd
+	string median_q1q3
+	string minmax
+	string mean_sd_minmax
+    string summary
+	
+}, inherit(Variable)
+
+
+prog .get_stats
+	.Super.get_stats // .Super.get_stats calls the .get_stats program from the parent class (Variable)
+	.get_stats_from_summary_detail
+    .summary = "`.mean_sd'"
+end
+
+prog .get_stats_from_summary_detail
+	su `.varname', detail
+	foreach stat in mean  sd min max p25 p50 p75 {
+		local statistic = r(`stat')
+		local `stat' = string(`statistic', "%12.`.decimal_places'f")
+	}
+    local median `p50'
+    local q1 `p25'
+    local q3 `p75'
+	local mean_sd "`mean' (`sd')"
+	local median_q1q3 "`p50' (`p25' - `p75')"
+    local minmax "`min' - `max'"
+	local mean_sd_minmax "`mean_sd' [`minmax']"
+	
+	foreach stat in mean  sd min max q1 median q3 mean_sd median_q1q3 minmax mean_sd_minmax {
+		.`stat' = "``stat''"
+	}
+end
+
+
+
+
+

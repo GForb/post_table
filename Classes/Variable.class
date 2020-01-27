@@ -1,0 +1,100 @@
+version 13
+class Variable {
+    *Variable properties
+    string varname
+	string variable_label
+    double decimal_places
+	string percent_sign
+	double n_all_records
+
+    *Completeness
+    double n_missing
+	string percent_missing
+	string n_percent_missing
+	double n_complete
+	string percent_complete
+	string n_percent_complete
+	
+    *Disticnt Records
+    double n_distinct_nonmissing
+
+}
+
+prog .new
+syntax varname, [label(string) decimal_places(integer 1) percent_sign]
+	.varname = "`varlist'"
+	.set_variable_label `label'
+    .decimal_places = `decimal_places'
+    .set_percent_sign `percent_sign'
+end
+
+prog set_percent_sign
+    args percent_sign
+    if "`percent_sign'" != "" {
+        .percent_sign = "%"
+    }
+end  
+
+prog .set_variable_label
+	args label
+	if `"`label'"' == "" {
+        local label:variable label `.varname'
+    }
+    if `"`label'"' == "" {
+        local label `.varname'
+    }
+    .variable_label = "`label'"
+end
+
+prog .get_stats
+    .count_all_records
+	.count_missing
+	.count_complete
+	.count_distinct_non_missing
+end
+
+prog .count_all_records
+	qui count
+	.n_all_records = r(N)
+end
+
+prog .count_missing
+	qui count if missing(`.varname')
+	local numerator = r(N)
+	.output_n_percent  `numerator' `.n_all_records' missing
+end
+
+prog .count_complete
+	qui count if !missing(`.varname')
+	local numerator = r(N)
+	.output_n_percent  `numerator' `.n_all_records' complete
+end
+
+prog .count_distinct_non_missing, sortpreserve
+	tempvar n_distinct
+	by `.varname', sort: gen `n_distinct' = _n == 1 
+	qui count if `n_distinct' & !missing(`.varname')
+	.n_distinct_nonmissing = r(N)
+end
+
+prog .output_n_percent
+	args numerator denominator name
+    if "`name'" != "" local name _`name'
+	
+	local percent = `numerator'/`denominator'*100
+	local percent_string = string(`percent', "%12.`.decimal_places'f")
+    if "`.percent_sign'" != "" {
+        	local percent_string `percent_string'%
+    }
+    
+    .n`name' = `numerator'
+	.percent`name' = "`percent_string'"
+	.n_percent`name' = "`numerator' (`percent_string')"
+end
+
+prog .summary
+    exit `.`.summary''
+end
+
+
+
