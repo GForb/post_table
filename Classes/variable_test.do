@@ -24,7 +24,7 @@ assert `.test_variable.n_distinct_nonmissing' == 90
 
 assert "`.test_variable.completeness_summary'" == "90"
  
-.test_variable = .Variable.new test_variable, label ("Test") decimal_places(0) percent_sign completeness_summary(missing) missing_complete_percent
+.test_variable = .Variable.new test_variable, label ("Test") decimal_places(0) percent_sign completeness_summary(missing) completeness_percent
 
 assert "`.test_variable.varname'" == "test_variable"
 assert "`.test_variable.variable_label'" == "Test"

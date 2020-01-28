@@ -21,12 +21,12 @@ class Variable {
 }
 
 prog .new
-syntax varname, [label(string) decimal_places(integer 1) percent_sign missing_complete_percent completeness_summary(string)]
+syntax varname, [label(string) decimal_places(integer 1) percent_sign completeness_percent completeness_summary(string)]
 	.varname = "`varlist'"
 	.set_variable_label `label'
     .decimal_places = `decimal_places'
     .set_percent_sign `percent_sign'
-    .include_missing_complete_percent = "`missing_complete_percent'" != ""
+    .include_missing_complete_percent = "`completeness_percent'" != ""
     .completeness = "`completeness_summary'"
 end
 
