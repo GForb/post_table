@@ -16,8 +16,8 @@ prog .get_levels
     .levels = {`levels'}
 end
 
-prog .get_stats
-    .Super.get_stats
+prog .calculate_stats
+    .Super.calculate_stats
     .calculate_n_percent_by_level
     .summary = .n_percent
 end

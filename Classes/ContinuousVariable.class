@@ -17,13 +17,13 @@ class ContinuousVariable {
 }, inherit(Variable)
 
 
-prog .get_stats
-	.Super.get_stats // .Super.get_stats calls the .get_stats program from the parent class (Variable)
-	.get_stats_from_summary_detail
+prog .calculate_stats
+	.Super.calculate_stats // .Super.calculate_stats calls the .calculate_stats program from the parent class (Variable)
+	.calc_stats_from_summary_detail
     .summary = "`.mean_sd'"
 end
 
-prog .get_stats_from_summary_detail
+prog .calc_stats_from_summary_detail
 	su `.varname', detail
 	foreach stat in mean  sd min max p25 p50 p75 {
 		local statistic = r(`stat')

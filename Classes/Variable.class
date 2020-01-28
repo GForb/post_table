@@ -7,16 +7,13 @@ class Variable {
 	string percent_sign
 	double n_all_records
     double include_completeness_percent
+    string completeness 
 
     *Completeness
-    double n_missing
-	string percent_missing
-	string n_percent_missing
-	double n_complete
-	string percent_complete
-	string n_percent_complete
-    string missing_summary
-    string complete_summary
+    double completeness_n
+	string completeness_percent
+	string completeness_n_percent
+	string completeness_summary
 	
     *Disticnt Records
     double n_distinct_nonmissing
@@ -24,12 +21,13 @@ class Variable {
 }
 
 prog .new
-syntax varname, [label(string) decimal_places(integer 1) percent_sign missing_complete_percent(integer 0)]
+syntax varname, [label(string) decimal_places(integer 1) percent_sign missing_complete_percent completeness_summary(string)]
 	.varname = "`varlist'"
 	.set_variable_label `label'
     .decimal_places = `decimal_places'
     .set_percent_sign `percent_sign'
-    .include_missing_complete_percent = `missing_complete_percent'
+    .include_missing_complete_percent = "`missing_complete_percent'" != ""
+    .completeness = "`completeness_summary'"
 end
 
 prog set_percent_sign
@@ -50,13 +48,11 @@ prog .set_variable_label
     .variable_label = "`label'"
 end
 
-prog .get_stats
+prog .calculate_stats 
     .count_all_records
-	.count_missing
-	.count_complete
+	.count_completeness
+    .set_completeness_summary
 	.count_distinct_non_missing
-    .set_complete_summary
-    .set_missing_summary
 end
 
 prog .count_all_records
@@ -64,17 +60,14 @@ prog .count_all_records
 	.n_all_records = r(N)
 end
 
-prog .count_missing
-	qui count if missing(`.varname')
+prog .count_completeness
+    if "`.completeness'" != "missing" local not !
+	qui count if `not'missing(`.varname')
 	local numerator = r(N)
-	.output_n_percent  `numerator' `.n_all_records' missing
+	.output_n_percent  `numerator' `.n_all_records' completeness
 end
 
-prog .count_complete
-	qui count if !missing(`.varname')
-	local numerator = r(N)
-	.output_n_percent  `numerator' `.n_all_records' complete
-end
+
 
 prog .count_distinct_non_missing, sortpreserve
 	tempvar n_distinct
@@ -85,7 +78,7 @@ end
 
 prog .output_n_percent
 	args numerator denominator name
-    if "`name'" != "" local name _`name'
+    if "`name'" != "" local name `name'_
 	
 	local percent = `numerator'/`denominator'*100
 	local percent_string = string(`percent', "%12.`.decimal_places'f")
@@ -93,25 +86,16 @@ prog .output_n_percent
         	local percent_string `percent_string'%
     }
     
-    .n`name' = `numerator'
-	.percent`name' = "`percent_string'"
-	.n_percent`name' = "`numerator' (`percent_string')"
+    .`name'n = `numerator'
+	.`name'percent = "`percent_string'"
+	.`name'n_percent = "`numerator' (`percent_string')"
 end
 
-prog set_missing_summary
+prog set_completeness_summary
     if `.include_missing_complete_percent' {
-        .missing_summary = "`.n_percent_missing'"
+        .completeness_summary = "`.completeness_n_percent'"
     }
     else {
-        .missing_summary = "`.n_missing'"
-    }
-end
-
-prog set_complete_summary
-    if `.include_missing_complete_percent' {
-        .complete_summary = "`.n_percent_complete'"
-    }
-    else {
-        .complete_summary = "`.n_complete'"
+        .completeness_summary = "`.completeness_n'"
     }
 end

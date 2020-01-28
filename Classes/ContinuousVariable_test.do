@@ -6,17 +6,10 @@ gen test_variable = rnormal(0, 1)
 replace test_variable = . if _n <=10
 
 .test_variable = .ContinuousVariable.new test_variable
-.test_variable.get_stats
+.test_variable.calculate_stats
 
 assert `.test_variable.n_all_records' == 100
 
-assert `.test_variable.n_missing' == 10
-assert "`.test_variable.percent_missing'" == "10.0"
-assert "`.test_variable.n_percent_missing'" == "10 (10.0)"
-
-assert `.test_variable.n_complete' == 90
-assert "`.test_variable.percent_complete'" == "90.0"
-assert "`.test_variable.n_percent_complete'" == "90 (90.0)"
 
 assert `.test_variable.n_distinct_nonmissing' == 90
 

@@ -8,17 +8,11 @@ tab test_variable
 
 discard
 .test_variable = .CatagoricalVariable.new test_variable
-.test_variable.get_stats
+.test_variable.calculate_stats
 
 assert `.test_variable.n_all_records' == 100
 
-assert `.test_variable.n_missing' == 10
-assert "`.test_variable.percent_missing'" == "10.0"
-assert "`.test_variable.n_percent_missing'" == "10 (10.0)"
 
-assert `.test_variable.n_complete' == 90
-assert "`.test_variable.percent_complete'" == "90.0"
-assert "`.test_variable.n_percent_complete'" == "90 (90.0)"
 
 assert `.test_variable.n_distinct_nonmissing' == 5
 
@@ -45,7 +39,7 @@ assert "`.test_variable.summary[4]'" == "17 (18.9)"
 assert "`.test_variable.summary[5]'" == "18 (20.0)"
 
 .test_variable2 = .CatagoricalVariable.new test_variable, decimal_places(2) percent_sign
-.test_variable2.get_stats
+.test_variable2.calculate_stats
 
 assert `.test_variable2.levels.arrnels' == 5
 assert `.test_variable2.n.arrnels' == 5

@@ -16,17 +16,15 @@ assert "`.test_variable.percent_sign'" == ""
 
 assert `.test_variable.n_all_records' == 100
 
-assert `.test_variable.n_missing' == 10
-assert "`.test_variable.percent_missing'" == "10.0"
-assert "`.test_variable.n_percent_missing'" == "10 (10.0)"
-
-assert `.test_variable.n_complete' == 90
-assert "`.test_variable.percent_complete'" == "90.0"
-assert "`.test_variable.n_percent_complete'" == "90 (90.0)"
+assert `.test_variable.completeness_n' == 90
+assert "`.test_variable.completeness_percent'" == "90.0"
+assert "`.test_variable.completeness_n_percent'" == "90 (90.0)"
 
 assert `.test_variable.n_distinct_nonmissing' == 90
+
+assert "`.test_variable.completeness_summary'" == "90"
  
-.test_variable = .Variable.new test_variable, label ("Test") decimal_places(0) percent_sign
+.test_variable = .Variable.new test_variable, label ("Test") decimal_places(0) percent_sign completeness_summary(missing) missing_complete_percent
 
 assert "`.test_variable.varname'" == "test_variable"
 assert "`.test_variable.variable_label'" == "Test"
@@ -37,21 +35,10 @@ assert "`.test_variable.percent_sign'" == "%"
 
 assert `.test_variable.n_all_records' == 100
 
-assert `.test_variable.n_missing' == 10
-assert "`.test_variable.percent_missing'" == "10%"
-assert "`.test_variable.n_percent_missing'" == "10 (10%)"
-
-assert `.test_variable.n_complete' == 90
-assert "`.test_variable.percent_complete'" == "90%"
-assert "`.test_variable.n_percent_complete'" == "90 (90%)"
+assert `.test_variable.completeness_n' == 10
+assert "`.test_variable.completeness_percent'" == "10%"
+assert "`.test_variable.completeness_n_percent'" == "10 (10%)"
 
 assert `.test_variable.n_distinct_nonmissing' == 90
 
-assert "`.test_variable.missing_summary'" == "10"
-assert "`.test_variable.complete_summary'" == "90"
-
-.test_variable.include_missing_complete_percent = 1
-.test_variable.get_stats
-
-assert "`.test_variable.missing_summary'" == "10 (10%)"
-assert "`.test_variable.complete_summary'" == "90 (90%)"
+assert "`.test_variable.completeness_summary'" == "10 (10%)"
