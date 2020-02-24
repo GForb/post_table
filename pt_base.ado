@@ -42,12 +42,8 @@ if `su_decimal' ==1 local su_decimal = `decimal'
 if `miss_decimal' ==1 local miss_decimal = `decimal'		
 
 *Setting default for over and extracting the levels of `over'
-if "`over'" != "" {
-	if "`over_grps'" == "" levelsof `over', local(over_grps)
-	if "`overall'" == "first" local over_grps overall `over_grps'
-	if "`overall'" == "last" local over_grps  `over_grps' overall
-}
-if "`over'" == "" local over_grps overall
+pt_process_over_grps `over', overall(`overall') over_grps(`over_grps')
+local over_grps `s(over_grps)'
  
 
 *setting default for order
@@ -88,7 +84,7 @@ if `cat_tabs' == 0 {
 }
 else{
 	forvalues t = 1 (1) `cat_tabs' {
-		local tab1 = "`tab1'	" 
+		local tab1 = "`tab1'  " 
 	}
 }
 
@@ -130,17 +126,10 @@ foreach v in `varlist' {
 	
 *Auto detecting type of variable. (this is very crude) - note r(N_unique) equals missing when there  are more than 99 unique values.
 
-local type1 = "`type'" // resetting type variable to be that given by command
+	local type1 = "`type'" // resetting type variable to be that given by command
 	if "`type1'" == "" {
-		qui inspect `v'
-		if r(N_unique) < 3 {
-			local type1 = "bin"
-		}
-		else if r(N_unique) < 10 {
-			local type1 = "cat"
-		}
-		else if r(N_unique) >= 10 | r(N_unique) ==. {
-			local type1 = "cont"
+		pt_pick_type `v'
+		local type1 `s(type)'
 		}
 	}
 

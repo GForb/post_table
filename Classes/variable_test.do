@@ -12,7 +12,7 @@ assert "`.test_variable.variable_label'" == "test_variable"
 assert `.test_variable.decimal_places' == 1
 assert "`.test_variable.percent_sign'" == ""
 
-.test_variable.get_stats
+.test_variable.calculate_stats
 
 assert `.test_variable.n_all_records' == 100
 
@@ -31,7 +31,7 @@ assert "`.test_variable.variable_label'" == "Test"
 assert `.test_variable.decimal_places' == 0
 assert "`.test_variable.percent_sign'" == "%"
 
-.test_variable.get_stats
+.test_variable.calculate_stats
 
 assert `.test_variable.n_all_records' == 100
 

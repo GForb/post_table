@@ -30,7 +30,7 @@ syntax varname, [label(string) decimal_places(integer 1) percent_sign completene
     .completeness = "`completeness_summary'"
 end
 
-prog set_percent_sign
+prog .set_percent_sign
     args percent_sign
     if "`percent_sign'" != "" {
         .percent_sign = "%"
