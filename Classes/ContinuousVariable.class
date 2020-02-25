@@ -21,6 +21,7 @@ prog .calculate_stats
 	.Super.calculate_stats // .Super.calculate_stats calls the .calculate_stats program from the parent class (Variable)
 	.calc_stats_from_summary_detail
     .summary = "`.mean_sd'"
+    .set_summary_brackets
 end
 
 prog .calc_stats_from_summary_detail

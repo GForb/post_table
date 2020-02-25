@@ -16,6 +16,7 @@ program .calculate_stats
     .Super.calculate_stats // .Super.calculate_stats calls the .calculate_stats program from the parent class (Variable)
     .get_n_percent_positive
     .summary = "`.n_percent'"
+    .set_summary_brackets
 end
 
 program .get_n_percent_positive

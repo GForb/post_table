@@ -25,3 +25,9 @@ assert "`.test_variable.median_q1q3'" == "-0.2 (-0.8 - 0.8)"
 assert "`.test_variable.minmax'" == "-2.6 - 2.0"
 assert "`.test_variable.mean_sd_minmax'" == "-0.1 (1.0) [-2.6 - 2.0]"
 assert "`.test_variable.summary'" == "-0.1 (1.0)"
+
+assert "`.test_variable.summary_comp_brackets'" == "-0.1 (1.0) [90]"
+
+
+
+

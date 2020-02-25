@@ -15,6 +15,8 @@ assert "`.test_variable.percent_sign'" == ""
 .test_variable.calculate_stats
 
 assert `.test_variable.n_all_records' == 100
+assert `.test_variable.N' == 90
+
 
 assert `.test_variable.completeness_n' == 90
 assert "`.test_variable.completeness_percent'" == "90.0"
@@ -42,3 +44,7 @@ assert "`.test_variable.completeness_n_percent'" == "10 (10%)"
 assert `.test_variable.n_distinct_nonmissing' == 90
 
 assert "`.test_variable.completeness_summary'" == "10 (10%)"
+
+keep if test_variable < -999
+.test_variable.calculate_stats
+assert `.test_variable.n_distinct_nonmissing' == 0

@@ -10,6 +10,7 @@ class Variable {
     string completeness 
 
     *Completeness
+    double .N
     double completeness_n
 	string completeness_percent
 	string completeness_n_percent
@@ -17,7 +18,10 @@ class Variable {
 	
     *Disticnt Records
     double n_distinct_nonmissing
-
+    
+    *Summary brackets
+    string summary
+    string summary_comp_brackets
 }
 
 prog .new
@@ -58,6 +62,8 @@ end
 prog .count_all_records
 	qui count
 	.n_all_records = r(N)
+    qui count if !missing(`.varname')
+    .N = r(N)
 end
 
 prog .count_completeness
@@ -70,10 +76,16 @@ end
 
 
 prog .count_distinct_non_missing, sortpreserve
-	tempvar n_distinct
-	by `.varname', sort: gen `n_distinct' = _n == 1 
-	qui count if `n_distinct' & !missing(`.varname')
-	.n_distinct_nonmissing = r(N)
+	qui count
+    if r(N) == 0{
+        .n_distinct_nonmissing = 0
+    }
+    else {
+        tempvar n_distinct
+        by `.varname', sort: gen `n_distinct' = _n == 1 
+        qui count if `n_distinct' & !missing(`.varname')
+        .n_distinct_nonmissing = r(N)
+    }
 end
 
 prog .output_n_percent
@@ -91,7 +103,7 @@ prog .output_n_percent
 	.`name'n_percent = "`numerator' (`percent_string')"
 end
 
-prog set_completeness_summary
+prog .set_completeness_summary
     if `.include_missing_complete_percent' {
         .completeness_summary = "`.completeness_n_percent'"
     }
@@ -99,3 +111,14 @@ prog set_completeness_summary
         .completeness_summary = "`.completeness_n'"
     }
 end
+    
+prog .set_summary_brackets
+    .summary_comp_brackets = `"`.summary' [`.completeness_summary']"'
+end
+
+
+
+
+
+
+

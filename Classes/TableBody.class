@@ -3,36 +3,49 @@ class TableBody {
     *Variable properties
     string varname
     string over_variable
-	string over_groups
+	string over_groups = "overall"
     string overall
+    string stats = "summary"
     
 	double summary_cols_first = 0
 	double completeness_cols = 0
     double completeness_brackets = 0
-    double cols_by_over_variable = 0
+    double cols_by_over_variable = 0 // if this is 1 then table is sum1 comp1 sum2 comp2 
     double n_cols
+
+    
+    
 }
 
 prog .new
-    syntax, [over_variable(string) overall(passthru) over_groups(passthru)]
-    .set_over_variable_and_groups `over_variable', `overall' `over_groups'
+    if "`0'" != "" {
+        .set_options `0'
+    }
     .count_cols
 end
 
+prog .set_options 
+    syntax, [statistics(string) over(string) overall(passthru) over_groups(passthru)  cols_by_over_variable]
+    .set_over_variable_and_groups `over', `overall' `over_groups'
+    if "`completeness_brackets'" != "" .completeness_brackets = 1
+    if "`completeness_cols'" != "" .completeness_cols = 1
+    if "`summary_cols_first'" != "" .summary_cols_first = 1
+    if "`cols_by_over_variable'" != "" .cols_by_over_variable = 1
+    if "`statistics'" != "" .stats = "`statistics'"
+end
+
 prog .count_cols
+    .Super.count_cols
     if "`.over_variable'" == "" {
-        local n_cols = 1
+        .n_cols = `.n_cols' + wordcount("`.stats'")
     }
     else {
-        local n_sum = wordcount(`.over_groups')
-        if `.overall' != "" local n_cols = `n_cols' + 1
+        .n_cols = `.n_cols' + wordcount("`.over_groups'")*wordcount("`.stats'")
     }
-    if `.completeness_cols' ==1 local n_cols = `n_cols'*2
-    .n_cols = `n_cols'
 end
 
 prog .set_over_variable_and_groups
-    syntax [varlist(default=none)],  [overall over_groups(numlist)]
+    syntax [varlist(default=none)],  [overall(string) over_groups(numlist)]
     .over_variable = "`varlist'"
     .overall = "`overall'"
     .set_over_groups "`over_groups'"
@@ -41,10 +54,10 @@ end
 prog .set_over_groups
     args over_groups
     if "`over_groups'" == "" & "`.over_variable'" != ""  {
-        levelsof `.over_variable', local(over_groups)
+        qui levelsof `.over_variable', local(over_groups)
     }
-    if "`.overall'" == "first" local over_groups "overall" `over_groups'
-    if "`.overall'" == "first" local over_groups  `over_groups' "overall"
+    if "`.overall'" == "first" local over_groups overall `over_groups'
+    if "`.overall'" == "last" local over_groups  `over_groups' overall
     
     if "`.over_variable'" == "" {
         local over_groups = "overall"
@@ -52,99 +65,54 @@ prog .set_over_groups
     .over_groups = "`over_groups'"
 end
 
-prog .get_body_columns
-    if `.completeness_cols' == 0 {
-        local columns = `.summaries'
+prog .set_stats
+    .stats = "summary"
+    if `.completeness_brackets' ==1 .stats = "summary_comp_brackets"
+    if `.completeness_cols' == 1 {
+        if `.summary_cols_first' ==1 .stats = "summary completeness_summary"
+        if `.summary_cols_first' ==0 .stats = "completeness_summary summary" 
     }
-    else if `.cols_by_over_variable' == 1 {
-        local columns = `.summaries_and_completeness_group_over'
+end
+
+
+prog .get_body
+    if `.cols_by_over_variable' == 0 {
+        class exit `"`.get_body_by_over_var'"'
+
     }
     else {
-        local columns = `.summaries_and_completeness_group_summary'
-    }
-    exit class `columns'
-end
-
-prog .summaries
-    foreach over_val in `.over_groups' {
-        local summaries `summaries' `.get_summary `over_val''
-    }
-    class exit `"`summaries'"'
-end
-
-
-
-
-prog .summaries__group_over 
-    foreach over_val in `.over_groups' {
-        if `.summary_cols_first' ==1 {
-            local summaries_and_completeness ///
-                `summaries_and_completeness' `.get_summary `over_val'' 
-        }
-        else {
-            local summaries_and_completeness ///
-                `summaries_and_completeness' ///
-                `.get_completeness `over_val'' ///
-                `.get_summary `over_val''
-        }
-    }
-    class exit `"`summaries_and_completeness'"'
-end
-
-prog .summaries_group_summary 
-    foreach over_val in `.over_groups' {
-        local summaries `summaries' `.get_summary `over_val'' 
-     }
-     foreach over_val in `.over_groups' {
-        local compleness `compleness' `.get_completeness `over_val'' 
-     }
-     if `.summary_cols_first' ==1 { 
-        local summaries_and_completeness `summaries' `compleness'
-     }
-     else {
-        local summaries_and_completeness  `compleness' `summaries'
-     }
-    class exit `"`summaries_and_completeness'"'
-end
-
-prog .get_summary
-syntax  over_value
-    if "`.over_variable'" != "" & "`over_value'" != overall {
-        preserve
-        keep if `.over_variable' == `over_value'
-    }  
-    .`.varname'.calculate_stats
-    if `.completeness_brackets' ==0 {
-        local summary  = `"`.`varname'.summary'"'
-    }
-    else {
-        local summary =  ///
-        `"`.`varname'.summary' [`.`varname'.completeness_summary']"'
+        class exit `"`.get_body_by_summary'"'
     }
     
-    if "`.over_variable'" != "" & "`over_value'" != overall {
-        restore
-    }
-    class exit `"("`summary'")"' 
 end
 
-prog .get_completeness
-syntax  over_value
-    if "`.over_variable'" != "" & "`over_value'" != overall {
+prog .get_body_by_over_var
+    foreach over_val in `.over_groups' {
+        get_stats_over, over_value(`over_val')
+        foreach stat in `.stats' {
+            local body `body' ("`.`.varname'.`stat''")
+        }
+    }
+    class exit `"`body'"'
+end
+
+prog .get_body_by_summary
+    foreach stat in `.stats' {
+        foreach over_val in `.over_groups' {
+            get_stats_over, over_value(`over_val')
+            local body `body' ("`.`.varname'.`stat''")
+        }
+            
+    }
+    class exit `"`body'"'
+end
+
+prog get_stats_over
+    syntax, over_value(string)
+    if "`over_value'" != "overall" {
         preserve
         keep if `.over_variable' == `over_value'
-    }
+    } 
     .`.varname'.calculate_stats
-    local summary = `.`varname'.completeness_summary'
-    if "`.over_variable'" != "" & "`over_value'" != overall {
-        restore
-    }
-    class exit `"("`summary'")"' 
 end
-
-
-
-
-
-
 
