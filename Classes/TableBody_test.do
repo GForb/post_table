@@ -70,3 +70,8 @@ assert `"`.table_body_test.get_body'"' == `"("46") ("-0.4 (4.7)") ("44") ("-0.5 
 .table_body_test.varname = "test_variable"
 assert `.table_body_test.n_cols' == 6
 assert `"`.table_body_test.get_body'"' == `"("-0.4 (4.7)") ("-0.5 (5.7)") ("-0.4 (5.2)") ("46") ("44") ("90")"'
+
+.table_body_test = .TableBody.new, over(treat) overall(last) statistics(N mean_sd median_q1q3)  cols_by_over_variable
+.table_body_test.varname = "test_variable"
+assert `.table_body_test.n_cols' == 9
+assert `"`.table_body_test.get_body'"' == `"("46") ("44") ("90") ("-0.4 (4.7)") ("-0.5 (5.7)") ("-0.4 (5.2)") ("-0.7 (-4.0 - 3.2)") ("-1.1 (-3.9 - 4.2)") ("-0.8 (-4.0 - 3.8)")"'

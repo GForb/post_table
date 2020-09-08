@@ -15,7 +15,7 @@ class TableBody {
 
     
     
-}
+}, inherit(Table)
 
 prog .new
     if "`0'" != "" {
