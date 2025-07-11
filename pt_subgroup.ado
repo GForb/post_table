@@ -278,8 +278,7 @@ syntax, est_decimal(integer) [exclude_p]
 			local p_str = r(p_string)
 		}
 
-		if "`exclude_p'" != ""
-			local p_str ""
+		if "`exclude_p'" != "" local p_str ""
 
 			
 		
