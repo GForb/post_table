@@ -25,7 +25,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	]
 	
 	local exclude_p exclude_p
-	if `no_interaction_test' != "" {
+	if "`no_interaction_test'" != "" {
 		local exclude_p ""
 	}
 
