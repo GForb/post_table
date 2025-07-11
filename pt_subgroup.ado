@@ -82,11 +82,13 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 
 	*collecting ICC from the model
+	if "`icc'" == "" local post_icc ""
 	if "`icc'" != "" {
 		get_icc
 		local post_icc =r(post_icc)
+		local post_icc ("`post_icc'")
+		
 	}
-	if "`icc'" == "" local post_icc ("")
 
 
 	local type1 `type'
