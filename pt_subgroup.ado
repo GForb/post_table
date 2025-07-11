@@ -272,10 +272,12 @@ syntax, est_decimal(integer) [exclude_p]
 		local ll = string(`ll', "`form_est'")
 		local ul = string(`ul', "`form_est'")
 		
-		if "`exclude_p'" == ""
+		if "`exclude_p'" == "" {
 			local p = r(p)
 			format_p, p(`p')
 			local p_str = r(p_string)
+		}
+
 		if "`exclude_p'" != ""
 			local p_str ""
 
