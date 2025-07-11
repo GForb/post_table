@@ -175,7 +175,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	*Other variable types
 
 		*Getting summareis
-		get_summaries `v' if `inanalysis' == 1 & `sub_var' == k, treat(`treat') treat_grps(`treat_grps') type(`type1') ///
+		get_summaries `v' if `inanalysis' == 1 & `sub_var' == `k', treat(`treat') treat_grps(`treat_grps') type(`type1') ///
 			missing(`missing') n_analysis(`n_analysis')  ///
 			var_label(`var_label') su_decimal(`su_decimal') ///
 			positive(`positive') `percent' ///
