@@ -1,4 +1,3 @@
-capture program drop post_subgroup_beta
 *run this program imediately following any regression command
 *posts results from logistic regression as well as mean (sd) for each group to post file
 *the reference treatment group must be the second of the treatment variables.
@@ -14,6 +13,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	gap(integer 0)  ///
 	su_decimal(integer 1) est_decimal(integer 1) miss_decimal(integer 1) decimal(integer 1) ///
 	positive(integer 1) ///
+	positive(integer 1) ///
 	missing(string) ///
 	n_analysis(string) ///
 	su_label(string) su_label_text(string) ///
@@ -22,8 +22,9 @@ syntax varlist(numeric max = 1), postname(string) ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
 	no_interaction_test /// report p-values for each subgroup level, rather than ineraction p-value
+	use_outcome_label /// uses outcome label rather than subgroup label
 	]
-	
+		
 	local exclude_p exclude_p
 	if "`no_interaction_test'" != "" {
 		local exclude_p ""
@@ -95,12 +96,19 @@ syntax varlist(numeric max = 1), postname(string) ///
 	*auto detecting type of variable (this is very crude)
 	if "`type1'" == "" {
 		get_type `v'
-		local type1 r(type)
+		local type1 `r(type)'
 	}
-
+	
+	set trace on 
 	*extracting variable labels
 	local var_label "`var_lab'" // storing variable label in local macro
-	if "`var_lab'" == ""  local var_label:variable label `sub_var'
+	
+	if "`var_lab'" == "" {
+		if "`use_outcome_label'" == ""  local var_label: variable label `sub_var'
+		if "`use_outcome_label'" != ""  local var_label: variable label `v'
+	
+	} 
+	set trace off
 		
 
 		
@@ -134,7 +142,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 		local p_int_str = r(p_string)
 		local p_int ("`p_int_str'")
 	}
-		
+	di `"posting: ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'"'	
 	post `postname' ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'
 
 	*extracting the value labels for sub grps
@@ -166,7 +174,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 		*Extracting estiamtes
 		local eform ""
 		if "`exp'" != "" local eform ,eform
-		qui lincom `prim_treat'.`treat'#`k'.`sub_var' `eform' 
+		lincom `prim_treat'.`treat' + `prim_treat'.`treat'#`k'.`sub_var' `eform' 
 		get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
 		local estimate_post_string = r(post_string)
 		
@@ -183,17 +191,13 @@ syntax varlist(numeric max = 1), postname(string) ///
 			
 		local inan_cols `r(inan_cols)'
 		local miss_cols  `r(miss_cols)'
-		local summaries = r(summaries)
-		local measure_append = r(measure_append)
-		local measure_post = r(measure_post)
-
-		di `"`measure_post'"'
-		di `"`inan_cols'"'
-		di `"`miss_cols'"'
-		di `"summaries"'
+		local summaries  `r(summaries)'
+		local measure_append  `r(measure_append)'
+		local measure_post `r(measure_post)'
 
 
 		*posting results
+		di `"posting: ("`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'"'
 		post `postname' ("`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'
 
 		}
@@ -405,6 +409,8 @@ prog get_summaries, rclass
 				local inan_cols `inan_cols'  ("`n_inanalysis_`i''")
 			}
 		}
+		
+		di `"summaries: "'
 		
 		return local inan_cols `"`inan_cols'"'
 		return local miss_cols `"`miss_cols'"'
