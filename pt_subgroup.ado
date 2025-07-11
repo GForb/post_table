@@ -313,7 +313,7 @@ prog get_summaries, rclass
 		
 		local if_statement ""
 		local and_if ""
-		if `if' != "" {
+		if `"`if'"' != "" {
 			local if_statement if `if'
 			local and_if & `if'
 		}
