@@ -181,15 +181,18 @@ syntax varlist(numeric max = 1), postname(string) ///
 			positive(`positive') `percent' ///
 			su_label_text(`su_label_text') su_label(`su_label')
 			
-		local inan_cols = r(inan_cols)
-		local miss_cols = r(miss_cols)
+		local inan_cols `r(inan_cols)'
+		local miss_cols  `r(miss_cols)'
 		local summaries = r(summaries)
 		local measure_append = r(measure_append)
 		local measure_post = r(measure_post)
 
+		di `"`measure_post'"'
+		di `"`inan_cols'"'
+		di `"`miss_cols'"'
+		di `"summaries"'
 
 
-		
 		*posting results
 		post `postname' ("`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'
 
@@ -372,6 +375,10 @@ prog get_summaries, rclass
 		if "`n_analysis'" == "brackets" local measure1 "`measure1' [no. included in analysis]"	
 		
 		}
+		
+		local measure_post ""
+		local measure_append ""
+		
 		if "`su_label_text'" != "" local measure1 `su_label_text'
 		if "`su_label'" == "col" local measure_post ("`measure1'")
 		if "`su_label'" == "append" local measure_append =" - `measure1'"
