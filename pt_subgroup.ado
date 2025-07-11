@@ -36,10 +36,6 @@ syntax varlist(numeric max = 1), postname(string) ///
 	if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
 	if "`per'" != "" local per % //sets whether % sign is included with percentages
 
-	if e(cmd) == "regress" {
-		local df = e(df_r) // setting the degrees of freedom to be used following regress
-		local tdist = 1
-	}
 
 	if "`exp'" != "" {
 		local exp1 exp(
@@ -99,16 +95,22 @@ syntax varlist(numeric max = 1), postname(string) ///
 		local type1 `r(type)'
 	}
 	
-	set trace on 
 	*extracting variable labels
 	local var_label "`var_lab'" // storing variable label in local macro
-	
+	set trace on
 	if "`var_lab'" == "" {
-		if "`use_outcome_label'" == ""  local var_label: variable label `sub_var'
-		if "`use_outcome_label'" != ""  local var_label: variable label `v'
+		if "`use_outcome_label'" == "" {
+			get_label_or_var `sub_var'
+			local var_label `r(label)'
+		}  
+		if "`use_outcome_label'" != "" {
+			get_label_or_var `v'
+			local var_label `r(label)'
+		} 
 	
-	} 
-	set trace off
+	}
+		set trace off
+
 		
 
 		
@@ -420,4 +422,12 @@ prog get_summaries, rclass
 
 
 
+end
+
+prog get_label_or_var, rclass
+syntax varname
+
+	 local var_label: variable label `varlist'
+	 if `"`var_label'"' == "" local var_label "`varlist'"
+	 return local label `var_label'
 end
