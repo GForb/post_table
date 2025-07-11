@@ -165,10 +165,9 @@ syntax varlist(numeric max = 1), postname(string) ///
 		
 		*Extracting estiamtes
 		local eform ""
-		if "`exp'" != "" local eform eform
-		if "`eform' `exclude_p'" != "" local comma ,
-		qui lincom `prim_treat'.`treat'#`k'.`sub_var' `comma' `eform' `exclude_p'
-		get_ests_from_lincom, est_decimal(`est_decimal')
+		if "`exp'" != "" local eform ,eform
+		qui lincom `prim_treat'.`treat'#`k'.`sub_var' `eform' 
+		get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
 		local estimate_post_string = r(post_string)
 		
 
