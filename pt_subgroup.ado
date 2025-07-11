@@ -64,7 +64,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 		local max_sub_grps = max(`max_sub_grps', `sub_grps`n'')
 	}
 	
-	if `prim_sub_grp' < -9999 local prim_sub_grp = `max_subgrps' // storing max as this is reference group for use in interaction test
+	if `prim_sub_grp' < -9999 local prim_sub_grp = `max_sub_grps' // storing max as this is reference group for use in interaction test
 
 	*setting decimal values
 	if `su_decimal' ==1 local su_decimal = `decimal'
