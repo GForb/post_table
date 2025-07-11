@@ -260,7 +260,6 @@ syntax , p(real)
 
 end
 
-cap prog drop get_ests_from_lincom
 prog get_ests_from_lincom, rclass
 syntax, est_decimal(integer) [exclude_p]
 		local form_est %12.`est_decimal'f
@@ -304,7 +303,6 @@ prog get_icc
 	return local post_icc `"post_icc"'
 end
 
-prog drop get_summaries
 prog get_summaries, rclass
 syntax varlist [if/], treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) ///
 [positive(integer 1) percent su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
