@@ -304,104 +304,104 @@ prog get_icc
 end
 
 prog get_summaries, rclass
-syntax varlist [if/], treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) ///
-[positive(integer 1) percent su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
-	local v `varlist'
-	local type1 `type'
-	
-	local if_statement ""
-	local and_if ""
-	if `if' != "" {
-		local if_statement if `if'
-		local and_if & `if'
-	}
-	
-	if "`type1'" == "bin" {
-		di "`v' in sub group `var_label' = `sub_lab'"
-		tab `v' `treat' `if_statement', col 
-	}
-	
-	
-	*storing missing values in local variables
-	foreach i in `treat_grps' {
-		qui count if `treat' == `i' `and_if'
-		local n_inanalysis_`i' = r(N)
-		qui count if `treat' == `i' `and_if'
-		local n_missing_`i' = r(N) - `n_inanalysis_`i''
-		local n_missing_per_`i' = `n_missing_`i''/r(N)*100
-		if "`missing'" == "brackets" local str_missing "[`n_missing_`i'']"
-		if "`n_analysis'" == "brackets" local str_missing "[`n_inanalysis_`i'']"
-			
-			*Continuous variable	
-		if "`type1'" == "cont" {
-			di "Treatment group " `i' ", sub group  `var_label' = `sub_lab`k''"
-			su `v' if  `treat' == `i' `and_if'
-			local mean = string(r(mean), "%12.`su_decimal'f")
-			local sd = string(r(sd), "%12.`su_decimal'f")
-			local su_`i' "`mean' (`sd') `str_missing' `str_inanalysis'" 
-			local measure1 "mean (sd)" 
+	syntax varlist [if/], treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) ///
+	[positive(integer 1) percent su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
+		local v `varlist'
+		local type1 `type'
+		
+		local if_statement ""
+		local and_if ""
+		if `if' != "" {
+			local if_statement if `if'
+			local and_if & `if'
 		}
-	
-	*Binary variables
+		
 		if "`type1'" == "bin" {
+			di "`v' in sub group `var_label' = `sub_lab'"
+			tab `v' `treat' `if_statement', col 
+		}
+		
+		
+		*storing missing values in local variables
+		foreach i in `treat_grps' {
 			qui count if `treat' == `i' `and_if'
-			scalar count_treat_`i' = r(N)
-			qui count if `v'==`positive' & `treat' == `i' `and_if'
-			scalar count_treat_positive_`i' = r(N)
-			local n = count_treat_positive_`i'
-			local percent = count_treat_positive_`i'/count_treat_`i'*100
-			local per_str = string(`percent', "%2.`su_decimal'f")
-			local su_`i' "`n' (`per_str'`per') `str_missing' `str_inanalysis'" 
-			local measure1 "no. (%)"
+			local n_inanalysis_`i' = r(N)
+			qui count if `treat' == `i' `and_if'
+			local n_missing_`i' = r(N) - `n_inanalysis_`i''
+			local n_missing_per_`i' = `n_missing_`i''/r(N)*100
+			if "`missing'" == "brackets" local str_missing "[`n_missing_`i'']"
+			if "`n_analysis'" == "brackets" local str_missing "[`n_inanalysis_`i'']"
+				
+				*Continuous variable	
+			if "`type1'" == "cont" {
+				di "Treatment group " `i' ", sub group  `var_label' = `sub_lab`k''"
+				su `v' if  `treat' == `i' `and_if'
+				local mean = string(r(mean), "%12.`su_decimal'f")
+				local sd = string(r(sd), "%12.`su_decimal'f")
+				local su_`i' "`mean' (`sd') `str_missing' `str_inanalysis'" 
+				local measure1 "mean (sd)" 
+			}
+		
+		*Binary variables
+			if "`type1'" == "bin" {
+				qui count if `treat' == `i' `and_if'
+				scalar count_treat_`i' = r(N)
+				qui count if `v'==`positive' & `treat' == `i' `and_if'
+				scalar count_treat_positive_`i' = r(N)
+				local n = count_treat_positive_`i'
+				local percent = count_treat_positive_`i'/count_treat_`i'*100
+				local per_str = string(`percent', "%2.`su_decimal'f")
+				local su_`i' "`n' (`per_str'`per') `str_missing' `str_inanalysis'" 
+				local measure1 "no. (%)"
+			}
+			
+			if "`type1'" == "skew" {
+				di "Treatment group " `i' ", sub group  `var_label' = `sub_lab`k''"
+				tabstat `v' if  `treat' == `i' `and_if' , stats(q) save
+				mat define A = r(StatTotal) 
+				local median = string(A[2,1], "%12.`su_decimal'f")
+				local q1 = string(A[1,1], "%12.`su_decimal'f")
+				local q3 = string(A[3,1], "%12.`su_decimal'f")
+				local su_`i' "`median' (`q1'-`q3') `str_missing' `str_inanalysis'" 
+				local measure1 "median (IQR)"
+			}
+			
+		if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
+		if "`n_analysis'" == "brackets" local measure1 "`measure1' [no. included in analysis]"	
+		
+		}
+		if "`su_label_text'" != "" local measure1 `su_label_text'
+		if "`su_label'" == "col" local measure_post ("`measure1'")
+		if "`su_label'" == "append" local measure_append =" - `measure1'"
+		
+		*creating entry in post file for summaries
+		local summaries ""
+		foreach i in `treat_grps' {
+			local temp `su_`i''
+			local summaries `summaries'  ("`temp'")
 		}
 		
-		if "`type1'" == "skew" {
-			di "Treatment group " `i' ", sub group  `var_label' = `sub_lab`k''"
-			tabstat `v' if  `treat' == `i' `and_if' , stats(q) save
-			mat define A = r(StatTotal) 
-			local median = string(A[2,1], "%12.`su_decimal'f")
-			local q1 = string(A[1,1], "%12.`su_decimal'f")
-			local q3 = string(A[3,1], "%12.`su_decimal'f")
-			local su_`i' "`median' (`q1'-`q3') `str_missing' `str_inanalysis'" 
-			local measure1 "median (IQR)"
+		local miss_cols ""
+		if "`missing'" == "cols" {
+			foreach i in `treat_grps' {
+				local miss_per = string(`n_missing_per_`i'', "%12.`miss_decimal'f")
+				local temp `n_missing_`i'' (`miss_per'`per')
+				local miss_cols `miss_cols'  ("`temp'")
+			}
 		}
 		
-	if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
-	if "`n_analysis'" == "brackets" local measure1 "`measure1' [no. included in analysis]"	
-	
-	}
-	if "`su_label_text'" != "" local measure1 `su_label_text'
-	if "`su_label'" == "col" local measure_post ("`measure1'")
-	if "`su_label'" == "append" local measure_append =" - `measure1'"
-	
-	*creating entry in post file for summaries
-	local summaries ""
-	foreach i in `treat_grps' {
-		local temp `su_`i''
-		local summaries `summaries'  ("`temp'")
-	}
-	
-	local miss_cols ""
-	if "`missing'" == "cols" {
-		foreach i in `treat_grps' {
-			local miss_per = string(`n_missing_per_`i'', "%12.`miss_decimal'f")
-			local temp `n_missing_`i'' (`miss_per'`per')
-			local miss_cols `miss_cols'  ("`temp'")
+		local inan_cols ""
+		if "`n_analysis'" == "cols" {
+			foreach i in `treat_grps' {
+				local inan_cols `inan_cols'  ("`n_inanalysis_`i''")
+			}
 		}
-	}
-	
-	local inan_cols ""
-	if "`n_analysis'" == "cols" {
-		foreach i in `treat_grps' {
-			local inan_cols `inan_cols'  ("`n_inanalysis_`i''")
-		}
-	}
-	
-	return local inan_cols `"`inan_cols'"'
-	return local miss_cols `"`miss_cols'"'
-	return local summaries `"`summaries'"'
-	return local measure_append `"`measure_append'"'
-	return local measure_post `"`measure_post'"'
+		
+		return local inan_cols `"`inan_cols'"'
+		return local miss_cols `"`miss_cols'"'
+		return local summaries `"`summaries'"'
+		return local measure_append `"`measure_append'"'
+		return local measure_post `"`measure_post'"'
 
 
 
