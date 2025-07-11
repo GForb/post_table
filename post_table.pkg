@@ -6,3 +6,5 @@ F pt_model.ado
 F pt_base.sthlp
 F pt_sum.sthlp
 F pt_model.sthlp
+F pt_model_mt.ado
+F pt_subgroup.ado
