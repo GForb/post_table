@@ -25,7 +25,7 @@ syntax varlist(numeric max = 1), postname(passthru) ///
 
 	if "`timepoints'" != "" local sub_grps sub_grps(`timepoints')
 	pt_subgroup `varlist', sub_var(`time_var') `sub_grps' `postname' `type' `treat' `treat_grps' `prim_treat' `gap' `su_decimal' `est_decimal' `miss_decimal' `decimal' ///
-		`positive' `missing' `n_analysis' `su_label' `su_label_text' `append_label' `var_lab' `per' `exp' `icc' use_outcome_label
+		`positive' `missing' `n_analysis' `su_label' `su_label_text' `append_label' `var_lab' `per' `exp' `icc' use_outcome_label int_test_false
 	
 	
 end

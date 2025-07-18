@@ -21,12 +21,12 @@ syntax varlist(numeric max = 1), postname(string) ///
 	per ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
-	no_interaction_test /// report p-values for each subgroup level, rather than ineraction p-value
+	int_test_false /// report p-values for each subgroup level, rather than ineraction p-value
 	use_outcome_label /// uses outcome label rather than subgroup label
 	]
-		
+
 	local exclude_p exclude_p
-	if "`no_interaction_test'" != "" {
+	if "`int_test_false'" != "" {
 		local exclude_p ""
 	}
 
@@ -97,7 +97,6 @@ syntax varlist(numeric max = 1), postname(string) ///
 	
 	*extracting variable labels
 	local var_label "`var_lab'" // storing variable label in local macro
-	set trace on
 	if "`var_lab'" == "" {
 		if "`use_outcome_label'" == "" {
 			get_label_or_var `sub_var'
@@ -109,7 +108,6 @@ syntax varlist(numeric max = 1), postname(string) ///
 		} 
 	
 	}
-		set trace off
 
 		
 
@@ -137,11 +135,11 @@ syntax varlist(numeric max = 1), postname(string) ///
 	
 	*get p value for interaction
 	local p_int ("")
-	if "`no_interaction_test'" != "" {
+	if "`int_test_false'" == "" {
 		lincom `prim_treat'.`treat'#`prim_sub_grp'.`sub_var'
 		local p_int_val = r(p)
-		format_p, p(`p_int')
-		local p_int_str = r(p_string)
+		format_p, p(`p_int_val')
+		local p_int_str  `r(p_string)'
 		local p_int ("`p_int_str'")
 	}
 	di `"posting: ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'"'	
@@ -178,7 +176,9 @@ syntax varlist(numeric max = 1), postname(string) ///
 		if "`exp'" != "" local eform ,eform
 		lincom `prim_treat'.`treat' + `prim_treat'.`treat'#`k'.`sub_var' `eform' 
 		get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
-		local estimate_post_string = r(post_string)
+		local estimate_post_string  `r(post_string)'
+		di "Lincom post string: " `estimate_post_string'
+		
 		
 
 
@@ -197,10 +197,10 @@ syntax varlist(numeric max = 1), postname(string) ///
 		local measure_append  `r(measure_append)'
 		local measure_post `r(measure_post)'
 
-
+		local indent "    "
 		*posting results
-		di `"posting: ("`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'"'
-		post `postname' ("`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'
+		di `"posting: ("`indent'`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'"'
+		post `postname' ("`indent'`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'
 
 		}
 
@@ -288,7 +288,8 @@ syntax, est_decimal(integer) [exclude_p]
 		}
 
 		if "`exclude_p'" != "" local p_str ""
-
+		di "`exclude_p'"
+		di "`p_str'"
 			
 		
 		local post_string `"("`coef' (`ll', `ul')")  ("`p_str'")"'
