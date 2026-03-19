@@ -13,7 +13,6 @@ syntax varlist(numeric max = 1), postname(string) ///
 	gap(integer 0)  ///
 	su_decimal(integer 1) est_decimal(integer 1) miss_decimal(integer 1) decimal(integer 1) ///
 	positive(integer 1) ///
-	positive(integer 1) ///
 	missing(string) ///
 	n_analysis(string) ///
 	su_label(string) su_label_text(string) ///
