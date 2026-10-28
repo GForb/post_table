@@ -1,6 +1,10 @@
 *Generate data
 
-cd "/Users/k1811974/Library/CloudStorage/OneDrive-King'sCollegeLondon/Programming/Automating reporting/Git repository/post_table/Testing/pt_model"
+if "$pt_root" == "" global pt_root "`c(pwd)'"
+cap program list pt_check
+if _rc do "$pt_root/Testing/test_helpers.do"
+
+cd "$pt_root/Testing/pt_model"
 
 set seed 100
 clear
@@ -46,7 +50,7 @@ pt_model y_count, postname(`postname') treat(allocation) exp type(skew) su_label
 postclose `postname'
 
 use `results', clear
-tempname test1
+tempfile test1
 save `test1', replace
 *save pt_model_test1_reference, replace // updates reference data
 
@@ -75,16 +79,12 @@ pt_model y_count, postname(`postname') treat(allocation)  type(skew) su_label(ap
 postclose `postname'
 
 use `results', clear
-tempname test2
+tempfile test2
 save `test2', replace
 *save pt_model_test2_reference, replace // updates reference data
 
 forvalues i = 1(1)2 {
 	use `test`i'', clear
-	cap noisily  cf _all using "pt_model_test`i'_reference", verbose
-	local errors = r(Nsum)
-	if `errors' == 0 di as result "Test `i' passed"
-	if `errors' > 0 di as error "Test `i' failed" 
-	
+	pt_check using "pt_model_test`i'_reference.dta", name(pt_model:test`i')
 }
 

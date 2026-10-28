@@ -1,14 +1,14 @@
-global ref_data "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Reference data"
-global test_data "N:\Automating reporting\Git repository\post_table\Testing\pt_sum\Test data"
+* Compares each table written by pt_sum_comprehensive_examples.do with its reference copy
 
-cd "$ref_data"
-local files: dir . files "*dta"
+if "$pt_root" == "" global pt_root "`c(pwd)'"
+cap program list pt_check
+if _rc do "$pt_root/Testing/test_helpers.do"
+
+local ref_data "$pt_root/Testing/pt_sum/Reference data"
+local test_data "$pt_root/Testing/pt_sum/Test data"
+
+local files: dir "`ref_data'" files "*dta"
 foreach f in `files' {
-	use `f', clear
-	di as text "Testing `f'"
-	cap noisily  cf _all using "$test_data\\`f'", verbose
-	local errors = r(Nsum)
-	if `errors' == 0 di as result "Test of `f' passed"
-	if `errors' > 0 di as error "Test of `f' failed" 
-
+	use "`ref_data'/`f'", clear
+	pt_check using "`test_data'/`f'", name(pt_sum:`f')
 }
