@@ -20,18 +20,18 @@ These are Markdoc syntax which are included to allow the code to be reported in 
 */
 
 
-cd "N:\Automating reporting\Git repository\post_table"
+if "$pt_root" != "" cd "$pt_root"
 
 
 *************Programms to open and close post files***************
 cap prog drop pt_base_intro
 prog define pt_base_intro
-	local dir "Examples\Creating comprehensive examples\Output"
+	local dir "Examples/Creating comprehensive examples/Output"
 	syntax namelist, eg_no(numlist max=1) cols(integer)
 	cap log close
-	qui log using "`dir'\\ptb_eg`eg_no'.smcl", replace nomsg
-	use "Examples\Creating comprehensive examples\eg_data2", clear
-	local results "`dir'\\ptb_eg`eg_no'"
+	qui log using "`dir'/ptb_eg`eg_no'.smcl", replace nomsg
+	use "Examples/Creating comprehensive examples/eg_data2", clear
+	local results "`dir'/ptb_eg`eg_no'"
 	tempname postname
 	forvalues i = 1 (1) `cols' {
 		local post_cols `post_cols' col`i'
@@ -41,14 +41,14 @@ end
 
 cap prog drop  pt_base_close
 prog define  pt_base_close 
-	local dir "Examples\Creating comprehensive examples\Output"
-	local test_dir "Testing\pt_base\Test data"
+	local dir "Examples/Creating comprehensive examples/Output"
+	local test_dir "Testing/pt_base/Test data"
 	syntax namelist, eg_no(numlist max=1)
 	postclose `namelist'	
-	use "`dir'\\ptb_eg`eg_no'.dta", clear
+	use "`dir'/ptb_eg`eg_no'.dta", clear
 	format _all %-100s
 	qui compress _all
-	qui save "`test_dir'\ptb_eg`eg_no'.dta", replace
+	qui save "`test_dir'/ptb_eg`eg_no'.dta", replace
 	qui log close
 end
 

@@ -1,10 +1,10 @@
 *Generate data
 
-cd "/Users/k1811974/Library/CloudStorage/OneDrive-King'sCollegeLondon/Programming/Automating reporting/Git repository/post_table/Testing/pt_model_mt"
+if "$pt_root" == "" global pt_root "`c(pwd)'"
+cap program list pt_check
+if _rc do "$pt_root/Testing/test_helpers.do"
 
-*prog drop _all
-*do "../../pt_subgroup.ado"
-*do "../../pt_model_mt.ado"
+cd "$pt_root/Testing/pt_model_mt"
 
 set seed 100
 clear
@@ -68,4 +68,4 @@ postclose `postname'
 
 use `results', clear
 
-cf _all using "Test Data/pt_model_mt_test_data.dta", all
+pt_check using "Test Data/pt_model_mt_test_data.dta", name(pt_model_mt:test1)
