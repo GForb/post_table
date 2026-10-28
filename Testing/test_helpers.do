@@ -5,11 +5,10 @@ defines programs that record each test result without stopping the run.
 Expects $pt_root to be the repository root. If it is not set, the current
 working directory is used.
 
-Reference files: set global pt_refs before running to write reference files
-instead of comparing against them. Check new reference files by hand before
+Reference files: set global pt_refs create before running to write reference
+files that do not exist yet. Existing reference files are never overwritten;
+to regenerate one, delete it first. Check new reference files by hand before
 committing them.
-	global pt_refs create   // writes reference files that do not exist yet
-	global pt_refs update   // overwrites all reference files
 */
 
 if "$pt_root" == "" global pt_root "`c(pwd)'"
@@ -68,8 +67,8 @@ program define pt_check
 	syntax using/, name(string)
 	cap confirm file `"`using'"'
 	local exists = _rc == 0
-	if "$pt_refs" == "update" | ("$pt_refs" == "create" & !`exists') {
-		qui save `"`using'"', replace
+	if "$pt_refs" == "create" & !`exists' {
+		qui save `"`using'"'
 		di as text `"REFERENCE WRITTEN: `name' -> `using' (check by hand before committing)"'
 		exit
 	}
