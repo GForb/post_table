@@ -89,24 +89,9 @@ forvalues i = 1(1)2 {
 }
 
 
-*Data for tests 3 and 4: clustered by site, with missing outcome data
-set seed 2024
-clear
-set obs 400
-gen site = ceil(_n/20)
-gen allocation = rbinomial(1, 0.5)
-bysort site: gen u = rnormal(0, 1) if _n == 1
-bysort site: replace u = u[1]
-gen y_cont = 10 + allocation + u + rnormal(0, 3)
-gen y_bin = y_cont > 11
-gen y_null = rnormal(0, 1)
-replace y_cont = . if runiform() < 0.1
-replace y_bin = . if missing(y_cont)
-label var y_cont "Continuous"
-label var y_bin "Binary"
-label var y_null "Null"
-tempfile test_data2
-save `test_data2'
+*Data for tests 3 and 4: clustered by site, with missing outcome data (made by Testing/make_input_data.do)
+local test_data2 "$pt_root/Testing/pt_model/Input data/pt_model_input.dta"
+use "`test_data2'", clear
 
 *Test 3: mixed model with icc, missing(cols), per and decimal()
 tempname postname
@@ -130,7 +115,7 @@ pt_expect miss1, row(1) value("`exp_miss1'") name(pt_model:test3_missing_cols)
 pt_expect icc, row(1) value("`exp_icc'") name(pt_model:test3_icc)
 
 *Test 4: p >= 0.01, gap, var_lab, treat_grps order, positive(0), est_decimal, missing(brackets)
-use `test_data2', clear
+use "`test_data2'", clear
 tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum1 sum2 est p) using `results' , replace
@@ -156,7 +141,7 @@ pt_expect p, row(1) value("`exp_p_null'") name(pt_model:test4_p_two_decimals)
 pt_expect sum1, row(3) value("`exp_neg_treated'") name(pt_model:test4_positive0_treat_grps)
 
 *Known bug: append_label() writes the literal text `append_label into the table
-use `test_data2', clear
+use "`test_data2'", clear
 tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum1 sum2 est p) using `results' , replace

@@ -7,10 +7,8 @@ if _rc do "$pt_root/Testing/test_helpers.do"
 cd "$pt_root/Testing/pt_base"
 
 *Test 1: categorical variables with order(group_over) and no cat_col, including one without value labels
-use "$pt_root/Examples/Creating comprehensive examples/eg_data2", clear
-clonevar ethnicity_nolab = ethnicity
-label values ethnicity_nolab
-label var ethnicity_nolab "Ethnicity (no value labels)"
+*Input data made by Testing/make_input_data.do: eg_data2 plus ethnicity_nolab
+use "$pt_root/Testing/pt_base/Input data/pt_base_extra_input.dta", clear
 
 tempname postname
 tempfile results

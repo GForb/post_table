@@ -11,30 +11,8 @@ cd "$pt_root/Testing/pt_subgroup"
 *************Programs to generate data and expected values***************
 cap prog drop pt_subgroup_data
 prog define pt_subgroup_data
-	clear
-	set seed 2024
-	set obs 400
-	gen site = ceil(_n/20)
-	gen allocation = rbinomial(1, 0.5)
-	gen sex = rbinomial(1, 0.5) + 1
-	gen agegrp = 1 + (runiform() > 0.4) + (runiform() > 0.7)
-	bysort site: gen u = rnormal(0, 1) if _n == 1
-	bysort site: replace u = u[1]
-	gen y_cont = 10 + allocation + 0.5*allocation*(sex==2) + u + rnormal(0, 3)
-	gen y_bin = y_cont > 11
-	gen y_skew = exp(rnormal(1 + 0.3*allocation, 0.8))
-	replace y_cont = . if runiform() < 0.1
-	replace y_bin = . if missing(y_cont)
-
-	label define sex 1 "Male" 2 "Female"
-	label values sex sex
-	label define agegrp 1 "18-39" 2 "40-59" 3 "60+"
-	label values agegrp agegrp
-	label var sex "Sex"
-	label var agegrp "Age group"
-	label var y_cont "Continuous"
-	label var y_bin "Binary"
-	label var y_skew "Skewed"
+	* Input data made by Testing/make_input_data.do
+	use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta", clear
 end
 
 cap prog drop fmt_p

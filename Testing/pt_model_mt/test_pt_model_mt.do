@@ -71,7 +71,7 @@ use `results', clear
 pt_check using "Test Data/pt_model_mt_test_data.dta", name(pt_model_mt:test1)
 
 *Test 2: binary outcome, exp, timepoints sets the row order
-use `test_data', clear
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
 tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum1 sum2 est p) using `results' , replace
@@ -88,7 +88,7 @@ pt_check using "pt_model_mt_test2_reference.dta", name(pt_model_mt:test2)
 pt_expect est, row(2) value("`exp_est_t3'") name(pt_model_mt:test2_odds_ratio_time3)
 
 *Test 3: skewed outcome, su_label(append), var_lab, gap, est_decimal
-use `test_data', clear
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
 tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum1 sum2 est p) using `results' , replace
@@ -106,7 +106,7 @@ pt_check using "pt_model_mt_test3_reference.dta", name(pt_model_mt:test3)
 pt_expect sum2, row(3) value("`exp_sum2_t2'") name(pt_model_mt:test3_median_iqr)
 
 *Known bug: icc stops with r(151) "non r-class program may not set r()"
-use `test_data', clear
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
 tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum1 sum2 est p icc) using `results' , replace
