@@ -1,1 +1,5 @@
 *.stswp
+.DS_Store
+__*.dta
+test_master.log
+*.code-workspace
