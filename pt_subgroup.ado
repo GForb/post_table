@@ -9,7 +9,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	[ ///
 	type(string) ///
 	treat(varname) treat_grps(numlist) prim_treat(integer -10000) ///
-	sub_grps(numlist) prim_sub_grp(integer -10000) ///
+	sub_grps(numlist) ///
 	gap(integer 0)  ///
 	su_decimal(integer 1) est_decimal(integer 1) miss_decimal(integer 1) decimal(integer 1) ///
 	positive(integer 1) ///
@@ -51,16 +51,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 	if `prim_treat' < -9999 local prim_treat = `max_grps'
 	
 
-	*storing sub group values as sub_grp1, sub_grp2...
+	*setting sub group values
 	if "`sub_grps'" == "" qui levelsof `sub_var', local(sub_grps)
-	local grps_s: word count `sub_grps'
-	forvalues n = 1 (1) `grps_s' {
-		local sub_grps`n': word `n' of `sub_grps'
-		if "`max_sub_grps'" == "" local max_sub_grps = `sub_grps`n''
-		local max_sub_grps = max(`max_sub_grps', `sub_grps`n'')
-	}
-	
-	if `prim_sub_grp' < -9999 local prim_sub_grp = `max_sub_grps' // storing max as this is reference group for use in interaction test
 
 	*setting decimal values
 	if `su_decimal' ==1 local su_decimal = `decimal'
@@ -135,7 +127,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	*get p value for interaction
 	local p_int ("")
 	if "`int_test_false'" == "" {
-		lincom `prim_treat'.`treat'#`prim_sub_grp'.`sub_var'
+		testparm `prim_treat'.`treat'#i.`sub_var' // joint test across all sub group levels
 		local p_int_val = r(p)
 		format_p, p(`p_int_val')
 		local p_int_str  `r(p_string)'

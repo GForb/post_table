@@ -38,11 +38,10 @@
 {syntab:Treatment indicator}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}} Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
+{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. The interaction p-value is a joint test of all interaction terms between this group and {cmd: sub_var}. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
 
 {syntab:Subgroups}
 {synopt:{opt sub_grps(numlist)}} Specify the order levels of the {cmd: sub_var }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_sub_grp(integer)}} Non-reference group for {cmd: sub_var } used in statistical test for interaction. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
 
 
 

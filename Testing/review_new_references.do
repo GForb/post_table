@@ -151,10 +151,9 @@ review_pause 6
 ********************************************************************************
 review_table 7 pt_subgroup/pt_subgroup_test3_reference.dta
 di as text "Made by: regress y_skew i.allocation##i.agegrp"
-di as text "         pt_subgroup y_skew, sub_var(agegrp) treat(allocation) type(skew) su_label(append) use_outcome_label prim_sub_grp(2)"
+di as text "         pt_subgroup y_skew, sub_var(agegrp) treat(allocation) type(skew) su_label(append) use_outcome_label"
 di as text "Check:   median (IQR) of y_skew by allocation and agegrp; estimates from lincom for each age group;"
-di as text "         DESIGN QUESTION: the header p tests only 1.allocation#2.agegrp (40-59 vs 18-39),"
-di as text "         not the joint interaction (compare: testparm 1.allocation#i.agegrp)"
+di as text "         header p is the joint interaction test (compare: testparm 1.allocation#i.agegrp)"
 
 review_data "pt_subgroup/Input data/pt_subgroup_input.dta"
 qui regress y_skew i.allocation##i.agegrp

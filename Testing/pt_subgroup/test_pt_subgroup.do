@@ -103,7 +103,7 @@ pt_expect est, row(3) value("`exp_est_female'") name(pt_subgroup:test2_odds_rati
 
 
 ********************************************************************************
-*  Test 3: skewed outcome, three-level subgroup, prim_sub_grp, use_outcome_label
+*  Test 3: skewed outcome, three-level subgroup, joint interaction test, use_outcome_label
 ********************************************************************************
 pt_subgroup_data
 tempname postname
@@ -111,12 +111,12 @@ tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
 
 regress y_skew i.allocation##i.agegrp
-pt_subgroup y_skew, postname(`postname') sub_var(agegrp) treat(allocation) type(skew) su_label(append) use_outcome_label prim_sub_grp(2)
+pt_subgroup y_skew, postname(`postname') sub_var(agegrp) treat(allocation) type(skew) su_label(append) use_outcome_label
 
 qui tabstat y_skew if e(sample) & allocation == 0 & agegrp == 3, stats(q) save
 mat Q = r(StatTotal)
 local exp_sum0_60 = string(Q[2,1], "%12.1f") + " (" + string(Q[1,1], "%12.1f") + "-" + string(Q[3,1], "%12.1f") + ")"
-qui lincom 1.allocation#2.agegrp
+qui test 1.allocation#2.agegrp 1.allocation#3.agegrp
 fmt_p `r(p)'
 local exp_p_int `r(s)'
 postclose `postname'
@@ -124,7 +124,20 @@ postclose `postname'
 use `results', clear
 pt_check using "pt_subgroup_test3_reference.dta", name(pt_subgroup:test3)
 pt_expect sum0, row(4) value("`exp_sum0_60'") name(pt_subgroup:test3_median_iqr)
-pt_expect p, row(1) value("`exp_p_int'") name(pt_subgroup:test3_interaction_p_prim_sub_grp)
+pt_expect p, row(1) value("`exp_p_int'") name(pt_subgroup:test3_interaction_p_joint)
+
+* Same joint p-value when the highest subgroup level is the model base
+pt_subgroup_data
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+
+regress y_skew i.allocation##ib3.agegrp
+pt_subgroup y_skew, postname(`postname') sub_var(agegrp) treat(allocation) type(skew) su_label(append) use_outcome_label
+postclose `postname'
+
+use `results', clear
+pt_expect p, row(1) value("`exp_p_int'") name(pt_subgroup:test3_interaction_p_highest_level_base)
 
 
 ********************************************************************************
