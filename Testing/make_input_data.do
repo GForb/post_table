@@ -1,14 +1,26 @@
 /*
 Creates the simulated input datasets used by the newer tests. This is kept as a
 record of how the data were made; the tests load the saved files and do not
-run this. The files are saved without replace, so existing input data are never
-overwritten. To recreate a file, delete it first.
+run this. Existing input data are never overwritten: any file that already exists
+is skipped. To recreate a file, delete it first.
 
 Run from the repository root:
 	do Testing/make_input_data.do
 */
 
 if "$pt_root" == "" global pt_root "`c(pwd)'"
+
+cap prog drop save_new
+prog define save_new
+	* Saves the data in memory unless the file already exists
+	args file
+	cap confirm file "`file'"
+	if _rc == 0 {
+		di as text "Exists, not overwritten: `file'"
+		exit
+	}
+	save "`file'"
+end
 
 
 *pt_model tests 3 and 4: clustered by site, with missing outcome data
@@ -27,7 +39,7 @@ replace y_bin = . if missing(y_cont)
 label var y_cont "Continuous"
 label var y_bin "Binary"
 label var y_null "Null"
-save "$pt_root/Testing/pt_model/Input data/pt_model_input.dta"
+save_new "$pt_root/Testing/pt_model/Input data/pt_model_input.dta"
 
 
 *pt_model_mt tests 2 and 3: same data as pt_model_mt test 1
@@ -51,7 +63,7 @@ label var y_bin "Binary"
 label var y_count "Poisson"
 label define time 1 "Time 1" 2 "Time 2" 3 "Time 3"
 label values time time
-save "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta"
+save_new "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta"
 
 
 *pt_subgroup tests
@@ -78,7 +90,7 @@ label var agegrp "Age group"
 label var y_cont "Continuous"
 label var y_bin "Binary"
 label var y_skew "Skewed"
-save "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta"
+save_new "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta"
 
 
 *pt_subgroup test 5: three treatment arms and a three-level subgroup
@@ -96,7 +108,7 @@ label values agegrp agegrp
 label var arm "Treatment arm"
 label var agegrp "Age group"
 label var y_cont "Continuous"
-save "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta"
+save_new "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta"
 
 
 *pt_base extra test: example data plus a categorical variable without value labels
@@ -104,4 +116,4 @@ use "$pt_root/Examples/Creating comprehensive examples/eg_data2", clear
 clonevar ethnicity_nolab = ethnicity
 label values ethnicity_nolab
 label var ethnicity_nolab "Ethnicity (no value labels)"
-save "$pt_root/Testing/pt_base/Input data/pt_base_extra_input.dta"
+save_new "$pt_root/Testing/pt_base/Input data/pt_base_extra_input.dta"
