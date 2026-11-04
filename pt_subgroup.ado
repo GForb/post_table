@@ -64,7 +64,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	tempname inan_label
 	gen `inanalysis' = e(sample)
 	label var `inanalysis' "In analysis?"
-	label define `inan_label' 1 "Included in analysis" 0 "Excluded from analsis"
+	label define `inan_label' 1 "Included in analysis" 0 "Excluded from analysis"
 	label values `inanalysis' `inan_label' 
 
 
@@ -136,10 +136,9 @@ syntax varlist(numeric max = 1), postname(string) ///
 	di `"posting: ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'"'	
 	post `postname' ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'
 
-	*extracting the value labels for sub grps
-	local val_label: value label `sub_var' // storing the value labels of treat
+	*extracting the value labels for sub grps (the numeric value if there is no label)
 	foreach i in `sub_grps' {
-		local sub_lab`i': label `val_label' `i'
+		local sub_lab`i' : label (`sub_var') `i'
 	}
 
 

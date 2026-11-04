@@ -222,6 +222,46 @@ postclose `postname'
 
 
 ********************************************************************************
+*  Test 6: sub_var without value labels uses the numeric value as the row label
+********************************************************************************
+pt_subgroup_data
+label values sex
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+
+regress y_cont i.allocation##i.sex
+cap noisily pt_subgroup y_cont, postname(`postname') sub_var(sex) treat(allocation)
+pt_record pt_subgroup:test6_no_value_labels_runs, rc(`=_rc')
+
+qui lincom 1.allocation + 1.allocation#2.sex
+fmt_lincom 1
+local exp_est_2 `r(s)'
+postclose `postname'
+
+use `results', clear
+pt_expect variable, row(2) value("    1  ") name(pt_subgroup:test6_row_label_level1)
+pt_expect variable, row(3) value("    2  ") name(pt_subgroup:test6_row_label_level2)
+pt_expect est, row(3) value("`exp_est_2'") name(pt_subgroup:test6_est_level2)
+
+* A value label that covers only some levels: the rest use the numeric value
+pt_subgroup_data
+label define agegrp_part 1 "Youngest"
+label values agegrp agegrp_part
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+regress y_cont i.allocation##i.agegrp
+cap noisily pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(allocation)
+pt_record pt_subgroup:test6_partial_value_labels_runs, rc(`=_rc')
+postclose `postname'
+
+use `results', clear
+pt_expect variable, row(2) value("    Youngest  ") name(pt_subgroup:test6_partial_labelled_level)
+pt_expect variable, row(3) value("    2  ") name(pt_subgroup:test6_partial_unlabelled_level)
+
+
+********************************************************************************
 *  Known bugs: these check the correct output and are expected to fail for now
 ********************************************************************************
 

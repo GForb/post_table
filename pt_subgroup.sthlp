@@ -110,7 +110,7 @@ To compare each arm with the reference, run {cmd:pt_subgroup} once per arm, sett
 The command stops with an error if {cmd:prim_treat()} is the reference arm of the model. This includes the default when the highest arm is the reference, for example after fitting {cmd:ib2.treat} with arms 0, 1 and 2.
 
 {pstd}
-{bf:Subgroup levels.} One row is posted for each level in {cmd:sub_grps()}, giving the effect of {cmd:prim_treat()} against the reference arm within that level. {cmd:sub_var} must have value labels.
+{bf:Subgroup levels.} One row is posted for each level in {cmd:sub_grps()}, giving the effect of {cmd:prim_treat()} against the reference arm within that level. Rows are labelled with the value labels of {cmd:sub_var}, or with the numeric value where there is no label.
 
 {pstd}
 {bf:Interaction p-value.} The p-value on the header row is a joint test of all interaction terms between {cmd:prim_treat()} and {cmd:sub_var}, with degrees of freedom equal to the number of subgroup levels minus one. 

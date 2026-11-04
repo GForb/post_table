@@ -105,6 +105,24 @@ use `results', clear
 pt_check using "pt_model_mt_test3_reference.dta", name(pt_model_mt:test3)
 pt_expect sum2, row(3) value("`exp_sum2_t2'") name(pt_model_mt:test3_median_iqr)
 
+*Test 4: time variable without value labels, after mixed
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
+label values time
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum1 sum2 est p) using `results' , replace
+mixed y_cont i.allocation##i.time || pid:
+cap noisily pt_model_mt y_cont, postname(`postname') time_var(time) treat(allocation)
+pt_record pt_model_mt:test4_no_value_labels_runs, rc(`=_rc')
+qui levelsof time, local(time_values)
+local t1 : word 1 of `time_values'
+local t2 : word 2 of `time_values'
+postclose `postname'
+
+use `results', clear
+pt_expect variable, row(2) value("    `t1'  ") name(pt_model_mt:test4_row_label_first)
+pt_expect variable, row(3) value("    `t2'  ") name(pt_model_mt:test4_row_label_second)
+
 *Known bug: icc stops with r(151) "non r-class program may not set r()"
 use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
 tempname postname
