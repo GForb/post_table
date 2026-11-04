@@ -20,6 +20,8 @@ do "$pt_root/Testing/test_helpers.do"
 pt_run_file "Examples/Creating comprehensive examples/pt_base_comprehensive_examples.do", name(pt_base_examples)
 pt_run_file "Testing/pt_base/pt_base_test.do", name(pt_base_test)
 
+pt_run_file "Testing/pt_base/test_pt_base_extra.do", name(pt_base_extra_test)
+
 *Testing pt_sum
 pt_run_file "Examples/Creating comprehensive examples/pt_sum_comprehensive_examples.do", name(pt_sum_examples)
 pt_run_file "Testing/pt_sum/pt_sum_test.do", name(pt_sum_test)
@@ -29,6 +31,12 @@ pt_run_file "Testing/pt_model/test_pt_model.do", name(pt_model_test)
 
 *Testing pt_model_mt
 pt_run_file "Testing/pt_model_mt/test_pt_model_mt.do", name(pt_model_mt_test)
+
+*Testing pt_subgroup
+pt_run_file "Testing/pt_subgroup/test_pt_subgroup.do", name(pt_subgroup_test)
+
+*Testing error handling
+pt_run_file "Testing/errors/test_errors.do", name(errors_test)
 
 
 pt_test_summary

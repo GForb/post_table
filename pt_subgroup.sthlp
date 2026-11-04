@@ -12,13 +12,13 @@
 {title:Title}
 
 {phang}
-{bf:pt_subgroup} {hline 2} A post estimation command which adds lines of a model results table to an open postfile for a model which includes an interaction term. This command is designed to be used with binary treatment variables and binary subgroup variables only. 
+{bf:pt_subgroup} {hline 2} A post estimation command which adds lines of a model results table to an open postfile for a model which includes an interaction term. 
 
 {marker syntax}{...}
 {title:Syntax}
 
 {p 8 17}
-{cmdab:pt_model}
+{cmdab:pt_subgroup}
 {varlist}
 {ifin}
 {cmd:, postname(}{it:string}{cmd:)}
@@ -38,11 +38,10 @@
 {syntab:Treatment indicator}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}} Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
+{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. The interaction p-value is a joint test of all interaction terms between this group and {cmd: sub_var}. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
 
 {syntab:Subgroups}
 {synopt:{opt sub_grps(numlist)}} Specify the order levels of the {cmd: sub_var }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_sub_grp(integer)}} Non-reference group for {cmd: sub_var } used in statistical test for interaction. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
 
 
 
@@ -92,10 +91,31 @@
 {title:Description}
 
 {pstd}
-{cmd:pt_model} is part of the {cmd:post_table} package. The command should be run after estimating a model and can be used to build a results table when there is a binary treatment variable. 
+{cmd:pt_subgroup} is part of the {cmd:post_table} package. The command should be run after estimating a model with a treatment by subgroup interaction and can be used to build a results table. Treatment and subgroup variables can each have two or more levels; see {help pt_subgroup##remarks:below}. 
 The command requires a post file to have been opened with the required number of columns and the data type for each column as string. You must pass the name of the postfile to the command with postname(). 
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
+
+{marker remarks}{...}
+{title:Multiple treatment arms and subgroup levels}
+
+{pstd}
+The model must include the treatment by subgroup interaction using factor variable notation, for example {cmd:regress y i.treat##i.subgroup}.
+
+{pstd}
+{bf:Treatment arms.} One summary column is posted for each arm in {cmd:treat_grps()}, so the post file needs a column for each arm. 
+Estimates are posted for one comparison only: {cmd:prim_treat()} against the reference arm of the model. 
+To compare each arm with the reference, run {cmd:pt_subgroup} once per arm, setting {cmd:prim_treat()} each time. Each run posts its own set of rows, and the summary columns are repeated. Use {cmd:var_lab()} to name the comparison on each set of rows, as the header row does not show it by default. 
+{cmd:prim_treat()} defaults to the highest value in {cmd:treat_grps()}. 
+The command stops with an error if {cmd:prim_treat()} is the reference arm of the model. This includes the default when the highest arm is the reference, for example after fitting {cmd:ib2.treat} with arms 0, 1 and 2.
+
+{pstd}
+{bf:Subgroup levels.} One row is posted for each level in {cmd:sub_grps()}, giving the effect of {cmd:prim_treat()} against the reference arm within that level. Rows are labelled with the value labels of {cmd:sub_var}, or with the numeric value where there is no label.
+
+{pstd}
+{bf:Interaction p-value.} The p-value on the header row is a joint test of all interaction terms between {cmd:prim_treat()} and {cmd:sub_var}, with degrees of freedom equal to the number of subgroup levels minus one. 
+It does not test the other treatment arms, and it does not depend on which subgroup level is the reference. 
+It covers every subgroup level in the model, even if {cmd:sub_grps()} reports only some of them.
 
 {marker examples}{...}
 {title:Examples}
