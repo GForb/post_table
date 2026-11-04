@@ -81,6 +81,24 @@ label var y_skew "Skewed"
 save "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta"
 
 
+*pt_subgroup test 5: three treatment arms and a three-level subgroup
+clear
+set seed 2025
+set obs 450
+gen arm = floor(3*runiform())
+gen agegrp = 1 + (runiform() > 0.4) + (runiform() > 0.7)
+gen y_cont = 10 + arm + 1.5*(arm==2)*(agegrp==2) + rnormal(0, 3)
+replace y_cont = . if runiform() < 0.1
+label define arm 0 "Control" 1 "Low dose" 2 "High dose"
+label values arm arm
+label define agegrp 1 "18-39" 2 "40-59" 3 "60+"
+label values agegrp agegrp
+label var arm "Treatment arm"
+label var agegrp "Age group"
+label var y_cont "Continuous"
+save "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta"
+
+
 *pt_base extra test: example data plus a categorical variable without value labels
 use "$pt_root/Examples/Creating comprehensive examples/eg_data2", clear
 clonevar ethnicity_nolab = ethnicity

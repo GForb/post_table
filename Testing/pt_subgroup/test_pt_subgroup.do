@@ -163,6 +163,65 @@ pt_expect p, row(2) value("`exp_p_female'") name(pt_subgroup:test4_p_female)
 
 
 ********************************************************************************
+*  Test 5: three treatment arms and a three-level subgroup, one block per arm
+********************************************************************************
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+
+regress y_cont i.arm##i.agegrp
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(1)
+
+* Default is the highest arm, so rows 1-4 are arm 2 and rows 5-8 are arm 1
+foreach a in 2 1 {
+	foreach k in 1 2 3 {
+		qui lincom `a'.arm + `a'.arm#`k'.agegrp
+		fmt_lincom 1
+		local exp_est_`a'_`k' `r(s)'
+	}
+	qui test `a'.arm#2.agegrp `a'.arm#3.agegrp
+	local exp_df_`a' = r(df)
+	fmt_p `r(p)'
+	local exp_p_`a' `r(s)'
+}
+fmt_meansd y_cont if e(sample) & arm == 0 & agegrp == 2, d(1)
+local exp_sum0 `r(s)'
+fmt_meansd y_cont if e(sample) & arm == 1 & agegrp == 2, d(1)
+local exp_sum1 `r(s)'
+fmt_meansd y_cont if e(sample) & arm == 2 & agegrp == 2, d(1)
+local exp_sum2 `r(s)'
+postclose `postname'
+
+use `results', clear
+pt_check using "pt_subgroup_test5_reference.dta", name(pt_subgroup:test5)
+pt_expect p, row(1) value("`exp_p_2'") name(pt_subgroup:test5_interaction_p_arm2)
+pt_expect p, row(5) value("`exp_p_1'") name(pt_subgroup:test5_interaction_p_arm1)
+pt_expect est, row(2) value("`exp_est_2_1'") name(pt_subgroup:test5_est_arm2_level1)
+pt_expect est, row(3) value("`exp_est_2_2'") name(pt_subgroup:test5_est_arm2_level2)
+pt_expect est, row(4) value("`exp_est_2_3'") name(pt_subgroup:test5_est_arm2_level3)
+pt_expect est, row(6) value("`exp_est_1_1'") name(pt_subgroup:test5_est_arm1_level1)
+pt_expect est, row(7) value("`exp_est_1_2'") name(pt_subgroup:test5_est_arm1_level2)
+pt_expect est, row(8) value("`exp_est_1_3'") name(pt_subgroup:test5_est_arm1_level3)
+pt_expect sum0, row(3) value("`exp_sum0'") name(pt_subgroup:test5_summary_arm0)
+pt_expect sum1, row(3) value("`exp_sum1'") name(pt_subgroup:test5_summary_arm1)
+pt_expect sum2, row(3) value("`exp_sum2'") name(pt_subgroup:test5_summary_arm2)
+pt_record pt_subgroup:test5_interaction_df, rc(`=`exp_df_2' != 2')
+
+* prim_treat cannot be the reference arm, whether set directly or by default
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+regress y_cont i.arm##i.agegrp
+pt_expect_error, name(pt_subgroup:test5_prim_treat_is_reference): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(0)
+regress y_cont ib2.arm##i.agegrp
+pt_expect_error, name(pt_subgroup:test5_default_prim_treat_is_reference): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
+postclose `postname'
+
+
+********************************************************************************
 *  Known bugs: these check the correct output and are expected to fail for now
 ********************************************************************************
 
