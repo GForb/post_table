@@ -51,14 +51,16 @@ end
 ********************************************************************************
 *  Table 1: pt_model test 3
 ********************************************************************************
-review_table 1 pt_model/pt_model_test3_reference.dta
 di as text "Made by: mixed y_cont allocation || site:"
 di as text "         pt_model y_cont, treat(allocation) missing(cols) icc per decimal(2)"
 di as text "Check:   missing n (%) per group (% of everyone in the group); mean (sd) of y_cont where in_analysis==1;"
 di as text "         estimate/CI/p against the mixed output; icc against estat icc; 2 dp throughout"
 
+review_table 1 pt_model/pt_model_test3_reference.dta
+
+
 review_data "pt_model/Input data/pt_model_input.dta"
-qui mixed y_cont allocation || site:
+mixed y_cont allocation || site:
 gen in_analysis = e(sample)
 review_pause 1
 
@@ -66,7 +68,6 @@ review_pause 1
 ********************************************************************************
 *  Table 2: pt_model test 4
 ********************************************************************************
-review_table 2 pt_model/pt_model_test4_reference.dta
 di as text "Made by (three rows, plus a gap row after the first):"
 di as text `"  regress y_null allocation; pt_model y_null, treat(allocation) gap(1) var_lab("Null outcome") su_label(append)"'
 di as text "  logit y_bin allocation;    pt_model y_bin, treat(allocation) treat_grps(1 0) exp per positive(0) su_decimal(2) est_decimal(3)"
@@ -75,12 +76,15 @@ di as text "Check:   -0.0 in row 1; binary row counts y_bin==0, with allocation 
 di as text "         [n] in row 4 is the number missing y_cont in each group"
 di as text "         The models are run in order, so only the last (regress y_cont) can be redisplayed."
 
+review_table 2 pt_model/pt_model_test4_reference.dta
+
+
 review_data "pt_model/Input data/pt_model_input.dta"
-qui regress y_null allocation
+regress y_null allocation
 gen in_null = e(sample)
-qui logit y_bin allocation
+logit y_bin allocation
 gen in_bin = e(sample)
-qui regress y_cont allocation
+regress y_cont allocation
 gen in_cont = e(sample)
 review_pause 2
 
