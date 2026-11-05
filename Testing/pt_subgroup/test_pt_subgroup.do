@@ -15,23 +15,6 @@ prog define pt_subgroup_data
 	use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta", clear
 end
 
-cap prog drop fmt_p
-prog define fmt_p, rclass
-	args p
-	if `p' >= 0.01 return local s = string(`p', "%3.2f")
-	else if `p' >= 0.001 return local s = string(`p', "%4.3f")
-	else return local s "<0.001"
-end
-
-cap prog drop fmt_lincom
-prog define fmt_lincom, rclass
-	* Formats the last lincom result as "est (ll, ul)"
-	args d
-	local f %12.`d'f
-	return local s = string(r(estimate), "`f'") + " (" + string(r(lb), "`f'") + ", " + string(r(ub), "`f'") + ")"
-	return local p = r(p)
-end
-
 cap prog drop fmt_meansd
 prog define fmt_meansd, rclass
 	syntax varname if, d(integer)
@@ -163,7 +146,7 @@ pt_expect p, row(2) value("`exp_p_female'") name(pt_subgroup:test4_p_female)
 
 
 ********************************************************************************
-*  Test 5: three treatment arms and a three-level subgroup, one block per arm
+*  Test 5: three treatment arms and a three-level subgroup, one block per comparison
 ********************************************************************************
 use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
 tempname postname
@@ -172,20 +155,28 @@ postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', 
 
 regress y_cont i.arm##i.agegrp
 pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
-pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(1)
 
-* Default is the highest arm, so rows 1-4 are arm 2 and rows 5-8 are arm 1
-foreach a in 2 1 {
+* Default is every pair, higher arm vs lower arm: row 1 is the title, then a header and three levels per comparison
+foreach a in 1 2 {
 	foreach k in 1 2 3 {
 		qui lincom `a'.arm + `a'.arm#`k'.agegrp
 		fmt_lincom 1
-		local exp_est_`a'_`k' `r(s)'
+		local exp_est_`a'0_`k' `r(s)'
 	}
 	qui test `a'.arm#2.agegrp `a'.arm#3.agegrp
-	local exp_df_`a' = r(df)
+	local exp_df_`a'0 = r(df)
 	fmt_p `r(p)'
-	local exp_p_`a' `r(s)'
+	local exp_p_`a'0 `r(s)'
 }
+foreach k in 1 2 3 {
+	qui lincom 2.arm + 2.arm#`k'.agegrp - 1.arm - 1.arm#`k'.agegrp
+	fmt_lincom 1
+	local exp_est_21_`k' `r(s)'
+}
+qui test (2.arm#2.agegrp = 1.arm#2.agegrp) (2.arm#3.agegrp = 1.arm#3.agegrp)
+local exp_df_21 = r(df)
+fmt_p `r(p)'
+local exp_p_21 `r(s)'
 fmt_meansd y_cont if e(sample) & arm == 0 & agegrp == 2, d(1)
 local exp_sum0 `r(s)'
 fmt_meansd y_cont if e(sample) & arm == 1 & agegrp == 2, d(1)
@@ -196,29 +187,98 @@ postclose `postname'
 
 use `results', clear
 pt_check using "pt_subgroup_test5_reference.dta", name(pt_subgroup:test5)
-pt_expect p, row(1) value("`exp_p_2'") name(pt_subgroup:test5_interaction_p_arm2)
-pt_expect p, row(5) value("`exp_p_1'") name(pt_subgroup:test5_interaction_p_arm1)
-pt_expect est, row(2) value("`exp_est_2_1'") name(pt_subgroup:test5_est_arm2_level1)
-pt_expect est, row(3) value("`exp_est_2_2'") name(pt_subgroup:test5_est_arm2_level2)
-pt_expect est, row(4) value("`exp_est_2_3'") name(pt_subgroup:test5_est_arm2_level3)
-pt_expect est, row(6) value("`exp_est_1_1'") name(pt_subgroup:test5_est_arm1_level1)
-pt_expect est, row(7) value("`exp_est_1_2'") name(pt_subgroup:test5_est_arm1_level2)
-pt_expect est, row(8) value("`exp_est_1_3'") name(pt_subgroup:test5_est_arm1_level3)
-pt_expect sum0, row(3) value("`exp_sum0'") name(pt_subgroup:test5_summary_arm0)
-pt_expect sum1, row(3) value("`exp_sum1'") name(pt_subgroup:test5_summary_arm1)
-pt_expect sum2, row(3) value("`exp_sum2'") name(pt_subgroup:test5_summary_arm2)
-pt_record pt_subgroup:test5_interaction_df, rc(`=`exp_df_2' != 2')
+pt_record pt_subgroup:test5_rows, rc(`=_N != 13')
+pt_expect variable, row(2) value("  Low dose vs Control") name(pt_subgroup:test5_header_10)
+pt_expect variable, row(6) value("  High dose vs Control") name(pt_subgroup:test5_header_20)
+pt_expect variable, row(10) value("  High dose vs Low dose") name(pt_subgroup:test5_header_21)
+local row = 2
+foreach pair in 10 20 21 {
+	pt_expect p, row(`row') value("`exp_p_`pair''") name(pt_subgroup:test5_interaction_p_`pair')
+	foreach k in 1 2 3 {
+		pt_expect est, row(`=`row' + `k'') value("`exp_est_`pair'_`k''") name(pt_subgroup:test5_est_`pair'_level`k')
+	}
+	local row = `row' + 4
+}
+pt_expect sum0, row(4) value("`exp_sum0'") name(pt_subgroup:test5_summary_arm0)
+pt_expect sum1, row(4) value("`exp_sum1'") name(pt_subgroup:test5_summary_arm1)
+pt_expect sum2, row(4) value("`exp_sum2'") name(pt_subgroup:test5_summary_arm2)
+pt_expect sum0, row(8) value("") name(pt_subgroup:test5_summaries_first_block_only)
+pt_record pt_subgroup:test5_interaction_df, rc(`=`exp_df_20' != 2 | `exp_df_21' != 2')
 
-* prim_treat cannot be the reference arm, whether set directly or by default
+* Results do not depend on the reference arm of the model
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+regress y_cont ib2.arm##i.agegrp
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
+postclose `postname'
+use `results', clear
+pt_expect est, row(11) value("`exp_est_21_1'") name(pt_subgroup:test5_reference_arm_est)
+pt_expect p, row(10) value("`exp_p_21'") name(pt_subgroup:test5_reference_arm_p)
+
+* compare() chooses the comparisons and their direction, and any arm can be on either side
 use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 regress y_cont i.arm##i.agegrp
-pt_expect_error, name(pt_subgroup:test5_prim_treat_is_reference): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(0)
-regress y_cont ib2.arm##i.agegrp
-pt_expect_error, name(pt_subgroup:test5_default_prim_treat_is_reference): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(1v2 2v0)
+qui lincom 1.arm + 1.arm#3.agegrp - 2.arm - 2.arm#3.agegrp
+fmt_lincom 1
+local exp_est_12_3 `r(s)'
 postclose `postname'
+use `results', clear
+pt_record pt_subgroup:test5_compare_rows, rc(`=_N != 9')
+pt_expect variable, row(2) value("  Low dose vs High dose") name(pt_subgroup:test5_compare_header)
+pt_expect est, row(5) value("`exp_est_12_3'") name(pt_subgroup:test5_compare_reversed_est)
+pt_expect p, row(2) value("`exp_p_21'") name(pt_subgroup:test5_compare_reversed_p)
+pt_expect est, row(7) value("`exp_est_20_1'") name(pt_subgroup:test5_compare_second_est)
+
+* Invalid comparisons, and the removed prim_treat option, stop with an error
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+regress y_cont i.arm##i.agegrp
+pt_expect_error, name(pt_subgroup:test5_compare_bad_format): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(2-1)
+pt_expect_error, name(pt_subgroup:test5_compare_same_arm): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(2v2)
+pt_expect_error, name(pt_subgroup:test5_compare_unknown_arm): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(3v1)
+pt_expect_error, name(pt_subgroup:test5_prim_treat_removed): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(1)
+postclose `postname'
+
+* Four arms give six comparisons
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+gen arm4 = arm
+replace arm4 = 3 if mod(_n, 4) == 0
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 sum3 est p) using `results', replace
+regress y_cont i.arm4##i.agegrp
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm4) type(cont)
+qui lincom 3.arm4 + 3.arm4#1.agegrp - 2.arm4 - 2.arm4#1.agegrp
+fmt_lincom 1
+local exp_est_32 `r(s)'
+postclose `postname'
+use `results', clear
+pt_record pt_subgroup:test5_four_arms_rows, rc(`=_N != 25')
+pt_expect variable, row(22) value("  3 vs 2") name(pt_subgroup:test5_four_arms_no_labels)
+pt_expect est, row(23) value("`exp_est_32'") name(pt_subgroup:test5_four_arms_last_est)
+
+* With two arms, compare() can reverse the comparison and adds a header
+pt_subgroup_data
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+regress y_cont i.allocation##i.sex
+pt_subgroup y_cont, postname(`postname') sub_var(sex) treat(allocation) compare(0v1)
+qui lincom -1.allocation - 1.allocation#2.sex
+fmt_lincom 1
+local exp_est_01 `r(s)'
+postclose `postname'
+use `results', clear
+pt_record pt_subgroup:test5_two_arms_compare_rows, rc(`=_N != 4')
+pt_expect est, row(4) value("`exp_est_01'") name(pt_subgroup:test5_two_arms_compare_est)
 
 
 ********************************************************************************

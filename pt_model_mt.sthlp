@@ -38,7 +38,7 @@
 {syntab:Treatment indicator}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}} Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
+{synopt:{opt compare(comparisons)}} The treatment comparisons to report, written as two arm values joined by {cmd:v}, for example {cmd:compare(2v1 3v1)}. {cmd:2v1} means arm 2 minus arm 1. Default is every pair of arms, higher value vs lower value. See {help pt_model_mt##arms:Multiple treatment arms}.{p_end}
 
 {syntab:Subgroups}
 {synopt:{opt timepoints(numlist)}} Specify the order levels of the timepoint variable should be presented. {cmd: sub_var }variable are to be reported. Default is ascending.{p_end}
@@ -88,10 +88,28 @@
 {title:Description}
 
 {pstd}
-{cmd:pt_model} is part of the {cmd:post_table} package. The command should be run after estimating a model and can be used to build a results table when there is a binary treatment variable. 
+{cmd:pt_model_mt} is part of the {cmd:post_table} package. The command should be run after estimating a model and can be used to build a results table for two or more treatment arms. 
 The command requires a post file to have been opened with the required number of columns and the data type for each column as string. You must pass the name of the postfile to the command with postname(). 
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
+
+{marker arms}{...}
+{title:Multiple treatment arms}
+
+{pstd}
+The model must include the treatment by time interaction using factor variable notation, for example {cmd:mixed y i.treat##i.time || id:}. One summary column is posted for each arm in {cmd:treat_grps()}, so the post file needs a column for each arm. 
+
+{pstd}
+{bf:Comparisons.} Each comparison is written {it:a}{cmd:v}{it:b} and is arm {it:a} minus arm {it:b} (a ratio with {cmd:exp}), using the values of {cmd:treat}. 
+By default every pair of arms in {cmd:treat_grps()} is reported, higher value vs lower value, so arms 0, 1 and 2 give {cmd:1v0}, {cmd:2v0} and {cmd:2v1}. 
+Use {cmd:compare()} to choose the comparisons, their direction and their order. Results do not depend on which arm is the reference arm of the model. 
+Comparisons are labelled with the value labels of {cmd:treat}, for example "High dose vs Control", or with the numeric values where there is no label.
+
+{pstd}
+P-values and confidence intervals are not adjusted for multiple comparisons.
+
+{pstd}
+{bf:Table layout.} With two arms the table has a header row and one row per timepoint. With more than two arms, or when {cmd:compare()} is specified, the first row is a title and each comparison has a header row naming it, then one row per timepoint. Summaries are posted in the first block only.
 
 {marker examples}{...}
 {title:Examples}

@@ -6,7 +6,7 @@ capture program drop pt_model
 prog define pt_model
 syntax varlist(numeric max = 1), postname(string) ///
 	[ ///
-	treat(varname) treat_grps(numlist) ///
+	treat(varname) treat_grps(numlist) compare(string) ///
     type(string) ///
 	gap(integer 0)  ///
 	positive(integer 1) ///
@@ -35,6 +35,25 @@ if "`exp'" != "" {
 local grps: word count `treat_grps'
 forvalues n = 1 (1) `grps' {
 	local grps`n': word `n' of `treat_grps'
+}
+
+*setting the comparisons to report. With two arms and no compare() the estimate is the first coefficient in the model.
+local multi_comp = `grps' > 2 | `"`compare'"' != ""
+if `multi_comp' {
+	pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
+	local n_comp = r(n)
+	forvalues c = 1 (1) `n_comp' {
+		local a`c' `r(a`c')'
+		local b`c' `r(b`c')'
+		local comp_label`c' `"`r(label`c')'"'
+	}
+	forvalues c = 1 (1) `n_comp' {
+		cap lincom `a`c''.`treat' - `b`c''.`treat'
+		if _rc {
+			di as error "`treat' must be in the model as a factor variable (i.`treat') to compare arms."
+			exit 198
+		}
+	}
 }
 
 *setting decimal values
@@ -196,7 +215,8 @@ local type1 = "`type'" // resetting type variable to be that given by
 	
 	
 
-post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("`coef' (`ll', `ul')") ("`p'")  `post_icc'
+if `multi_comp' post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") ("")  `post_icc'
+else post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("`coef' (`ll', `ul')") ("`p'")  `post_icc'
 
 	*setting marcros for posting gaps
 	 // following lines enact measure option
@@ -221,6 +241,22 @@ post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `in
 	}
 	
 	if "`icc'" != "" local post_icc ("")
+
+*one row per comparison
+if `multi_comp' {
+	local eform ""
+	if "`exp'" != "" local eform ,eform
+	forvalues c = 1 (1) `n_comp' {
+		lincom `a`c''.`treat' - `b`c''.`treat' `eform'
+		local coef = string(r(estimate), "`form_est'")
+		local ll = string(r(lb), "`form_est'")
+		local ul = string(r(ub), "`form_est'")
+		if r(p) >=0.01 local p = string(r(p), "%3.2f")
+		if r(p) >=0.001 & r(p) < 0.01 local p = string(r(p), "%4.3f")
+		if r(p) < 0.001 local p = "<0.001"
+		post `postname' ("    `comp_label`c''") `measure_post' `inan_cols' `miss_cols' `summaries' ("`coef' (`ll', `ul')") ("`p'")  `post_icc'
+	}
+}
 
 if `gap' > 0 {
 	forvalues i = 1 (1) `gap' {

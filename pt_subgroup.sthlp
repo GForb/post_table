@@ -38,7 +38,7 @@
 {syntab:Treatment indicator}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}} Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. The interaction p-value is a joint test of all interaction terms between this group and {cmd: sub_var}. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
+{synopt:{opt compare(comparisons)}} The treatment comparisons to report, written as two arm values joined by {cmd:v}, for example {cmd:compare(2v1 3v1)}. {cmd:2v1} means arm 2 minus arm 1. Default is every pair of arms, higher value vs lower value. See {help pt_subgroup##arms:Multiple treatment arms}.{p_end}
 
 {syntab:Subgroups}
 {synopt:{opt sub_grps(numlist)}} Specify the order levels of the {cmd: sub_var }variable are to be reported. Default is ascending.{p_end}
@@ -96,25 +96,33 @@ The command requires a post file to have been opened with the required number of
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
 
+{marker arms}{...}
 {marker remarks}{...}
-{title:Multiple treatment arms and subgroup levels}
+{title:Multiple treatment arms}
 
 {pstd}
 The model must include the treatment by subgroup interaction using factor variable notation, for example {cmd:regress y i.treat##i.subgroup}.
 
 {pstd}
 {bf:Treatment arms.} One summary column is posted for each arm in {cmd:treat_grps()}, so the post file needs a column for each arm. 
-Estimates are posted for one comparison only: {cmd:prim_treat()} against the reference arm of the model. 
-To compare each arm with the reference, run {cmd:pt_subgroup} once per arm, setting {cmd:prim_treat()} each time. Each run posts its own set of rows, and the summary columns are repeated. Use {cmd:var_lab()} to name the comparison on each set of rows, as the header row does not show it by default. 
-{cmd:prim_treat()} defaults to the highest value in {cmd:treat_grps()}. 
-The command stops with an error if {cmd:prim_treat()} is the reference arm of the model. This includes the default when the highest arm is the reference, for example after fitting {cmd:ib2.treat} with arms 0, 1 and 2.
 
 {pstd}
-{bf:Subgroup levels.} One row is posted for each level in {cmd:sub_grps()}, giving the effect of {cmd:prim_treat()} against the reference arm within that level. Rows are labelled with the value labels of {cmd:sub_var}, or with the numeric value where there is no label.
+{bf:Comparisons.} Each comparison is written {it:a}{cmd:v}{it:b} and is arm {it:a} minus arm {it:b} (a ratio with {cmd:exp}), using the values of {cmd:treat}. 
+By default every pair of arms in {cmd:treat_grps()} is reported, higher value vs lower value, so arms 0, 1 and 2 give {cmd:1v0}, {cmd:2v0} and {cmd:2v1}. 
+Use {cmd:compare()} to choose the comparisons, their direction and their order. Results do not depend on which arm is the reference arm of the model. 
+Comparisons are labelled with the value labels of {cmd:treat}, for example "High dose vs Control", or with the numeric values where there is no label.
 
 {pstd}
-{bf:Interaction p-value.} The p-value on the header row is a joint test of all interaction terms between {cmd:prim_treat()} and {cmd:sub_var}, with degrees of freedom equal to the number of subgroup levels minus one. 
-It does not test the other treatment arms, and it does not depend on which subgroup level is the reference. 
+P-values and confidence intervals are not adjusted for multiple comparisons.
+
+{pstd}
+{bf:Table layout.} With two arms the table has a header row, carrying the interaction p-value, and one row per subgroup level. 
+With more than two arms, or when {cmd:compare()} is specified, the first row is a title and each comparison has a block of rows: a header row naming the comparison and carrying its interaction p-value, then one row per level in {cmd:sub_grps()}. 
+Summaries are posted in the first block only. Rows are labelled with the value labels of {cmd:sub_var}, or with the numeric value where there is no label.
+
+{pstd}
+{bf:Interaction p-value.} Each interaction p-value is a joint test that the difference between the two arms is the same in every subgroup level, with degrees of freedom equal to the number of subgroup levels minus one. 
+It does not depend on which subgroup level is the reference. 
 It covers every subgroup level in the model, even if {cmd:sub_grps()} reports only some of them.
 
 {marker examples}{...}

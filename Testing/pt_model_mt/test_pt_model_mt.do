@@ -132,3 +132,39 @@ mixed y_cont i.allocation##i.time || pid:
 cap noisily pt_model_mt y_cont, postname(`postname') time_var(time) treat(allocation) icc
 pt_record pt_model_mt:bug_icc_crashes, rc(`=_rc') known_bug
 postclose `postname'
+
+*Test 5: three arms, one block per comparison
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
+mixed y_cont i.arm##i.time || pid:
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont)
+foreach k in 1 2 {
+	qui lincom 2.arm + 2.arm#`k'.time - 1.arm - 1.arm#`k'.time
+	fmt_lincom 1
+	local exp_est_`k' `r(s)'
+	fmt_p `r(p)'
+	local exp_p_`k' `r(s)'
+}
+postclose `postname'
+use `results', clear
+pt_check using "pt_model_mt_test5_reference.dta", name(pt_model_mt:test5)
+pt_record pt_model_mt:test5_rows, rc(`=_N != 10')
+pt_expect variable, row(8) value("  High dose vs Low dose") name(pt_model_mt:test5_header)
+pt_expect est, row(9) value("`exp_est_1'") name(pt_model_mt:test5_est_time1)
+pt_expect est, row(10) value("`exp_est_2'") name(pt_model_mt:test5_est_time2)
+pt_expect p, row(10) value("`exp_p_2'") name(pt_model_mt:test5_p_time2)
+pt_expect p, row(8) value("") name(pt_model_mt:test5_no_interaction_p)
+
+*Test 6: compare() is passed through to pt_subgroup
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
+mixed y_cont i.arm##i.time || pid:
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont) compare(2v1)
+postclose `postname'
+use `results', clear
+pt_record pt_model_mt:test6_rows, rc(`=_N != 4')
+pt_expect est, row(3) value("`exp_est_1'") name(pt_model_mt:test6_est_time1)

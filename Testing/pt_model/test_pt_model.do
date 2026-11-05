@@ -150,3 +150,81 @@ pt_model y_cont, postname(`postname') treat(allocation) append_label("(adjusted)
 postclose `postname'
 use `results', clear
 pt_expect variable, row(1) value("Continuous (adjusted)") name(pt_model:bug_append_label) known_bug
+
+*Test 5: three arms, one row per comparison
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
+regress y_cont i.arm
+pt_model y_cont, postname(`postname') treat(arm) type(cont)
+qui lincom 1.arm
+fmt_lincom 1
+local exp_est_10 `r(s)'
+fmt_p `r(p)'
+local exp_p_10 `r(s)'
+qui lincom 2.arm
+fmt_lincom 1
+local exp_est_20 `r(s)'
+fmt_p `r(p)'
+local exp_p_20 `r(s)'
+qui lincom 2.arm - 1.arm
+fmt_lincom 1
+local exp_est_21 `r(s)'
+fmt_p `r(p)'
+local exp_p_21 `r(s)'
+qui su y_cont if e(sample) & arm == 2
+local exp_sum2 = string(r(mean), "%12.1f") + " (" + string(r(sd), "%12.1f") + ")"
+postclose `postname'
+
+use `results', clear
+pt_check using "pt_model_test5_reference.dta", name(pt_model:test5)
+pt_record pt_model:test5_rows, rc(`=_N != 4')
+pt_expect sum2, row(1) value("`exp_sum2'") name(pt_model:test5_summary)
+pt_expect est, row(1) value("") name(pt_model:test5_no_estimate_on_summary_row)
+pt_expect variable, row(2) value("    Low dose vs Control") name(pt_model:test5_label_10)
+pt_expect variable, row(4) value("    High dose vs Low dose") name(pt_model:test5_label_21)
+local row = 2
+foreach pair in 10 20 21 {
+	pt_expect est, row(`row') value("`exp_est_`pair''") name(pt_model:test5_est_`pair')
+	pt_expect p, row(`row') value("`exp_p_`pair''") name(pt_model:test5_p_`pair')
+	local row = `row' + 1
+}
+
+*Test 6: compare() with a logistic model and exp, checked against the log scale
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+gen y_bin = y_cont > 11 if y_cont < .
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
+logit y_bin i.arm
+pt_model y_bin, postname(`postname') treat(arm) type(bin) exp compare(1v2) gap(1)
+qui lincom 1.arm - 2.arm
+local exp_or = string(exp(r(estimate)), "%12.1f") + " (" + string(exp(r(lb)), "%12.1f") + ", " + string(exp(r(ub)), "%12.1f") + ")"
+fmt_p `r(p)'
+local exp_p_or `r(s)'
+postclose `postname'
+use `results', clear
+pt_record pt_model:test6_rows, rc(`=_N != 3')
+pt_expect est, row(2) value("`exp_or'") name(pt_model:test6_odds_ratio)
+pt_expect p, row(2) value("`exp_p_or'") name(pt_model:test6_p)
+pt_expect variable, row(3) value("") name(pt_model:test6_gap)
+
+*Test 7: mixed model, and errors
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
+mixed y_cont i.arm || pid:
+pt_model y_cont, postname(`postname') treat(arm) type(cont)
+qui lincom 2.arm - 1.arm
+fmt_lincom 1
+local exp_est_mixed `r(s)'
+regress y_cont arm
+pt_expect_error, name(pt_model:test7_treat_not_factor): pt_model y_cont, postname(`postname') treat(arm) type(cont)
+regress y_cont i.arm
+pt_expect_error, name(pt_model:test7_compare_bad_format): pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(2 1)
+postclose `postname'
+use `results', clear
+pt_record pt_model:test7_rows, rc(`=_N != 4')
+pt_expect est, row(4) value("`exp_est_mixed'") name(pt_model:test7_mixed_est)
