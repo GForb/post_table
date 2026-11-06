@@ -103,7 +103,7 @@ Comparisons are labelled with the value labels of {cmd:treat}, for example "High
 P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
-{bf:Table layout.} With two arms each outcome has one row, and the estimate is the first coefficient in the model. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.
+{bf:Table layout.} With two arms each outcome has one row. The estimate is higher value vs lower value if treatment is in the model using factor variable notation, and otherwise the first coefficient in the model. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.
 
 {marker examples}{...}
 {title:Examples}

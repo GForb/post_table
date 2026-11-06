@@ -37,7 +37,7 @@ forvalues n = 1 (1) `grps' {
 	local grps`n': word `n' of `treat_grps'
 }
 
-*setting the comparisons to report. With two arms and no compare() the estimate is the first coefficient in the model.
+*setting the comparisons to report
 local multi_comp = `grps' > 2 | `"`compare'"' != ""
 if `multi_comp' {
 	pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
@@ -54,6 +54,17 @@ if `multi_comp' {
 			exit 198
 		}
 	}
+}
+
+*With two arms, the estimate is the first coefficient in the model unless treat is a factor variable,
+*as the first coefficient is then the base level
+local two_arm_factor = 0
+if !`multi_comp' & `grps' == 2 {
+	pt_compare, treat(`treat') treat_grps(`treat_grps')
+	local a1 `r(a1)'
+	local b1 `r(b1)'
+	cap lincom `a1'.`treat' - `b1'.`treat'
+	if _rc == 0 local two_arm_factor = 1
 }
 
 *setting decimal values
@@ -90,6 +101,14 @@ if p1 >=0.001 & p1 < 0.01 {
 }
 if p1 < 0.001 {
 	local p = "<0.001"
+}
+
+if `two_arm_factor' {
+	get_lincom_ests, a(`a1') b(`b1') treat(`treat') form_est(`form_est') `exp'
+	local coef `r(coef)'
+	local ll `r(ll)'
+	local ul `r(ul)'
+	local p `r(p)'
 }
 
 if "`icc'" != "" {
@@ -244,16 +263,12 @@ else post `postname' ("`var_label'`measure_append'`append_label'") `measure_post
 
 *one row per comparison
 if `multi_comp' {
-	local eform ""
-	if "`exp'" != "" local eform ,eform
 	forvalues c = 1 (1) `n_comp' {
-		lincom `a`c''.`treat' - `b`c''.`treat' `eform'
-		local coef = string(r(estimate), "`form_est'")
-		local ll = string(r(lb), "`form_est'")
-		local ul = string(r(ub), "`form_est'")
-		if r(p) >=0.01 local p = string(r(p), "%3.2f")
-		if r(p) >=0.001 & r(p) < 0.01 local p = string(r(p), "%4.3f")
-		if r(p) < 0.001 local p = "<0.001"
+		get_lincom_ests, a(`a`c'') b(`b`c'') treat(`treat') form_est(`form_est') `exp'
+		local coef `r(coef)'
+		local ll `r(ll)'
+		local ul `r(ul)'
+		local p `r(p)'
 		post `postname' ("    `comp_label`c''") `measure_post' `inan_cols' `miss_cols' `summaries' ("`coef' (`ll', `ul')") ("`p'")  `post_icc'
 	}
 }
@@ -266,5 +281,16 @@ if `gap' > 0 {
 
 end
 
-
-
+prog get_lincom_ests, rclass
+syntax , a(integer) b(integer) treat(varname) form_est(string) [exp]
+	local eform ""
+	if "`exp'" != "" local eform ,eform
+	lincom `a'.`treat' - `b'.`treat' `eform'
+	return local coef = string(r(estimate), "`form_est'")
+	return local ll = string(r(lb), "`form_est'")
+	return local ul = string(r(ub), "`form_est'")
+	if r(p) >=0.01 local p = string(r(p), "%3.2f")
+	if r(p) >=0.001 & r(p) < 0.01 local p = string(r(p), "%4.3f")
+	if r(p) < 0.001 local p = "<0.001"
+	return local p "`p'"
+end

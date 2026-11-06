@@ -228,3 +228,31 @@ postclose `postname'
 use `results', clear
 pt_record pt_model:test7_rows, rc(`=_N != 4')
 pt_expect est, row(4) value("`exp_est_mixed'") name(pt_model:test7_mixed_est)
+
+*Test 8: two arms with treatment as a factor variable give one row, with the same result as without
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 est p) using `results' , replace
+regress y_cont allocation
+pt_model y_cont, postname(`postname') treat(allocation) type(cont)
+regress y_cont i.allocation
+pt_model y_cont, postname(`postname') treat(allocation) type(cont)
+regress y_cont ib1.allocation
+pt_model y_cont, postname(`postname') treat(allocation) type(cont)
+logit y_bin allocation
+pt_model y_bin, postname(`postname') treat(allocation) type(bin) exp
+logit y_bin i.allocation
+pt_model y_bin, postname(`postname') treat(allocation) type(bin) exp
+postclose `postname'
+use `results', clear
+pt_record pt_model:test8_rows, rc(`=_N != 5')
+local exp_est = est[1]
+local exp_p = p[1]
+local exp_or = est[4]
+local exp_p_or = p[4]
+pt_expect est, row(2) value("`exp_est'") name(pt_model:test8_factor_est)
+pt_expect p, row(2) value("`exp_p'") name(pt_model:test8_factor_p)
+pt_expect est, row(3) value("`exp_est'") name(pt_model:test8_reference_arm_est)
+pt_expect est, row(5) value("`exp_or'") name(pt_model:test8_factor_odds_ratio)
+pt_expect p, row(5) value("`exp_p_or'") name(pt_model:test8_factor_odds_ratio_p)
