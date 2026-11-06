@@ -123,15 +123,20 @@ use `results', clear
 pt_expect variable, row(2) value("    `t1'  ") name(pt_model_mt:test4_row_label_first)
 pt_expect variable, row(3) value("    `t2'  ") name(pt_model_mt:test4_row_label_second)
 
-*Known bug: icc stops with r(151) "non r-class program may not set r()"
+*icc posts the icc from the model on the first row only
 use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
 tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum1 sum2 est p icc) using `results' , replace
 mixed y_cont i.allocation##i.time || pid:
-cap noisily pt_model_mt y_cont, postname(`postname') time_var(time) treat(allocation) icc
-pt_record pt_model_mt:bug_icc_crashes, rc(`=_rc') known_bug
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(allocation) icc
+qui estat icc
+fmt_p `r(icc2)'
+local exp_icc `r(s)'
 postclose `postname'
+use `results', clear
+pt_expect icc, row(1) value("`exp_icc'") name(pt_model_mt:icc_value)
+pt_expect icc, row(2) value("") name(pt_model_mt:icc_first_row_only)
 
 *Test 5: three arms, one block per comparison
 use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
@@ -168,3 +173,40 @@ postclose `postname'
 use `results', clear
 pt_record pt_model_mt:test6_rows, rc(`=_N != 4')
 pt_expect est, row(3) value("`exp_est_1'") name(pt_model_mt:test6_est_time1)
+
+*Test 7: missing(), per and icc with three arms, where only the first block has summaries
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(miss0 miss1 miss2 sum0 sum1 sum2 est p icc) using `results' , replace
+mixed y_cont i.arm##i.time || pid:
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont) missing(cols) per icc
+qui count if arm == 1 & time == 2
+local denom = r(N)
+qui count if !e(sample) & arm == 1 & time == 2
+local exp_miss1 = "`r(N)' (" + string(r(N)/`denom'*100, "%12.1f") + "%)"
+qui estat icc
+fmt_p `r(icc2)'
+local exp_icc `r(s)'
+postclose `postname'
+use `results', clear
+pt_expect miss1, row(4) value("`exp_miss1'") name(pt_model_mt:test7_missing_cols_per)
+pt_expect miss1, row(7) value("") name(pt_model_mt:test7_missing_first_block_only)
+pt_expect icc, row(1) value("`exp_icc'") name(pt_model_mt:test7_icc)
+pt_expect icc, row(2) value("") name(pt_model_mt:test7_icc_first_row_only)
+
+*Test 8: per and su_decimal() on a binary outcome
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+gen y_bin = y_cont > 11 if y_cont < .
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
+logit y_bin i.arm##i.time
+pt_model_mt y_bin, postname(`postname') time_var(time) treat(arm) type(bin) exp per su_decimal(2)
+qui count if e(sample) & arm == 2 & time == 1
+local denom = r(N)
+qui count if e(sample) & arm == 2 & time == 1 & y_bin == 1
+local exp_sum2 = "`r(N)' (" + string(r(N)/`denom'*100, "%12.2f") + "%)"
+postclose `postname'
+use `results', clear
+pt_expect sum2, row(3) value("`exp_sum2'") name(pt_model_mt:test8_per_su_decimal)

@@ -322,7 +322,7 @@ pt_expect variable, row(3) value("    2  ") name(pt_subgroup:test6_partial_unlab
 
 
 ********************************************************************************
-*  Known bugs: these check the correct output and are expected to fail for now
+*  missing(), per, su_decimal() and icc
 ********************************************************************************
 
 *missing(cols) should give the number (%) excluded from the analysis in each subgroup
@@ -338,7 +338,7 @@ qui count if !e(sample) & allocation == 0 & sex == 1
 local exp_miss0_male = "`r(N)' (" + string(r(N)/`denom'*100, "%12.1f") + ")"
 postclose `postname'
 use `results', clear
-pt_expect miss0, row(2) value("`exp_miss0_male'") name(pt_subgroup:bug_missing_cols_always_zero) known_bug
+pt_expect miss0, row(2) value("`exp_miss0_male'") name(pt_subgroup:missing_cols)
 
 *missing(brackets) should add the number missing to each summary
 pt_subgroup_data
@@ -353,7 +353,7 @@ qui count if !e(sample) & allocation == 0 & sex == 1
 local exp_sum0_male "`exp_sum0_male' [`r(N)']"
 postclose `postname'
 use `results', clear
-pt_expect sum0, row(2) value("`exp_sum0_male'") name(pt_subgroup:bug_missing_brackets_always_zero) known_bug
+pt_expect sum0, row(2) value("`exp_sum0_male'") name(pt_subgroup:missing_brackets)
 
 *per should add a % sign to percentages
 pt_subgroup_data
@@ -368,9 +368,9 @@ qui count if e(sample) & allocation == 0 & sex == 1 & y_bin == 1
 local exp_sum0_male = "`r(N)' (" + string(r(N)/`denom'*100, "%12.1f") + "%)"
 postclose `postname'
 use `results', clear
-pt_expect sum0, row(2) value("`exp_sum0_male'") name(pt_subgroup:bug_per_ignored) known_bug
+pt_expect sum0, row(2) value("`exp_sum0_male'") name(pt_subgroup:per)
 
-*su_decimal(2) or more gives an empty percentage for binary outcomes, e.g. "50 ()"
+*su_decimal(2) gives two decimal places on percentages for binary outcomes
 pt_subgroup_data
 tempname postname
 tempfile results
@@ -383,14 +383,19 @@ qui count if e(sample) & allocation == 0 & sex == 1 & y_bin == 1
 local exp_sum0_male = "`r(N)' (" + string(r(N)/`denom'*100, "%12.2f") + ")"
 postclose `postname'
 use `results', clear
-pt_expect sum0, row(2) value("`exp_sum0_male'") name(pt_subgroup:bug_binary_su_decimal_2) known_bug
+pt_expect sum0, row(2) value("`exp_sum0_male'") name(pt_subgroup:binary_su_decimal_2)
 
-*icc stops with r(151) "non r-class program may not set r()"
+*icc posts the icc from the model on the first row only
 pt_subgroup_data
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 est p icc) using `results', replace
 mixed y_cont i.allocation##i.sex || site:
-cap noisily pt_subgroup y_cont, postname(`postname') sub_var(sex) treat(allocation) icc
-pt_record pt_subgroup:bug_icc_crashes, rc(`=_rc') known_bug
+pt_subgroup y_cont, postname(`postname') sub_var(sex) treat(allocation) icc
+qui estat icc
+fmt_p `r(icc2)'
+local exp_icc `r(s)'
 postclose `postname'
+use `results', clear
+pt_expect icc, row(1) value("`exp_icc'") name(pt_subgroup:icc_value)
+pt_expect icc, row(2) value("") name(pt_subgroup:icc_first_row_only)

@@ -25,7 +25,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 if "`treat'" == "" local treat treat // sets default treatment parameter
 if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
 if "`per'" != "" local per % //sets whether % sign is included with percentages
-if "`append_label'" != "" local append_label " `append_label"
+if "`append_label'" != "" local append_label " `append_label'"
 
 if "`exp'" != "" {
 	local exp1 exp(

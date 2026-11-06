@@ -140,7 +140,7 @@ pt_check using "pt_model_test4_reference.dta", name(pt_model:test4)
 pt_expect p, row(1) value("`exp_p_null'") name(pt_model:test4_p_two_decimals)
 pt_expect sum1, row(3) value("`exp_neg_treated'") name(pt_model:test4_positive0_treat_grps)
 
-*Known bug: append_label() writes the literal text `append_label into the table
+*append_label() adds text to the row label
 use "`test_data2'", clear
 tempname postname
 tempfile results
@@ -149,7 +149,7 @@ regress y_cont allocation
 pt_model y_cont, postname(`postname') treat(allocation) append_label("(adjusted)")
 postclose `postname'
 use `results', clear
-pt_expect variable, row(1) value("Continuous (adjusted)") name(pt_model:bug_append_label) known_bug
+pt_expect variable, row(1) value("Continuous (adjusted)") name(pt_model:append_label)
 
 *Test 5: three arms, one row per comparison
 use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear

@@ -13,7 +13,7 @@ pt_expect_error, name(errors:pt_base_no_postname): pt_base age
 pt_expect_error, name(errors:pt_sum_no_stats): pt_sum age, postname(`postname')
 pt_expect_error, name(errors:pt_model_mt_no_time_var): pt_model_mt age, postname(`postname')
 
-*Known bug: an invalid stats() prints a message but exits without an error
-pt_expect_error, name(errors:bug_pt_sum_invalid_stats) known_bug: pt_sum age, postname(`postname') stats(foo)
+*An invalid stats() stops with an error
+pt_expect_error, name(errors:pt_sum_invalid_stats): pt_sum age, postname(`postname') stats(foo)
 
 postclose `postname'

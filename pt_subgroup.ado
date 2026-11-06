@@ -138,6 +138,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	*title row, when each comparison has its own header row
 	if `comp_headers' {
 		post `postname' ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") ("") `post_icc'
+		if "`icc'" != "" local post_icc ("")
 	}
 
 	*extracting the value labels for sub grps (the numeric value if there is no label)
@@ -173,6 +174,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 		if `comp_headers' local header_label "  `comp_label`c''"
 		di `"posting: ("`header_label'") `blank_measure_post' `blank_inan_cols' `blank_miss_cols' `blank_summaries' ("") `p_int' `post_icc'"'	
 		post `postname' ("`header_label'") `blank_measure_post' `blank_inan_cols' `blank_miss_cols' `blank_summaries' ("") `p_int' `post_icc'
+		if "`icc'" != "" local post_icc ("") // the icc is for the whole model, so is only posted once
 
 		*posting data
 		foreach k in `sub_grps'{
@@ -212,10 +214,10 @@ syntax varlist(numeric max = 1), postname(string) ///
 			local measure_append ""
 			local measure_post `blank_measure_post'
 			if `c' == 1 {
-				get_summaries `v' if `inanalysis' == 1 & `sub_var' == `k', treat(`treat') treat_grps(`treat_grps') type(`type1') ///
+				get_summaries `v' if `inanalysis' == 1 & `sub_var' == `k', all_if(`sub_var' == `k') treat(`treat') treat_grps(`treat_grps') type(`type1') ///
 					missing(`missing') n_analysis(`n_analysis')  ///
-					var_label(`var_label') su_decimal(`su_decimal') ///
-					positive(`positive') `percent' ///
+					var_label(`var_label') su_decimal(`su_decimal') miss_decimal(`miss_decimal') ///
+					positive(`positive') per(`per') ///
 					su_label_text(`su_label_text') su_label(`su_label')
 					
 				local inan_cols `r(inan_cols)'
@@ -326,7 +328,7 @@ syntax, est_decimal(integer) [exclude_p]
 
 end
 
-prog get_icc
+prog get_icc, rclass
 	estat icc
 	local icc = r(icc2)
 	
@@ -340,13 +342,12 @@ prog get_icc
 		local icc_str = "<0.001"
 	}
 	
-	local post_icc ("`icc_str'")
-	return local post_icc `"post_icc"'
+	return local post_icc "`icc_str'"
 end
 
 prog get_summaries, rclass
-	syntax varlist [if/], treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) ///
-	[positive(integer 1) percent su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
+	syntax varlist [if/], all_if(string) treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) miss_decimal(integer) ///
+	[positive(integer 1) per(string) su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
 		local v `varlist'
 		local type1 `type'
 		
@@ -367,7 +368,7 @@ prog get_summaries, rclass
 		foreach i in `treat_grps' {
 			qui count if `treat' == `i' `and_if'
 			local n_inanalysis_`i' = r(N)
-			qui count if `treat' == `i' `and_if'
+			qui count if `treat' == `i' & `all_if'
 			local n_missing_`i' = r(N) - `n_inanalysis_`i''
 			local n_missing_per_`i' = `n_missing_`i''/r(N)*100
 			if "`missing'" == "brackets" local str_missing "[`n_missing_`i'']"
@@ -391,7 +392,7 @@ prog get_summaries, rclass
 				scalar count_treat_positive_`i' = r(N)
 				local n = count_treat_positive_`i'
 				local percent = count_treat_positive_`i'/count_treat_`i'*100
-				local per_str = string(`percent', "%2.`su_decimal'f")
+				local per_str = string(`percent', "%12.`su_decimal'f")
 				local su_`i' "`n' (`per_str'`per') `str_missing' `str_inanalysis'" 
 				local measure1 "no. (%)"
 			}
