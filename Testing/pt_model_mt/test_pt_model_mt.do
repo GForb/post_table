@@ -210,3 +210,25 @@ local exp_sum2 = "`r(N)' (" + string(r(N)/`denom'*100, "%12.2f") + "%)"
 postclose `postname'
 use `results', clear
 pt_expect sum2, row(3) value("`exp_sum2'") name(pt_model_mt:test8_per_su_decimal)
+
+*Test 9: after mixed with dfmethod(), estimates use small-sample inference
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+keep if arm < 2
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str40(sum0 sum1 est p) using `results' , replace
+mixed y_cont i.arm##i.time || pid:, reml dfmethod(kr)
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont) est_decimal(4)
+lincom 1.arm + 1.arm#2.time
+fmt_lincom 4
+local z_est "`r(s)'"
+lincom 1.arm + 1.arm#2.time, small
+fmt_lincom 4
+local exp_est "`r(s)'"
+fmt_p `r(p)'
+local exp_p `r(s)'
+postclose `postname'
+use `results', clear
+pt_record pt_model_mt:test9_small_differs_from_z, rc(`="`exp_est'" == "`z_est'"')
+pt_expect est, row(3) value("`exp_est'") name(pt_model_mt:test9_small_est)
+pt_expect p, row(3) value("`exp_p'") name(pt_model_mt:test9_small_p)

@@ -284,8 +284,11 @@ end
 prog get_lincom_ests, rclass
 syntax , a(integer) b(integer) treat(varname) form_est(string) [exp]
 	local eform ""
-	if "`exp'" != "" local eform ,eform
-	lincom `a'.`treat' - `b'.`treat' `eform'
+	if "`exp'" != "" local eform eform
+	*lincom only uses the df method of a mixed model if asked to
+	local small ""
+	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" != "" local small small
+	lincom `a'.`treat' - `b'.`treat', `eform' `small'
 	return local coef = string(r(estimate), "`form_est'")
 	return local ll = string(r(lb), "`form_est'")
 	return local ul = string(r(ub), "`form_est'")

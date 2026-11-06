@@ -256,3 +256,28 @@ pt_expect p, row(2) value("`exp_p'") name(pt_model:test8_factor_p)
 pt_expect est, row(3) value("`exp_est'") name(pt_model:test8_reference_arm_est)
 pt_expect est, row(5) value("`exp_or'") name(pt_model:test8_factor_odds_ratio)
 pt_expect p, row(5) value("`exp_p_or'") name(pt_model:test8_factor_odds_ratio_p)
+
+*Test 9: after mixed with dfmethod(), the factor variable estimate uses small-sample inference
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum0 sum1 est p) using `results', replace
+mixed y_cont i.allocation || site:, reml dfmethod(kr)
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(4)
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(4) exp
+lincom 1.allocation - 0.allocation
+fmt_lincom 4
+local z_est "`r(s)'"
+lincom 1.allocation - 0.allocation, small
+fmt_lincom 4
+local exp_est "`r(s)'"
+fmt_p `r(p)'
+local exp_p `r(s)'
+lincom 1.allocation - 0.allocation, small eform
+local exp_or = string(r(estimate), "%12.4f") + " (" + string(r(lb), "%12.4f") + ", " + string(r(ub), "%12.4f") + ")"
+postclose `postname'
+use `results', clear
+pt_record pt_model:test9_small_differs_from_z, rc(`="`exp_est'" == "`z_est'"')
+pt_expect est, row(1) value("`exp_est'") name(pt_model:test9_small_est)
+pt_expect p, row(1) value("`exp_p'") name(pt_model:test9_small_p)
+pt_expect est, row(2) value("`exp_or'") name(pt_model:test9_small_eform)

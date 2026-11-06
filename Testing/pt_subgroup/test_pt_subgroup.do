@@ -399,3 +399,27 @@ postclose `postname'
 use `results', clear
 pt_expect icc, row(1) value("`exp_icc'") name(pt_subgroup:icc_value)
 pt_expect icc, row(2) value("") name(pt_subgroup:icc_first_row_only)
+
+*after mixed with dfmethod(), estimates and the interaction test use small-sample inference
+pt_subgroup_data
+keep if site <= 9 // chosen, so the small-sample p-value differs at the reported precision
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum0 sum1 est p) using `results', replace
+mixed y_cont i.allocation##i.sex || site:, reml dfmethod(kr)
+pt_subgroup y_cont, postname(`postname') sub_var(sex) treat(allocation) type(cont) est_decimal(4)
+test (0.allocation#1.sex = 1.allocation#1.sex) (0.allocation#2.sex = 1.allocation#2.sex)
+local z_int = r(p)
+test (0.allocation#1.sex = 1.allocation#1.sex) (0.allocation#2.sex = 1.allocation#2.sex), small
+fmt_p `r(p)'
+local exp_int `r(s)'
+fmt_p `z_int'
+local z_int `r(s)'
+lincom 1.allocation + 1.allocation#2.sex, small
+fmt_lincom 4
+local exp_est "`r(s)'"
+postclose `postname'
+use `results', clear
+pt_record pt_subgroup:small_int_differs_from_z, rc(`="`z_int'" == "`exp_int'"')
+pt_expect p, row(1) value("`exp_int'") name(pt_subgroup:small_interaction_p)
+pt_expect est, row(3) value("`exp_est'") name(pt_subgroup:small_est)

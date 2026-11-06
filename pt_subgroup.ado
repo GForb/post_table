@@ -151,6 +151,10 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 	local form_est %12.`est_decimal'f // setting the format for estimates
 	
+	*lincom and test only use the df method of a mixed model if asked to
+	local small ""
+	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" != "" local small small
+	
 	forvalues c = 1 (1) `n_comp' {
 		local a `a`c''
 		local b `b`c''
@@ -162,7 +166,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 			foreach k in `model_sub_grps' {
 				local constraints `constraints' (`a'.`treat'#`k'.`sub_var' = `b'.`treat'#`k'.`sub_var')
 			}
-			test `constraints' // joint test across all sub group levels
+			test `constraints', `small' // joint test across all sub group levels
 			local p_int_val = r(p)
 			format_p, p(`p_int_val')
 			local p_int_str  `r(p_string)'
@@ -196,8 +200,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 			
 			*Extracting estiamtes
 			local eform ""
-			if "`exp'" != "" local eform ,eform
-			lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var') `eform' 
+			if "`exp'" != "" local eform eform
+			lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var'), `eform' `small'
 			get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
 			local estimate_post_string  `r(post_string)'
 			di "Lincom post string: " `estimate_post_string'

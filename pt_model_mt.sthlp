@@ -109,6 +109,9 @@ Comparisons are labelled with the value labels of {cmd:treat}, for example "High
 P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
+{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model, through the {cmd:small} option of {cmd:lincom} and {cmd:test}. Where Stata cannot calculate them, as for some contrasts with {cmd:dfmethod(repeated)}, it reports large-sample results and {cmd:lincom} prints a note.
+
+{pstd}
 {bf:Table layout.} With two arms the table has a header row and one row per timepoint. With more than two arms, or when {cmd:compare()} is specified, the first row is a title and each comparison has a header row naming it, then one row per timepoint. Summaries are posted in the first block only.
 
 {marker examples}{...}
