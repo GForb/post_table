@@ -103,10 +103,10 @@ Comparisons are labelled with the value labels of {cmd:treat}, for example "High
 P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
-{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model, through the {cmd:small} option of {cmd:lincom} and {cmd:test}. Where Stata cannot calculate them, as for some contrasts with {cmd:dfmethod(repeated)}, it reports large-sample results and {cmd:lincom} prints a note.
+{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model. Where Stata cannot calculate them, as for some contrasts with {cmd:dfmethod(repeated)}, it reports large-sample results and {cmd:lincom} prints a note.
 
 {pstd}
-{bf:Table layout.} With two arms each outcome has one row. The estimate is higher value vs lower value if treatment is in the model using factor variable notation, and otherwise the first coefficient in the model. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.
+{bf:Table layout.} With two arms each outcome has one row. The estimate is the treatment coefficient in the model results table, with that table's scale, confidence level and degrees of freedom. With factor variable notation this is the other arm vs the base level, so {cmd:ib1.treat} gives 0 vs 1. If neither arm in {cmd:treat_grps()} is the base level, the estimate is higher value vs lower value. Run {cmd:pt_model} immediately after the model, as it stops with an error if the treatment coefficient is not in the results table. {cmd:exp} has no effect on a table that is already exponentiated, for example after {cmd:logistic} or {cmd:stcox}. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.
 
 {marker examples}{...}
 {title:Examples}

@@ -240,6 +240,9 @@ regress y_cont i.allocation
 pt_model y_cont, postname(`postname') treat(allocation) type(cont)
 regress y_cont ib1.allocation
 pt_model y_cont, postname(`postname') treat(allocation) type(cont)
+lincom 0.allocation
+fmt_lincom 1
+local exp_ib1 "`r(s)'"
 logit y_bin allocation
 pt_model y_bin, postname(`postname') treat(allocation) type(bin) exp
 logit y_bin i.allocation
@@ -253,7 +256,7 @@ local exp_or = est[4]
 local exp_p_or = p[4]
 pt_expect est, row(2) value("`exp_est'") name(pt_model:test8_factor_est)
 pt_expect p, row(2) value("`exp_p'") name(pt_model:test8_factor_p)
-pt_expect est, row(3) value("`exp_est'") name(pt_model:test8_reference_arm_est)
+pt_expect est, row(3) value("`exp_ib1'") name(pt_model:test8_reference_arm_est)
 pt_expect est, row(5) value("`exp_or'") name(pt_model:test8_factor_odds_ratio)
 pt_expect p, row(5) value("`exp_p_or'") name(pt_model:test8_factor_odds_ratio_p)
 
@@ -264,6 +267,7 @@ tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 est p) using `results', replace
 mixed y_cont i.allocation || site:, reml dfmethod(kr)
 pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(4)
+mixed y_cont i.allocation || site:, reml dfmethod(kr)
 pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(4) exp
 lincom 1.allocation - 0.allocation
 fmt_lincom 4
@@ -281,3 +285,87 @@ pt_record pt_model:test9_small_differs_from_z, rc(`="`exp_est'" == "`z_est'"')
 pt_expect est, row(1) value("`exp_est'") name(pt_model:test9_small_est)
 pt_expect p, row(1) value("`exp_p'") name(pt_model:test9_small_p)
 pt_expect est, row(2) value("`exp_or'") name(pt_model:test9_small_eform)
+
+*Test 10: two arms: the estimate is the treatment coefficient in the model results table
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta", clear
+set seed 3141
+gen ftime = 1 + rexponential(5)
+gen event = runiform() > 0.3
+stset ftime, failure(event)
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum0 sum1 est p) using `results', replace
+*row 1: treatment is not the first coefficient
+regress y_cont sex allocation
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+lincom allocation
+fmt_lincom 3
+local exp_not_first "`r(s)'"
+*row 2: confidence level set in the model
+regress y_cont i.allocation, level(90)
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+lincom 1.allocation, level(90)
+fmt_lincom 3
+local exp_level "`r(s)'"
+*rows 3 to 5: exp is not applied twice to a table that is already exponentiated
+logit y_bin allocation
+pt_model y_bin, postname(`postname') treat(allocation) type(bin) est_decimal(3) exp
+lincom allocation, eform
+fmt_lincom 3
+local exp_or "`r(s)'"
+logit y_bin allocation, or
+pt_model y_bin, postname(`postname') treat(allocation) type(bin) est_decimal(3) exp
+logistic y_bin allocation
+pt_model y_bin, postname(`postname') treat(allocation) type(bin) est_decimal(3) exp
+*rows 6 and 7: scale of the model results table is kept without exp
+stcox allocation
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+lincom allocation, eform
+fmt_lincom 3
+local exp_hr "`r(s)'"
+stcox i.allocation
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+postclose `postname'
+use `results', clear
+pt_expect est, row(1) value("`exp_not_first'") name(pt_model:test10_treat_not_first)
+pt_expect est, row(2) value("`exp_level'") name(pt_model:test10_model_level)
+pt_expect est, row(3) value("`exp_or'") name(pt_model:test10_exp_logit)
+pt_expect est, row(4) value("`exp_or'") name(pt_model:test10_exp_logit_or)
+pt_expect est, row(5) value("`exp_or'") name(pt_model:test10_exp_logistic)
+pt_expect est, row(6) value("`exp_hr'") name(pt_model:test10_stcox)
+pt_expect est, row(7) value("`exp_hr'") name(pt_model:test10_stcox_factor)
+
+*Test 11: multiple imputation uses the combined results in the model results table
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_input.dta", clear
+set seed 2025
+replace y_cont = . if runiform() < 0.2
+mi set wide
+mi register imputed y_cont
+mi impute regress y_cont i.allocation sex, add(5) rseed(1)
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum0 sum1 est p) using `results', replace
+mi estimate: regress y_cont i.allocation sex
+mat T = r(table)
+local exp_mi = string(T[1,2], "%12.3f") + " (" + string(T[5,2], "%12.3f") + ", " + string(T[6,2], "%12.3f") + ")"
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+mi estimate, post: regress y_cont i.allocation sex
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+postclose `postname'
+use `results', clear
+pt_expect est, row(1) value("`exp_mi'") name(pt_model:test11_mi)
+pt_expect est, row(2) value("`exp_mi'") name(pt_model:test11_mi_post)
+
+*Test 12: two arms of three, neither the base level, need lincom
+use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum1 sum2 est p) using `results', replace
+regress y_cont i.arm
+pt_model y_cont, postname(`postname') treat(arm) treat_grps(1 2) type(cont) est_decimal(3)
+lincom 2.arm - 1.arm
+fmt_lincom 3
+local exp_est "`r(s)'"
+postclose `postname'
+use `results', clear
+pt_expect est, row(1) value("`exp_est'") name(pt_model:test12_no_base_arm)

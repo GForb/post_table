@@ -16,4 +16,11 @@ pt_expect_error, name(errors:pt_model_mt_no_time_var): pt_model_mt age, postname
 *An invalid stats() stops with an error
 pt_expect_error, name(errors:pt_sum_invalid_stats): pt_sum age, postname(`postname') stats(foo)
 
+*pt_model needs the treatment coefficient in the model results table
+regress age bmi
+pt_expect_error, name(errors:pt_model_treat_not_in_model): pt_model age, postname(`postname') treat(treat)
+regress age treat
+summarize age
+pt_expect_error, name(errors:pt_model_results_lost): pt_model age, postname(`postname') treat(treat)
+
 postclose `postname'

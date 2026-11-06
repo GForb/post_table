@@ -56,15 +56,34 @@ if `multi_comp' {
 	}
 }
 
-*With two arms, the estimate is the first coefficient in the model unless treat is a factor variable,
-*as the first coefficient is then the base level
-local two_arm_factor = 0
-if !`multi_comp' & `grps' == 2 {
-	pt_compare, treat(`treat') treat_grps(`treat_grps')
-	local a1 `r(a1)'
-	local b1 `r(b1)'
-	cap lincom `a1'.`treat' - `b1'.`treat'
-	if _rc == 0 local two_arm_factor = 1
+*With two arms, the estimate is the treatment coefficient in the model results table
+local two_arm_lincom = 0
+if !`multi_comp' {
+	local col = colnumb(A, "`treat'")
+	if `col' >= . {
+		*factor variable: the arm with a coefficient (the base and omitted arms have no standard error)
+		local n_cols = 0
+		foreach g in `treat_grps' {
+			local k = colnumb(A, "`g'.`treat'")
+			if `k' < . {
+				if A[2, `k'] < . {
+					local col = `k'
+					local ++n_cols
+				}
+			}
+		}
+		*neither arm is the base level of the model, so no single coefficient compares them
+		if `n_cols' == 2 {
+			local two_arm_lincom = 1
+			pt_compare, treat(`treat') treat_grps(`treat_grps')
+			local a1 `r(a1)'
+			local b1 `r(b1)'
+		}
+	}
+	if `col' >= . {
+		di as error "`treat' not found in the model results. Run pt_model immediately after the model, with `treat' in the model."
+		exit 198
+	}
 }
 
 *setting decimal values
@@ -83,27 +102,30 @@ label values `inanalysis' `inan_label'
 
 
 local form_est %12.`est_decimal'f
-local coef = `exp1'A[1,1]`exp2'
-local ll = `exp1'A[5,1]`exp2'
-local ul = `exp1'A[6,1]`exp2'
+if !`multi_comp' & !`two_arm_lincom' {
+	*the table may already be exponentiated, for example after logistic or stcox
+	local eform_row = rownumb(A, "eform")
+	if `eform_row' < . {
+		if A[`eform_row', `col'] == 1 {
+			local exp1 ""
+			local exp2 ""
+		}
+	}
+	local coef = `exp1'A[rownumb(A, "b"), `col']`exp2'
+	local ll = `exp1'A[rownumb(A, "ll"), `col']`exp2'
+	local ul = `exp1'A[rownumb(A, "ul"), `col']`exp2'
 
-local coef = string(`coef', "`form_est'")
-		
-local ll = string(`ll', "`form_est'")
-local ul = string(`ul', "`form_est'")
+	local coef = string(`coef', "`form_est'")
+	local ll = string(`ll', "`form_est'")
+	local ul = string(`ul', "`form_est'")
 
-scalar p1 = A[4,1]
-if p1 >=0.01 {
-	local p = string(A[4,1], "%3.2f")
-}
-if p1 >=0.001 & p1 < 0.01 {
-	local p = string(A[4,1], "%4.3f")
-}
-if p1 < 0.001 {
-	local p = "<0.001"
+	scalar p1 = A[rownumb(A, "pvalue"), `col']
+	if p1 >=0.01 local p = string(p1, "%3.2f")
+	if p1 >=0.001 & p1 < 0.01 local p = string(p1, "%4.3f")
+	if p1 < 0.001 local p = "<0.001"
 }
 
-if `two_arm_factor' {
+if `two_arm_lincom' {
 	get_lincom_ests, a(`a1') b(`b1') treat(`treat') form_est(`form_est') `exp'
 	local coef `r(coef)'
 	local ll `r(ll)'
