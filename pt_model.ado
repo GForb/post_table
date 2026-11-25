@@ -68,6 +68,12 @@ forvalues n = 1 (1) `grps' {
 *setting the comparisons to report
 local multi_comp = (`grps' > 2 | `"`compare'"' != "") & "`descriptive'" == ""
 if `multi_comp' {
+	*lincom after mi estimate uses complete-data degrees of freedom, so intervals are too narrow
+	if "`e(mi)'" == "mi" {
+		di as error "Estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) after mi estimate are not currently supported."
+		di as error "If you would like this, please open an issue at https://github.com/GForb/post_table/issues or contact the package developers."
+		exit 198
+	}
 	pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
 	local n_comp = r(n)
 	forvalues c = 1 (1) `n_comp' {
@@ -381,6 +387,11 @@ end
 
 prog get_lincom_ests, rclass
 syntax , a(integer) b(integer) treat(varname) form_est(string) level(real) [exp]
+	if "`e(mi)'" == "mi" {
+		di as error "Estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) after mi estimate are not currently supported."
+		di as error "If you would like this, please open an issue at https://github.com/GForb/post_table/issues or contact the package developers."
+		exit 198
+	}
 	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" == "repeated" {
 		di as error "dfmethod(repeated) gives no degrees of freedom for a combination of coefficients, such as the treatment effect at a later timepoint or between two non-reference arms."
 		di as error "Refit the model with dfmethod(residual), dfmethod(anova), dfmethod(satterthwaite) or dfmethod(kroger)."

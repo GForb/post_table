@@ -56,6 +56,13 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 	if "`descriptive'" == "" & "`depvarcheck'" == "" pt_check_depvar `varlist'
 	if "`descriptive'" == "" {
+		*every estimate here combines coefficients with lincom, which after mi estimate uses
+		*complete-data degrees of freedom, so intervals would be too narrow
+		if "`e(mi)'" == "mi" {
+			di as error "Estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) after mi estimate are not currently supported."
+			di as error "If you would like this, please open an issue at https://github.com/GForb/post_table/issues or contact the package developers."
+			exit 198
+		}
 		if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" == "repeated" {
 			di as error "dfmethod(repeated) gives no degrees of freedom for a combination of coefficients, such as the treatment effect at a later timepoint or between two non-reference arms."
 			di as error "Refit the model with dfmethod(residual), dfmethod(anova), dfmethod(satterthwaite) or dfmethod(kroger)."

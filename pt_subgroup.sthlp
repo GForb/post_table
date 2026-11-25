@@ -100,6 +100,9 @@ The command requires a post file to have been opened with the required number of
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
 
+{pstd}
+After {cmd:mi estimate}, estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) are not currently supported, and the command stops with an error: {cmd:lincom} would use complete-data degrees of freedom, giving intervals that are too narrow. The two-arm estimate, read from the combined results table, is supported. To request this feature, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
 {marker arms}{...}
 {marker remarks}{...}
 {title:Multiple treatment arms}

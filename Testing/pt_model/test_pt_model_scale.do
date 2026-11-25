@@ -110,3 +110,34 @@ mixed y_cont i.arm || site:, reml dfmethod(repeated)
 cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont)
 pt_record pt_model_scale:test5_repeated_two_arms_runs, rc(`=_rc')
 postclose `postname'
+
+*Test 6: after mi estimate, estimates that need lincom stop (not supported: lincom would
+*use complete-data degrees of freedom); two arms and descriptive rows still run
+use `long_data', clear
+set seed 21
+replace y_cont = . if runiform() < 0.2
+mi set wide
+mi register imputed y_cont
+mi impute regress y_cont i.arm##i.time, add(3) rseed(3)
+tempfile mi_long
+save `mi_long'
+
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
+mi estimate, post: regress y_cont i.arm##i.time
+pt_expect_error, name(pt_model_scale:test6_mi_mt_stops): pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont)
+postclose `postname'
+
+use `mi_long', clear
+keep if time == `t1'
+tempname postname
+tempfile results
+postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
+mi estimate, post: regress y_cont i.arm
+pt_expect_error, name(pt_model_scale:test6_mi_three_arms_post_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont)
+mi estimate: regress y_cont i.arm
+pt_expect_error, name(pt_model_scale:test6_mi_three_arms_nopost_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont)
+cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) descriptive
+pt_record pt_model_scale:test6_mi_descriptive_runs, rc(`=_rc')
+postclose `postname'
