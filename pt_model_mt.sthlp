@@ -79,6 +79,7 @@
 {syntab:Model reporting}
 {synopt:{opt exp}}Expiate estimates and confidence interval bounds.{p_end}
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
+{synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model_mt##descriptive:Descriptive rows}.{p_end}
 
 {synoptline}
@@ -108,6 +109,7 @@ Percentages are of the group's non-missing observations at that timepoint. All l
 {pstd}
 Without {cmd:descriptive}, the outcome given must be the outcome of the last model ({cmd:e(depvar)}), or the command stops with an error.
 After {cmd:stset} models such as {cmd:stcox}, whose outcome is {cmd:_t}, the {cmd:stset} time or failure variable, {cmd:_t} or {cmd:_d} is accepted.
+If the difference is intended, for example summaries of {it:y} after a model of log({it:y}) or of a change score, add {cmd:nodepvarcheck}.
 
 {marker arms}{...}
 {title:Multiple treatment arms}

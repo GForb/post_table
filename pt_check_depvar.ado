@@ -3,7 +3,7 @@ capture program drop pt_check_depvar
 *Stops with an error if the outcome passed to the command is not the outcome of the
 *last model, so one outcome's summaries are never posted next to another's estimate.
 *After st commands (stcox, streg) the model's outcome is _t: the stset time or failure
-*variable, _t or _d are accepted.
+*variable, _t or _d are accepted. The commands' nodepvarcheck option skips this check.
 
 program define pt_check_depvar
 	syntax varname
@@ -19,6 +19,7 @@ program define pt_check_depvar
 	if !`ok' {
 		di as error "`varlist' is not the outcome of the last model (`depvar')."
 		di as error "Run the model for `varlist' immediately before posting its results."
+		di as error "If this is intended (for example, summaries of y after a model of log(y)), add the nodepvarcheck option."
 		exit 198
 	}
 end

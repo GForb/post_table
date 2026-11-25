@@ -23,9 +23,10 @@ syntax varlist(numeric max = 1), postname(string) ///
 	int_test_false /// report p-values for each subgroup level, rather than ineraction p-value
 	use_outcome_label /// uses outcome label rather than subgroup label
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	]
 
-	if "`descriptive'" == "" pt_check_depvar `varlist'
+	if "`descriptive'" == "" & "`depvarcheck'" == "" pt_check_depvar `varlist'
 
 	local exclude_p exclude_p
 	if "`int_test_false'" != "" {

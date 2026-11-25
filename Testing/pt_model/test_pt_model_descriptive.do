@@ -218,7 +218,27 @@ mixed y_cont i.arm##i.time || pid:
 pt_expect_error, name(pt_model_desc:test11_pt_model_mt_mismatch): pt_model_mt y_bin, postname(`postname') treat(arm) time_var(time)
 postclose `postname'
 
-*Test 12: after stcox the outcome is _t: the stset time and failure variables are accepted
+*Test 12: nodepvarcheck allows a different outcome, e.g. summaries of y after a model of a transformed y
+use `one_time', clear
+gen y_rank = y_cont
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+regress y_rank i.arm
+cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) nodepvarcheck
+pt_record pt_model_desc:test12_pt_model_nodepvarcheck, rc(`=_rc')
+postclose `postname'
+use `long_data', clear
+gen y_rank = y_cont
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+mixed y_rank i.arm##i.time || pid:
+cap noisily pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) nodepvarcheck
+pt_record pt_model_desc:test12_pt_model_mt_nodepvarcheck, rc(`=_rc')
+postclose `postname'
+
+*Test 13: after stcox the outcome is _t: the stset time and failure variables are accepted
 use `one_time', clear
 keep if arm != `a3'
 set seed 12
@@ -230,10 +250,10 @@ tempfile results
 postfile `postname' str60 variable str20(sum1 sum2 est p) using `results', replace
 stcox i.arm
 cap noisily pt_model surv_time, postname(`postname') treat(arm) type(skew)
-pt_record pt_model_desc:test12_stcox_time_var, rc(`=_rc')
+pt_record pt_model_desc:test13_stcox_time_var, rc(`=_rc')
 stcox i.arm
 cap noisily pt_model surv_event, postname(`postname') treat(arm) type(bin)
-pt_record pt_model_desc:test12_stcox_failure_var, rc(`=_rc')
+pt_record pt_model_desc:test13_stcox_failure_var, rc(`=_rc')
 stcox i.arm
-pt_expect_error, name(pt_model_desc:test12_stcox_mismatch): pt_model y_cont, postname(`postname') treat(arm)
+pt_expect_error, name(pt_model_desc:test13_stcox_mismatch): pt_model y_cont, postname(`postname') treat(arm)
 postclose `postname'

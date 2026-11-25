@@ -19,11 +19,12 @@ syntax varlist(numeric max = 1), postname(string) ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	]
 
 if "`descriptive'" == "" {
 	mat A = r(table)
-	pt_check_depvar `varlist'
+	if "`depvarcheck'" == "" pt_check_depvar `varlist'
 }
 	
 if "`treat'" == "" local treat treat // sets default treatment parameter
