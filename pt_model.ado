@@ -20,14 +20,26 @@ syntax varlist(numeric max = 1), postname(string) ///
 	icc /// calculate and report icc from analysis
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
+	level(cilevel) /// confidence level for the estimates; default as set by set level
+	nolevelcheck /// allow a level() different from the model's
 	]
 
 *model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so comparisons
 *made with lincom are exponentiated too, as the two-arm estimate read from the table is
 local model_eform = 0
+local model_level = .
 if "`descriptive'" == "" {
 	mat A = r(table)
 	if "`depvarcheck'" == "" pt_check_depvar `varlist'
+	*the model's confidence level, worked back from its results table, must match level()
+	pt_model_level A
+	local model_level = r(level)
+	if "`levelcheck'" == "" & `model_level' < . & abs(`model_level' - `level') > 0.005 {
+		local ml = string(`model_level', "%9.0g")
+		di as error "The model's confidence intervals are at `ml'%, but level() is `level'% (the default is set by set level)."
+		di as error "Add level(`ml') to match the model, or the nolevelcheck option if this is intended."
+		exit 198
+	}
 	local er = rownumb(A, "eform")
 	if `er' < . {
 		forvalues k = 1/`=colsof(A)' {
@@ -128,9 +140,35 @@ if !`multi_comp' & !`two_arm_lincom' & "`descriptive'" == "" {
 			local exp2 ""
 		}
 	}
-	local coef = `exp1'A[rownumb(A, "b"), `col']`exp2'
-	local ll = `exp1'A[rownumb(A, "ll"), `col']`exp2'
-	local ul = `exp1'A[rownumb(A, "ul"), `col']`exp2'
+	*with nolevelcheck and a level() different from the model's, the interval is worked out
+	*again from the table's estimate, standard error and degrees of freedom
+	if `model_level' >= . | abs(`model_level' - `level') <= 0.005 {
+		local coef = `exp1'A[rownumb(A, "b"), `col']`exp2'
+		local ll = `exp1'A[rownumb(A, "ll"), `col']`exp2'
+		local ul = `exp1'A[rownumb(A, "ul"), `col']`exp2'
+	}
+	else {
+		local b = A[rownumb(A, "b"), `col']
+		local se = A[rownumb(A, "se"), `col']
+		local df = A[rownumb(A, "df"), `col']
+		local table_eform = 0
+		if `eform_row' < . local table_eform = A[`eform_row', `col'] == 1
+		*an exponentiated table holds exp(b) and its delta-method standard error
+		if `table_eform' {
+			local se = `se' / `b'
+			local b = ln(`b')
+		}
+		if `df' < . local crit = invttail(`df', (100 - `level') / 200)
+		else local crit = invnormal(1 - (100 - `level') / 200)
+		local coef = `b'
+		local ll = `b' - `crit' * `se'
+		local ul = `b' + `crit' * `se'
+		if `table_eform' | "`exp'" != "" {
+			local coef = exp(`coef')
+			local ll = exp(`ll')
+			local ul = exp(`ul')
+		}
+	}
 
 	local coef = string(`coef', "`form_est'")
 	local ll = string(`ll', "`form_est'")
@@ -143,7 +181,7 @@ if !`multi_comp' & !`two_arm_lincom' & "`descriptive'" == "" {
 }
 
 if `two_arm_lincom' {
-	get_lincom_ests, a(`a1') b(`b1') treat(`treat') form_est(`form_est') `lincom_exp'
+	get_lincom_ests, a(`a1') b(`b1') treat(`treat') form_est(`form_est') level(`level') `lincom_exp'
 	local coef `r(coef)'
 	local ll `r(ll)'
 	local ul `r(ul)'
@@ -324,7 +362,7 @@ else post `postname' ("`var_label'`measure_append'`append_label'") `measure_post
 *one row per comparison
 if `multi_comp' {
 	forvalues c = 1 (1) `n_comp' {
-		get_lincom_ests, a(`a`c'') b(`b`c'') treat(`treat') form_est(`form_est') `lincom_exp'
+		get_lincom_ests, a(`a`c'') b(`b`c'') treat(`treat') form_est(`form_est') level(`level') `lincom_exp'
 		local coef `r(coef)'
 		local ll `r(ll)'
 		local ul `r(ul)'
@@ -342,7 +380,7 @@ if `gap' > 0 {
 end
 
 prog get_lincom_ests, rclass
-syntax , a(integer) b(integer) treat(varname) form_est(string) [exp]
+syntax , a(integer) b(integer) treat(varname) form_est(string) level(real) [exp]
 	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" == "repeated" {
 		di as error "dfmethod(repeated) gives no degrees of freedom for a combination of coefficients, such as the treatment effect at a later timepoint or between two non-reference arms."
 		di as error "Refit the model with dfmethod(residual), dfmethod(anova), dfmethod(satterthwaite) or dfmethod(kroger)."
@@ -353,7 +391,7 @@ syntax , a(integer) b(integer) treat(varname) form_est(string) [exp]
 	*lincom only uses the df method of a mixed model if asked to
 	local small ""
 	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" != "" local small small
-	lincom `a'.`treat' - `b'.`treat', `eform' `small'
+	lincom `a'.`treat' - `b'.`treat', `eform' `small' level(`level')
 	return local coef = string(r(estimate), "`form_est'")
 	return local ll = string(r(lb), "`form_est'")
 	return local ul = string(r(ub), "`form_est'")

@@ -24,6 +24,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 	use_outcome_label /// uses outcome label rather than subgroup label
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
+	level(cilevel) /// confidence level for the estimates; default as set by set level
+	nolevelcheck /// allow a level() different from the model's
 	]
 
 	*model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so the
@@ -33,6 +35,15 @@ syntax varlist(numeric max = 1), postname(string) ///
 		tempname T
 		cap mat `T' = r(table)
 		if !_rc {
+			*the model's confidence level, worked back from its results table, must match level()
+			pt_model_level `T'
+			local model_level = r(level)
+			if "`levelcheck'" == "" & `model_level' < . & abs(`model_level' - `level') > 0.005 {
+				local ml = string(`model_level', "%9.0g")
+				di as error "The model's confidence intervals are at `ml'%, but level() is `level'% (the default is set by set level)."
+				di as error "Add level(`ml') to match the model, or the nolevelcheck option if this is intended."
+				exit 198
+			}
 			local er = rownumb(`T', "eform")
 			if `er' < . {
 				forvalues k = 1/`=colsof(`T')' {
@@ -236,7 +247,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 			else {
 				local eform ""
 				if "`exp'" != "" local eform eform
-				lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var'), `eform' `small'
+				lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var'), `eform' `small' level(`level')
 				get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
 				local estimate_post_string  `r(post_string)'
 				di "Lincom post string: " `estimate_post_string'

@@ -303,7 +303,7 @@ fmt_lincom 3
 local exp_not_first "`r(s)'"
 *row 2: confidence level set in the model
 regress y_cont i.allocation, level(90)
-pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3) level(90)
 lincom 1.allocation, level(90)
 fmt_lincom 3
 local exp_level "`r(s)'"

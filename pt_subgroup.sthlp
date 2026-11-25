@@ -81,6 +81,8 @@
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
 {synopt:{opt int_test_false}}Report p-values for each level of the subgroup variable rather than the global interaction test.
 
+{synopt:{opt level(#)}}Confidence level for the estimates; default as set by {cmd:set level}. The command stops with an error if this differs from the level of the model's confidence intervals, unless {cmd:nolevelcheck} is given.{p_end}
+{synopt:{opt nolevelcheck}}Allow a {cmd:level()} different from the model's. The two-arm estimate's interval is then worked out again from the model results table (estimate, standard error and degrees of freedom) at {cmd:level()}.{p_end}
 {synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells, as for {help pt_model_mt##descriptive:pt_model_mt}. Observations with a non-missing outcome are included; no comparison rows or interaction test. Without it, the outcome must be the outcome of the last model.{p_end}
 {synopt:{opt use_outcome_label}}Label the rows with the label from the outcome variable. Default is to use subgroup variable.
