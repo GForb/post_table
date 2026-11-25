@@ -232,3 +232,14 @@ use `results', clear
 pt_record pt_model_mt:test9_small_differs_from_z, rc(`="`exp_est'" == "`z_est'"')
 pt_expect est, row(3) value("`exp_est'") name(pt_model_mt:test9_small_est)
 pt_expect p, row(3) value("`exp_p'") name(pt_model_mt:test9_small_p)
+
+*A label with an unmatched bracket, as left when Stata cuts a long label at 80 characters
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_input.dta", clear
+label var y_cont "A long outcome label (cut off in the middle"
+tempname postname
+tempfile results
+postfile `postname'  str60 variable str20(n1 n2 sum1 sum2 est p) using `results' , replace
+mixed y_cont i.allocation##i.time || pid:
+cap noisily pt_model_mt y_cont, postname(`postname') time_var(time) treat(allocation) n_analysis(cols)
+pt_record pt_model_mt:label_unmatched_bracket, rc(`=_rc')
+postclose `postname'
