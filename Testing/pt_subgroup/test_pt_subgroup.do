@@ -154,7 +154,7 @@ tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 
 regress y_cont i.arm##i.agegrp
-pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(1v0 2v0 2v1)
 
 * Default is every pair, higher arm vs lower arm: row 1 is the title, then a header and three levels per comparison
 foreach a in 1 2 {
@@ -211,7 +211,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 regress y_cont ib2.arm##i.agegrp
-pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont)
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(1v0 2v0 2v1)
 postclose `postname'
 use `results', clear
 pt_expect est, row(11) value("`exp_est_21_1'") name(pt_subgroup:test5_reference_arm_est)
@@ -244,10 +244,10 @@ regress y_cont i.arm##i.agegrp
 pt_expect_error, name(pt_subgroup:test5_compare_bad_format): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(2-1)
 pt_expect_error, name(pt_subgroup:test5_compare_same_arm): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(2v2)
 pt_expect_error, name(pt_subgroup:test5_compare_unknown_arm): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) compare(3v1)
-pt_expect_error, name(pt_subgroup:test5_prim_treat_removed): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(1)
+pt_expect_error, name(pt_subgroup:test5_prim_treat_removed): pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm) type(cont) prim_treat(1) compare(1v0 2v0 2v1)
 postclose `postname'
 
-* Four arms give six comparisons
+* Four arms, all six comparisons, in the order the old default gave them
 use "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta", clear
 gen arm4 = arm
 replace arm4 = 3 if mod(_n, 4) == 0
@@ -255,7 +255,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 sum3 est p) using `results', replace
 regress y_cont i.arm4##i.agegrp
-pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm4) type(cont)
+pt_subgroup y_cont, postname(`postname') sub_var(agegrp) treat(arm4) type(cont) compare(1v0 2v0 3v0 2v1 3v1 3v2)
 qui lincom 3.arm4 + 3.arm4#1.agegrp - 2.arm4 - 2.arm4#1.agegrp
 fmt_lincom 1
 local exp_est_32 `r(s)'

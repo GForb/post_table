@@ -88,7 +88,7 @@ use `one_time', clear
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(n0 n1 n2 m0 m1 m2 sum0 sum1 sum2 est p icc) using `results', replace
-pt_model y_cont, postname(`postname') treat(arm) type(cont) n_analysis(cols) missing(cols) icc descriptive
+pt_model y_cont, postname(`postname') treat(arm) type(cont) n_analysis(cols) missing(cols) icc descriptive compare(1v0 2v0 2v1)
 qui count if arm == `a2' & y_cont < .
 local exp_n1 = r(N)
 qui count if arm == `a2'
@@ -110,8 +110,8 @@ tempfile results
 postfile `postname' str60 variable str20(n0 n1 n2 m0 m1 m2 sum0 sum1 sum2 est p icc) using `results', replace
 gen site = mod(pid, 8)
 mixed y_cont i.arm || site:
-pt_model y_cont, postname(`postname') treat(arm) type(cont) n_analysis(cols) missing(cols) icc
-cap noisily pt_model y_cat, postname(`postname') treat(arm) type(cat) n_analysis(cols) missing(cols) icc descriptive
+pt_model y_cont, postname(`postname') treat(arm) type(cont) n_analysis(cols) missing(cols) icc compare(1v0 2v0 2v1)
+cap noisily pt_model y_cat, postname(`postname') treat(arm) type(cat) n_analysis(cols) missing(cols) icc descriptive compare(1v0 2v0 2v1)
 pt_record pt_model_desc:test5_fits_model_table, rc(`=_rc')
 postclose `postname'
 
@@ -120,7 +120,7 @@ use `one_time', clear
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(measure n0 n1 n2 sum0 sum1 sum2 est p) using `results', replace
-pt_model y_cat, postname(`postname') treat(arm) type(cat) n_analysis(cols) su_label(col) per descriptive
+pt_model y_cat, postname(`postname') treat(arm) type(cat) n_analysis(cols) su_label(col) per descriptive compare(1v0 2v0 2v1)
 qui count if arm == `a3' & y_cat < .
 local denom = r(N)
 local exp_n2 = r(N)
@@ -142,7 +142,7 @@ use `one_time', clear
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
-pt_model y_cat, postname(`postname') treat(arm) type(cat) su_label(append) missing(brackets) descriptive
+pt_model y_cat, postname(`postname') treat(arm) type(cat) su_label(append) missing(brackets) descriptive compare(1v0 2v0 2v1)
 qui count if arm == `a1' & y_cat == .
 local exp_miss "[`r(N)']"
 postclose `postname'
@@ -156,7 +156,7 @@ use `long_data', clear
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(n0 n1 n2 sum0 sum1 sum2 est p) using `results', replace
-pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) n_analysis(cols) descriptive
+pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) n_analysis(cols) descriptive compare(1v0 2v0 2v1)
 qui su y_cont if arm == `a2' & time == `t2'
 local exp_sum1 = string(r(mean), "%12.1f") + " (" + string(r(sd), "%12.1f") + ")"
 local exp_n1 = r(N)
@@ -173,7 +173,7 @@ use `long_data', clear
 tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
-pt_model_mt y_cat, postname(`postname') treat(arm) time_var(time) type(cat) descriptive
+pt_model_mt y_cat, postname(`postname') treat(arm) time_var(time) type(cat) descriptive compare(1v0 2v0 2v1)
 qui count if arm == `a1' & time == `t2' & y_cat < .
 local denom = r(N)
 qui count if arm == `a1' & time == `t2' & y_cat == 4
@@ -192,10 +192,10 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(n0 n1 n2 sum0 sum1 sum2 est p icc) using `results', replace
 mixed y_cont i.arm##i.time || pid:
-pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) n_analysis(cols) icc
-cap noisily pt_model_mt y_cat, postname(`postname') treat(arm) time_var(time) type(cat) n_analysis(cols) icc descriptive
+pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) n_analysis(cols) icc compare(1v0 2v0 2v1)
+cap noisily pt_model_mt y_cat, postname(`postname') treat(arm) time_var(time) type(cat) n_analysis(cols) icc descriptive compare(1v0 2v0 2v1)
 pt_record pt_model_desc:test10_mt_fits_model_table, rc(`=_rc')
-cap noisily pt_model_mt y_bin, postname(`postname') treat(arm) time_var(time) type(bin) n_analysis(cols) icc descriptive
+cap noisily pt_model_mt y_bin, postname(`postname') treat(arm) time_var(time) type(bin) n_analysis(cols) icc descriptive compare(1v0 2v0 2v1)
 pt_record pt_model_desc:test10_mt_binary_fits, rc(`=_rc')
 postclose `postname'
 
@@ -205,8 +205,8 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 regress y_cont i.arm
-pt_expect_error, name(pt_model_desc:test11_pt_model_mismatch): pt_model y_bin, postname(`postname') treat(arm)
-cap noisily pt_model y_cont, postname(`postname') treat(arm)
+pt_expect_error, name(pt_model_desc:test11_pt_model_mismatch): pt_model y_bin, postname(`postname') treat(arm) compare(1v0 2v0 2v1)
+cap noisily pt_model y_cont, postname(`postname') treat(arm) compare(1v0 2v0 2v1)
 pt_record pt_model_desc:test11_pt_model_match, rc(`=_rc')
 postclose `postname'
 
@@ -215,7 +215,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 mixed y_cont i.arm##i.time || pid:
-pt_expect_error, name(pt_model_desc:test11_pt_model_mt_mismatch): pt_model_mt y_bin, postname(`postname') treat(arm) time_var(time)
+pt_expect_error, name(pt_model_desc:test11_pt_model_mt_mismatch): pt_model_mt y_bin, postname(`postname') treat(arm) time_var(time) compare(1v0 2v0 2v1)
 postclose `postname'
 
 *Test 12: nodepvarcheck allows a different outcome, e.g. summaries of y after a model of a transformed y
@@ -225,7 +225,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 regress y_rank i.arm
-cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) nodepvarcheck
+cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) nodepvarcheck compare(1v0 2v0 2v1)
 pt_record pt_model_desc:test12_pt_model_nodepvarcheck, rc(`=_rc')
 postclose `postname'
 use `long_data', clear
@@ -234,7 +234,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
 mixed y_rank i.arm##i.time || pid:
-cap noisily pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) nodepvarcheck
+cap noisily pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) nodepvarcheck compare(1v0 2v0 2v1)
 pt_record pt_model_desc:test12_pt_model_mt_nodepvarcheck, rc(`=_rc')
 postclose `postname'
 

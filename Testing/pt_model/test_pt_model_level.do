@@ -38,7 +38,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
 regress y_cont i.arm, level(90)
-pt_model y_cont, postname(`postname') treat(arm) type(cont) level(90) est_decimal(3)
+pt_model y_cont, postname(`postname') treat(arm) type(cont) level(90) est_decimal(3) compare(1v0 2v0 2v1)
 qui lincom 2.arm - 1.arm, level(90)
 fmt_lincom 3
 local exp_90 "`r(s)'"
@@ -132,6 +132,6 @@ regress y_cont i.arm, level(90)
 tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
-cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) descriptive
+cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) descriptive compare(1v0 2v0 2v1)
 pt_record pt_model_level:test7_descriptive_no_check, rc(`=_rc')
 postclose `postname'

@@ -144,7 +144,7 @@ tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
 mixed y_cont i.arm##i.time || pid:
-pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont)
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont) compare(1v0 2v0 2v1)
 foreach k in 1 2 {
 	qui lincom 2.arm + 2.arm#`k'.time - 1.arm - 1.arm#`k'.time
 	fmt_lincom 1
@@ -180,7 +180,7 @@ tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(miss0 miss1 miss2 sum0 sum1 sum2 est p icc) using `results' , replace
 mixed y_cont i.arm##i.time || pid:
-pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont) missing(cols) per icc
+pt_model_mt y_cont, postname(`postname') time_var(time) treat(arm) type(cont) missing(cols) per icc compare(1v0 2v0 2v1)
 qui count if arm == 1 & time == 2
 local denom = r(N)
 qui count if !e(sample) & arm == 1 & time == 2
@@ -202,7 +202,7 @@ tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
 logit y_bin i.arm##i.time
-pt_model_mt y_bin, postname(`postname') time_var(time) treat(arm) type(bin) exp per su_decimal(2)
+pt_model_mt y_bin, postname(`postname') time_var(time) treat(arm) type(bin) exp per su_decimal(2) compare(1v0 2v0 2v1)
 qui count if e(sample) & arm == 2 & time == 1
 local denom = r(N)
 qui count if e(sample) & arm == 2 & time == 1 & y_bin == 1

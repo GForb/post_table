@@ -24,3 +24,16 @@ summarize age
 pt_expect_error, name(errors:pt_model_results_lost): pt_model age, postname(`postname') treat(treat)
 
 postclose `postname'
+
+*Three or more arms need compare(); two arms don't
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 sum2 est p) using `results', replace
+regress y_cont i.arm##i.time
+pt_expect_error, name(errors:pt_model_mt_three_arms_no_compare): pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time)
+keep if time == 1
+regress y_cont i.arm
+pt_expect_error, name(errors:pt_model_three_arms_no_compare): pt_model y_cont, postname(`postname') treat(arm)
+pt_expect_error, name(errors:pt_model_three_arms_no_compare_descriptive): pt_model y_cont, postname(`postname') treat(arm) descriptive
+postclose `postname'

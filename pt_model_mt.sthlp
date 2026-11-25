@@ -38,7 +38,7 @@
 {syntab:Treatment indicator}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}} Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt compare(comparisons)}} The treatment comparisons to report, written as two arm values joined by {cmd:v}, for example {cmd:compare(2v1 3v1)}. {cmd:2v1} means arm 2 minus arm 1. Default is every pair of arms, higher value vs lower value. See {help pt_model_mt##arms:Multiple treatment arms}.{p_end}
+{synopt:{opt compare(comparisons)}} The treatment comparisons to report, written as two arm values joined by {cmd:v}, for example {cmd:compare(2v1 3v1)}. {cmd:2v1} means arm 2 minus arm 1. Required with three or more arms (also with {cmd:descriptive}), as a trial's analysis plan names the comparisons; the command stops with an error without it. With two arms it is optional: the default is the model's treatment coefficient (two-arm {cmd:pt_model}) or higher value vs lower value. See {help pt_model_mt##arms:Multiple treatment arms}.{p_end}
 
 {syntab:Subgroups}
 {synopt:{opt timepoints(numlist)}} Specify the order levels of the timepoint variable should be presented. {cmd: sub_var }variable are to be reported. Default is ascending.{p_end}
@@ -124,7 +124,7 @@ The model must include the treatment by time interaction using factor variable n
 
 {pstd}
 {bf:Comparisons.} Each comparison is written {it:a}{cmd:v}{it:b} and is arm {it:a} minus arm {it:b} (a ratio with {cmd:exp}), using the values of {cmd:treat}. 
-By default every pair of arms in {cmd:treat_grps()} is reported, higher value vs lower value, so arms 0, 1 and 2 give {cmd:1v0}, {cmd:2v0} and {cmd:2v1}. 
+With three or more arms in {cmd:treat_grps()}, {cmd:compare()} is required: list the comparisons the analysis plan names, for example {cmd:compare(1v0 2v0)} for each active arm against control, or {cmd:compare(1v0 2v0 2v1)} for every pair. 
 Use {cmd:compare()} to choose the comparisons, their direction and their order. Results do not depend on which arm is the reference arm of the model. 
 Comparisons are labelled with the value labels of {cmd:treat}, for example "High dose vs Control", or with the numeric values where there is no label.
 

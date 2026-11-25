@@ -157,7 +157,7 @@ tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
 regress y_cont i.arm
-pt_model y_cont, postname(`postname') treat(arm) type(cont)
+pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(1v0 2v0 2v1)
 qui lincom 1.arm
 fmt_lincom 1
 local exp_est_10 `r(s)'
@@ -216,12 +216,12 @@ tempname postname
 tempfile results
 postfile `postname'  str60 variable str20(sum0 sum1 sum2 est p) using `results' , replace
 mixed y_cont i.arm || pid:
-pt_model y_cont, postname(`postname') treat(arm) type(cont)
+pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(1v0 2v0 2v1)
 qui lincom 2.arm - 1.arm
 fmt_lincom 1
 local exp_est_mixed `r(s)'
 regress y_cont arm
-pt_expect_error, name(pt_model:test7_treat_not_factor): pt_model y_cont, postname(`postname') treat(arm) type(cont)
+pt_expect_error, name(pt_model:test7_treat_not_factor): pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(1v0 2v0 2v1)
 regress y_cont i.arm
 pt_expect_error, name(pt_model:test7_compare_bad_format): pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(2 1)
 postclose `postname'

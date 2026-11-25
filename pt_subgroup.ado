@@ -92,6 +92,13 @@ syntax varlist(numeric max = 1), postname(string) ///
 		local grps`n': word `n' of `treat_grps'
 	}
 	
+	*three or more arms: the comparisons must be given, as a trial's analysis plan names them
+	if `grps' > 2 & `"`compare'"' == "" {
+		di as error "With three or more arms, give the comparisons to report with compare(), for example compare(2v1 3v1)."
+		di as error "Each comparison is two arm values joined by v, meaning the first arm minus the second."
+		exit 198
+	}
+
 	*setting the comparisons to report (descriptive: one pass, no comparisons)
 	local n_comp = 1
 	if "`descriptive'" == "" {

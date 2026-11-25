@@ -33,7 +33,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
 stcox i.arm
-pt_model surv_time, postname(`postname') treat(arm) type(skew)
+pt_model surv_time, postname(`postname') treat(arm) type(skew) compare(1v0 2v0 2v1)
 qui lincom 2.arm - 1.arm, eform
 fmt_lincom 1
 local exp_hr "`r(s)'"
@@ -48,7 +48,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
 stcox i.arm
-pt_model surv_time, postname(`postname') treat(arm) type(skew) exp
+pt_model surv_time, postname(`postname') treat(arm) type(skew) exp compare(1v0 2v0 2v1)
 postclose `postname'
 use `results', clear
 pt_expect est, row(4) value("`exp_hr'") name(pt_model_scale:test2_stcox_exp_once)
@@ -99,7 +99,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
 mixed y_cont i.arm || site:, reml dfmethod(repeated)
-pt_expect_error, name(pt_model_scale:test5_repeated_three_arms_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont)
+pt_expect_error, name(pt_model_scale:test5_repeated_three_arms_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(1v0 2v0 2v1)
 postclose `postname'
 
 keep if arm < 2
@@ -126,7 +126,7 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
 mi estimate, post: regress y_cont i.arm##i.time
-pt_expect_error, name(pt_model_scale:test6_mi_mt_stops): pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont)
+pt_expect_error, name(pt_model_scale:test6_mi_mt_stops): pt_model_mt y_cont, postname(`postname') treat(arm) time_var(time) type(cont) compare(1v0 2v0 2v1)
 postclose `postname'
 
 use `mi_long', clear
@@ -135,9 +135,9 @@ tempname postname
 tempfile results
 postfile `postname' str60 variable str40(sum0 sum1 sum2 est p) using `results', replace
 mi estimate, post: regress y_cont i.arm
-pt_expect_error, name(pt_model_scale:test6_mi_three_arms_post_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont)
+pt_expect_error, name(pt_model_scale:test6_mi_three_arms_post_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(1v0 2v0 2v1)
 mi estimate: regress y_cont i.arm
-pt_expect_error, name(pt_model_scale:test6_mi_three_arms_nopost_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont)
-cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) descriptive
+pt_expect_error, name(pt_model_scale:test6_mi_three_arms_nopost_stops): pt_model y_cont, postname(`postname') treat(arm) type(cont) compare(1v0 2v0 2v1)
+cap noisily pt_model y_cont, postname(`postname') treat(arm) type(cont) descriptive compare(1v0 2v0 2v1)
 pt_record pt_model_scale:test6_mi_descriptive_runs, rc(`=_rc')
 postclose `postname'
