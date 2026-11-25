@@ -37,3 +37,21 @@ regress y_cont i.arm
 pt_expect_error, name(errors:pt_model_three_arms_no_compare): pt_model y_cont, postname(`postname') treat(arm)
 pt_expect_error, name(errors:pt_model_three_arms_no_compare_descriptive): pt_model y_cont, postname(`postname') treat(arm) descriptive
 postclose `postname'
+
+*A plain treatment variable whose arms are not one apart stops; one apart or i. runs
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+keep if time == 1 & arm < 2
+gen arm02 = arm * 2
+gen arm12 = arm + 1
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+regress y_cont arm02
+pt_expect_error, name(errors:pt_model_plain_treat_gap_2): pt_model y_cont, postname(`postname') treat(arm02)
+regress y_cont i.arm02
+cap noisily pt_model y_cont, postname(`postname') treat(arm02)
+pt_record errors:pt_model_factor_treat_gap_2_runs, rc(`=_rc')
+regress y_cont arm12
+cap noisily pt_model y_cont, postname(`postname') treat(arm12)
+pt_record errors:pt_model_plain_treat_gap_1_runs, rc(`=_rc')
+postclose `postname'

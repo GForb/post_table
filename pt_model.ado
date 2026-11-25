@@ -125,6 +125,17 @@ if !`multi_comp' & "`descriptive'" == "" {
 		di as error "`treat' not found in the model results. Run pt_model immediately after the model, with `treat' in the model."
 		exit 198
 	}
+	*a plain (not factor) treatment variable's coefficient is per unit, which is the
+	*difference between the arms only if their codes are one apart
+	if `col' == colnumb(A, "`treat'") & `grps' == 2 {
+		local arm_gap = abs(`grps2' - `grps1')
+		if abs(`arm_gap' - 1) > 1e-8 {
+			di as error "`treat' is in the model as a plain variable, so its coefficient is the effect of a one-unit change."
+			di as error "Its arms, `grps1' and `grps2', are `arm_gap' apart, so that is not the difference between them."
+			di as error "Put it in the model as a factor variable (i.`treat'), or recode it so the arms are one apart (e.g. 0 and 1)."
+			exit 198
+		}
+	}
 }
 
 *setting decimal values
