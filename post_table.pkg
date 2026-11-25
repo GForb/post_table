@@ -11,3 +11,5 @@ F pt_subgroup.ado
 F pt_compare.ado
 F pt_model_mt.sthlp
 F pt_subgroup.sthlp
+F pt_desc_cat.ado
+F pt_check_depvar.ado

@@ -72,6 +72,7 @@
 {syntab:Model reporting}
 {synopt:{opt exp}}Expiate estimates and confidence interval bounds.{p_end}
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
+{synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model##descriptive:Descriptive rows}.{p_end}
 
 
 {synoptline}
@@ -86,6 +87,21 @@
 The command requires a post file to have been opened with the required number of columns and the data type for each column as string. You must pass the name of the postfile to the command with postname(). 
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
+
+{marker descriptive}{...}
+{title:Descriptive rows}
+
+{pstd}
+With {cmd:descriptive}, {cmd:pt_model} does not use a model: it can be run without one, and the last model is ignored. Each treatment group's summary uses the observations with a non-missing outcome.
+The estimate and p-value cells are left empty, so a descriptive row can sit in the same table as rows of model results, as long as it is given the same column options ({cmd:n_analysis()}, {cmd:missing()}, {cmd:su_label(col)}, {cmd:icc}).
+
+{pstd}
+For {cmd:type(cat)}, the outcome's label is on its own row, followed by one row per level of the outcome (its value label, or the value), with no. (%) in each treatment group.
+Percentages are of the group's non-missing observations. All levels of the variable get a row.
+
+{pstd}
+Without {cmd:descriptive}, the outcome given must be the outcome of the last model ({cmd:e(depvar)}), or the command stops with an error.
+After {cmd:stset} models such as {cmd:stcox}, whose outcome is {cmd:_t}, the {cmd:stset} time or failure variable, {cmd:_t} or {cmd:_d} is accepted.
 
 {marker arms}{...}
 {title:Multiple treatment arms}

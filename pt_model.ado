@@ -18,9 +18,13 @@ syntax varlist(numeric max = 1), postname(string) ///
 	su_decimal(integer 1) est_decimal(integer 1) miss_decimal(integer 1) decimal(integer 1) ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
+	descriptive /// no model: summaries only, with empty estimate and p-value cells
 	]
 
+if "`descriptive'" == "" {
 	mat A = r(table)
+	pt_check_depvar `varlist'
+}
 	
 if "`treat'" == "" local treat treat // sets default treatment parameter
 if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
@@ -38,7 +42,7 @@ forvalues n = 1 (1) `grps' {
 }
 
 *setting the comparisons to report
-local multi_comp = `grps' > 2 | `"`compare'"' != ""
+local multi_comp = (`grps' > 2 | `"`compare'"' != "") & "`descriptive'" == ""
 if `multi_comp' {
 	pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
 	local n_comp = r(n)
@@ -58,7 +62,7 @@ if `multi_comp' {
 
 *With two arms, the estimate is the treatment coefficient in the model results table
 local two_arm_lincom = 0
-if !`multi_comp' {
+if !`multi_comp' & "`descriptive'" == "" {
 	local col = colnumb(A, "`treat'")
 	if `col' >= . {
 		*factor variable: the arm with a coefficient (the base and omitted arms have no standard error)
@@ -94,7 +98,8 @@ if `miss_decimal' ==1 local miss_decimal = `decimal'
 
 tempvar inanalysis
 tempname inan_label
-gen `inanalysis' = e(sample)
+if "`descriptive'" == "" gen `inanalysis' = e(sample)
+else gen `inanalysis' = !missing(`varlist')
 label var `inanalysis' "In analysis?"
 label define `inan_label' 1 "Included in analysis" 0 "Excluded from analysis"
 label values `inanalysis' `inan_label' 
@@ -102,7 +107,7 @@ label values `inanalysis' `inan_label'
 
 
 local form_est %12.`est_decimal'f
-if !`multi_comp' & !`two_arm_lincom' {
+if !`multi_comp' & !`two_arm_lincom' & "`descriptive'" == "" {
 	*the table may already be exponentiated, for example after logistic or stcox
 	local eform_row = rownumb(A, "eform")
 	if `eform_row' < . {
@@ -133,7 +138,8 @@ if `two_arm_lincom' {
 	local p `r(p)'
 }
 
-if "`icc'" != "" {
+if "`icc'" != "" & "`descriptive'" != "" local post_icc ("")
+if "`icc'" != "" & "`descriptive'" == "" {
 	estat icc
 	local icc = r(icc2)
 	
@@ -172,6 +178,8 @@ local type1 = "`type'" // resetting type variable to be that given by
 			local type1 = "cont"
 		}
 	}
+	*descriptive categorical outcomes get one row per level (pt_desc_cat)
+	local desc_cat = "`descriptive'" != "" & "`type1'" == "cat"
 
 *Other variable types
 	if "`type1'" == "bin" 	tab `v' `treat' if  `inanalysis' == 1, col 
@@ -189,7 +197,7 @@ local type1 = "`type'" // resetting type variable to be that given by
 			if "`n_analysis'" == "brackets" local str_missing "[`n_inanalysis_`i'']"
 			
 			*Continuous variable	
-		if "`type1'" == "cont" | "`type1'" == "cat" {
+		if "`type1'" == "cont" | ("`type1'" == "cat" & !`desc_cat') {
 			di "Treatment group " `i'
 			su `v' if  `treat' == `i'  & `inanalysis' ==1
 			local mean = string(r(mean), "%12.`su_decimal'f")
@@ -223,6 +231,8 @@ local type1 = "`type'" // resetting type variable to be that given by
 			local measure1 "median (IQR)"
 		}
 		
+		if `desc_cat' local measure1 "no. (%)"
+
 	if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
 	if "`n_analysis'" == "brackets" local measure1 "`measure1' [no. included in analysis]"	
 	
@@ -256,8 +266,24 @@ local type1 = "`type'" // resetting type variable to be that given by
 	
 	
 
-if `multi_comp' post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") ("")  `post_icc'
-else post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("`coef' (`ll', `ul')") ("`p'")  `post_icc'
+local est_cells ("`coef' (`ll', `ul')") ("`p'")
+if `multi_comp' | "`descriptive'" != "" local est_cells ("") ("")
+
+if `desc_cat' {
+	*a label row, then one row per level
+	local blank_cols ""
+	if "`su_label'" == "col" local blank_cols ("")
+	foreach i in `treat_grps' {
+		if "`n_analysis'" == "cols" local blank_cols `blank_cols' ("")
+		if "`missing'" == "cols" local blank_cols `blank_cols' ("")
+		local blank_cols `blank_cols' ("")
+	}
+	post `postname' ("`var_label'`measure_append'`append_label'") `blank_cols' ("") ("") `post_icc'
+	pt_desc_cat `v' if `inanalysis' == 1, postname(`postname') treat(`treat') treat_grps(`treat_grps') indent("    ") ///
+		su_label(`su_label') su_label_text(`su_label_text') missing(`missing') n_analysis(`n_analysis') per(`per') ///
+		su_decimal(`su_decimal') miss_decimal(`miss_decimal') `icc'
+}
+else post `postname' ("`var_label'`measure_append'`append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' `est_cells'  `post_icc'
 
 	*setting marcros for posting gaps
 	 // following lines enact measure option

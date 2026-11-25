@@ -319,12 +319,12 @@ logistic y_bin allocation
 pt_model y_bin, postname(`postname') treat(allocation) type(bin) est_decimal(3) exp
 *rows 6 and 7: scale of the model results table is kept without exp
 stcox allocation
-pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+pt_model ftime, postname(`postname') treat(allocation) type(cont) est_decimal(3)
 lincom allocation, eform
 fmt_lincom 3
 local exp_hr "`r(s)'"
 stcox i.allocation
-pt_model y_cont, postname(`postname') treat(allocation) type(cont) est_decimal(3)
+pt_model ftime, postname(`postname') treat(allocation) type(cont) est_decimal(3)
 postclose `postname'
 use `results', clear
 pt_expect est, row(1) value("`exp_not_first'") name(pt_model:test10_treat_not_first)

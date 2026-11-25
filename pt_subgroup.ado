@@ -22,7 +22,10 @@ syntax varlist(numeric max = 1), postname(string) ///
 	icc /// calculate and report icc from analysis
 	int_test_false /// report p-values for each subgroup level, rather than ineraction p-value
 	use_outcome_label /// uses outcome label rather than subgroup label
+	descriptive /// no model: summaries only, with empty estimate and p-value cells
 	]
+
+	if "`descriptive'" == "" pt_check_depvar `varlist'
 
 	local exclude_p exclude_p
 	if "`int_test_false'" != "" {
@@ -46,16 +49,19 @@ syntax varlist(numeric max = 1), postname(string) ///
 		local grps`n': word `n' of `treat_grps'
 	}
 	
-	*setting the comparisons to report
-	pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
-	local n_comp = r(n)
-	forvalues c = 1 (1) `n_comp' {
-		local a`c' `r(a`c')'
-		local b`c' `r(b`c')'
-		local comp_label`c' `"`r(label`c')'"'
+	*setting the comparisons to report (descriptive: one pass, no comparisons)
+	local n_comp = 1
+	if "`descriptive'" == "" {
+		pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
+		local n_comp = r(n)
+		forvalues c = 1 (1) `n_comp' {
+			local a`c' `r(a`c')'
+			local b`c' `r(b`c')'
+			local comp_label`c' `"`r(label`c')'"'
+		}
 	}
 	*a header row names each comparison when there are more than two arms, or the comparison was chosen
-	local comp_headers = `grps' > 2 | `"`compare'"' != ""
+	local comp_headers = (`grps' > 2 | `"`compare'"' != "") & "`descriptive'" == ""
 
 	*setting sub group values
 	if "`sub_grps'" == "" qui levelsof `sub_var', local(sub_grps)
@@ -68,7 +74,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 	*Generating variable which indicates which observations were included in the analysis
 	tempvar inanalysis
 	tempname inan_label
-	gen `inanalysis' = e(sample)
+	if "`descriptive'" == "" gen `inanalysis' = e(sample)
+	else gen `inanalysis' = !missing(`v')
 	label var `inanalysis' "In analysis?"
 	label define `inan_label' 1 "Included in analysis" 0 "Excluded from analysis"
 	label values `inanalysis' `inan_label' 
@@ -77,7 +84,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 	*collecting ICC from the model
 	if "`icc'" == "" local post_icc ""
-	if "`icc'" != "" {
+	if "`icc'" != "" & "`descriptive'" != "" local post_icc ("")
+	if "`icc'" != "" & "`descriptive'" == "" {
 		get_icc
 		local post_icc =r(post_icc)
 		local post_icc ("`post_icc'")
@@ -161,7 +169,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 		
 		*get p value for interaction
 		local p_int ("")
-		if "`int_test_false'" == "" {
+		if "`int_test_false'" == "" & "`descriptive'" == "" {
 			local constraints ""
 			foreach k in `model_sub_grps' {
 				local constraints `constraints' (`a'.`treat'#`k'.`sub_var' = `b'.`treat'#`k'.`sub_var')
@@ -199,12 +207,33 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 			
 			*Extracting estiamtes
-			local eform ""
-			if "`exp'" != "" local eform eform
-			lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var'), `eform' `small'
-			get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
-			local estimate_post_string  `r(post_string)'
-			di "Lincom post string: " `estimate_post_string'
+			if "`descriptive'" != "" local estimate_post_string ("") ("")
+			else {
+				local eform ""
+				if "`exp'" != "" local eform eform
+				lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var'), `eform' `small'
+				get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
+				local estimate_post_string  `r(post_string)'
+				di "Lincom post string: " `estimate_post_string'
+			}
+
+			*descriptive categorical outcomes: a row for the subgroup level, then one row per category
+			if "`descriptive'" != "" & "`type1'" == "cat" {
+				local measure_append ""
+				if "`su_label'" == "append" {
+					local measure1 "no. (%)"
+					if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
+					if "`n_analysis'" == "brackets" local measure1 "`measure1' [no. included in analysis]"
+					if "`su_label_text'" != "" local measure1 `su_label_text'
+					local measure_append " - `measure1'"
+				}
+				post `postname' ("    `sub_lab`k'' `measure_append' `append_sub_lab'") `blank_measure_post' `blank_inan_cols' `blank_miss_cols' `blank_summaries' ("") ("") `post_icc'
+				pt_desc_cat `v' if `inanalysis' == 1 & `sub_var' == `k', all_if(`sub_var' == `k') postname(`postname') ///
+					treat(`treat') treat_grps(`treat_grps') indent("        ") ///
+					su_label(`su_label') su_label_text(`su_label_text') missing(`missing') n_analysis(`n_analysis') per(`per') ///
+					su_decimal(`su_decimal') miss_decimal(`miss_decimal') `icc'
+				continue
+			}
 			
 			
 

@@ -81,6 +81,7 @@
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
 {synopt:{opt int_test_false}}Report p-values for each level of the subgroup variable rather than the global interaction test.
 
+{synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells, as for {help pt_model_mt##descriptive:pt_model_mt}. Observations with a non-missing outcome are included; no comparison rows or interaction test. Without it, the outcome must be the outcome of the last model.{p_end}
 {synopt:{opt use_outcome_label}}Label the rows with the label from the outcome variable. Default is to use subgroup variable.
 
 {synoptline}
