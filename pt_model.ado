@@ -22,10 +22,21 @@ syntax varlist(numeric max = 1), postname(string) ///
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	]
 
+*model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so comparisons
+*made with lincom are exponentiated too, as the two-arm estimate read from the table is
+local model_eform = 0
 if "`descriptive'" == "" {
 	mat A = r(table)
 	if "`depvarcheck'" == "" pt_check_depvar `varlist'
+	local er = rownumb(A, "eform")
+	if `er' < . {
+		forvalues k = 1/`=colsof(A)' {
+			if A[`er', `k'] == 1 local model_eform = 1
+		}
+	}
 }
+local lincom_exp `exp'
+if `model_eform' local lincom_exp exp
 	
 if "`treat'" == "" local treat treat // sets default treatment parameter
 if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
@@ -132,7 +143,7 @@ if !`multi_comp' & !`two_arm_lincom' & "`descriptive'" == "" {
 }
 
 if `two_arm_lincom' {
-	get_lincom_ests, a(`a1') b(`b1') treat(`treat') form_est(`form_est') `exp'
+	get_lincom_ests, a(`a1') b(`b1') treat(`treat') form_est(`form_est') `lincom_exp'
 	local coef `r(coef)'
 	local ll `r(ll)'
 	local ul `r(ul)'
@@ -313,7 +324,7 @@ else post `postname' ("`var_label'`measure_append'`append_label'") `measure_post
 *one row per comparison
 if `multi_comp' {
 	forvalues c = 1 (1) `n_comp' {
-		get_lincom_ests, a(`a`c'') b(`b`c'') treat(`treat') form_est(`form_est') `exp'
+		get_lincom_ests, a(`a`c'') b(`b`c'') treat(`treat') form_est(`form_est') `lincom_exp'
 		local coef `r(coef)'
 		local ll `r(ll)'
 		local ul `r(ul)'
@@ -332,6 +343,11 @@ end
 
 prog get_lincom_ests, rclass
 syntax , a(integer) b(integer) treat(varname) form_est(string) [exp]
+	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" == "repeated" {
+		di as error "dfmethod(repeated) gives no degrees of freedom for a combination of coefficients, such as the treatment effect at a later timepoint or between two non-reference arms."
+		di as error "Refit the model with dfmethod(residual), dfmethod(anova), dfmethod(satterthwaite) or dfmethod(kroger)."
+		exit 198
+	}
 	local eform ""
 	if "`exp'" != "" local eform eform
 	*lincom only uses the df method of a mixed model if asked to

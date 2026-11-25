@@ -70,7 +70,7 @@
 {synopt:{opt miss_decimal(#)}}Decimal places used when presenting percent missing or percent with non missing observations.{p_end}
 
 {syntab:Model reporting}
-{synopt:{opt exp}}Expiate estimates and confidence interval bounds.{p_end}
+{synopt:{opt exp}}Exponentiate estimates and confidence interval bounds. Not needed when the model already reports ratios (for example {cmd:stcox}, {cmd:logistic}, or {cmd:logit} with {cmd:or}): every estimate then follows the model's scale.{p_end}
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
 {synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model##descriptive:Descriptive rows}.{p_end}
@@ -121,7 +121,7 @@ Comparisons are labelled with the value labels of {cmd:treat}, for example "High
 P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
-{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model. Where Stata cannot calculate them, as for some contrasts with {cmd:dfmethod(repeated)}, it reports large-sample results and {cmd:lincom} prints a note.
+{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model. With {cmd:dfmethod(repeated)} Stata cannot calculate them for an estimate that combines coefficients (three or more arms, a later timepoint, or a subgroup), so the command stops with an error; use {cmd:dfmethod(residual)}, {cmd:anova}, {cmd:satterthwaite} or {cmd:kroger}. The two-arm estimate read from the results table is not affected.
 
 {pstd}
 {bf:Table layout.} With two arms each outcome has one row. The estimate is the treatment coefficient in the model results table, with that table's scale, confidence level and degrees of freedom. With factor variable notation this is the other arm vs the base level, so {cmd:ib1.treat} gives 0 vs 1. If neither arm in {cmd:treat_grps()} is the base level, the estimate is higher value vs lower value. Run {cmd:pt_model} immediately after the model, as it stops with an error if the treatment coefficient is not in the results table. {cmd:exp} has no effect on a table that is already exponentiated, for example after {cmd:logistic} or {cmd:stcox}. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.

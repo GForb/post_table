@@ -26,7 +26,31 @@ syntax varlist(numeric max = 1), postname(string) ///
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	]
 
+	*model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so the
+	*estimates are exponentiated as if exp had been given (read before r() is overwritten)
+	local model_eform = 0
+	if "`descriptive'" == "" {
+		tempname T
+		cap mat `T' = r(table)
+		if !_rc {
+			local er = rownumb(`T', "eform")
+			if `er' < . {
+				forvalues k = 1/`=colsof(`T')' {
+					if `T'[`er', `k'] == 1 local model_eform = 1
+				}
+			}
+		}
+	}
+	if `model_eform' local exp exp
+
 	if "`descriptive'" == "" & "`depvarcheck'" == "" pt_check_depvar `varlist'
+	if "`descriptive'" == "" {
+		if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" == "repeated" {
+			di as error "dfmethod(repeated) gives no degrees of freedom for a combination of coefficients, such as the treatment effect at a later timepoint or between two non-reference arms."
+			di as error "Refit the model with dfmethod(residual), dfmethod(anova), dfmethod(satterthwaite) or dfmethod(kroger)."
+			exit 198
+		}
+	}
 
 	local exclude_p exclude_p
 	if "`int_test_false'" != "" {

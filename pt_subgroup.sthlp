@@ -77,7 +77,7 @@
 {synopt:{opt miss_decimal(#)}}Decimal places used when presenting percent missing or percent with non missing observations.{p_end}
 
 {syntab:Model reporting}
-{synopt:{opt exp}}Expiate estimates and confidence interval bounds.{p_end}
+{synopt:{opt exp}}Exponentiate estimates and confidence interval bounds. Not needed when the model already reports ratios (for example {cmd:stcox}, {cmd:logistic}, or {cmd:logit} with {cmd:or}): every estimate then follows the model's scale.{p_end}
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
 {synopt:{opt int_test_false}}Report p-values for each level of the subgroup variable rather than the global interaction test.
 
@@ -118,7 +118,7 @@ Comparisons are labelled with the value labels of {cmd:treat}, for example "High
 P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
-{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model, through the {cmd:small} option of {cmd:lincom} and {cmd:test}. Where Stata cannot calculate them, as for some contrasts with {cmd:dfmethod(repeated)}, it reports large-sample results and {cmd:lincom} prints a note.
+{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model, through the {cmd:small} option of {cmd:lincom} and {cmd:test}. With {cmd:dfmethod(repeated)} Stata cannot calculate them for an estimate that combines coefficients (three or more arms, a later timepoint, or a subgroup), so the command stops with an error; use {cmd:dfmethod(residual)}, {cmd:anova}, {cmd:satterthwaite} or {cmd:kroger}. The two-arm estimate read from the results table is not affected.
 
 {pstd}
 {bf:Table layout.} With two arms the table has a header row, carrying the interaction p-value, and one row per subgroup level. 
