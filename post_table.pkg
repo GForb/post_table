@@ -14,3 +14,4 @@ F pt_subgroup.sthlp
 F pt_desc_cat.ado
 F pt_check_depvar.ado
 F pt_model_level.ado
+F pt_check_equations.ado

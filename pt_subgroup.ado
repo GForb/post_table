@@ -34,7 +34,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 	if "`descriptive'" == "" {
 		tempname T
 		cap mat `T' = r(table)
-		if !_rc {
+		local have_table = !_rc
+		if `have_table' {
 			*the model's confidence level, worked back from its results table, must match level()
 			pt_model_level `T'
 			local model_level = r(level)
@@ -78,6 +79,9 @@ syntax varlist(numeric max = 1), postname(string) ///
 	local v `varlist' // setting v to be varlist (varlist is refered to as v throughout).
 		
 	if "`treat'" == "" local treat treat // sets default treatment parameter
+	if "`descriptive'" == "" {
+		if `have_table' pt_check_equations `T' `treat'
+	}
 	if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
 	if "`per'" != "" local per % //sets whether % sign is included with percentages
 

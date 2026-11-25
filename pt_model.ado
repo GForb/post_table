@@ -51,6 +51,7 @@ local lincom_exp `exp'
 if `model_eform' local lincom_exp exp
 	
 if "`treat'" == "" local treat treat // sets default treatment parameter
+if "`descriptive'" == "" pt_check_equations A `treat'
 if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
 if "`per'" != "" local per % //sets whether % sign is included with percentages
 if "`append_label'" != "" local append_label " `append_label'"

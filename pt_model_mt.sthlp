@@ -116,6 +116,9 @@ If the difference is intended, for example summaries of {it:y} after a model of 
 {pstd}
 After {cmd:mi estimate}, estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) are not currently supported, and the command stops with an error: {cmd:lincom} would use complete-data degrees of freedom, giving intervals that are too narrow. The two-arm estimate, read from the combined results table, is supported. To request this feature, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
 
+{pstd}
+Models where the treatment is in more than one equation (for example {cmd:mlogit}, zero-inflated models, {cmd:heckman}, or {cmd:sem}/{cmd:gsem} with several outcomes) are not currently supported, and the command stops with an error. To request this, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
 {marker arms}{...}
 {title:Multiple treatment arms}
 

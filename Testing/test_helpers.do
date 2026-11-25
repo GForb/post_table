@@ -20,7 +20,7 @@ if _rc {
 
 * Use the code in this repository rather than any installed copy
 adopath ++ "$pt_root"
-foreach p in pt_base pt_sum pt_model pt_model_mt pt_subgroup pt_compare pt_desc_cat pt_check_depvar pt_model_level {
+foreach p in pt_base pt_sum pt_model pt_model_mt pt_subgroup pt_compare pt_desc_cat pt_check_depvar pt_model_level pt_check_equations {
 	cap program drop `p'
 }
 

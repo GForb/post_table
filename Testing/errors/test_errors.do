@@ -55,3 +55,33 @@ regress y_cont arm12
 cap noisily pt_model y_cont, postname(`postname') treat(arm12)
 pt_record errors:pt_model_plain_treat_gap_1_runs, rc(`=_rc')
 postclose `postname'
+
+*Treatment in more than one equation (mlogit, zero-inflated) stops: not supported
+use "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta", clear
+keep if arm < 2
+set seed 31
+gen y_cat = runiformint(1, 3)
+gen y_cnt = rpoisson(2 + arm) * (runiform() > 0.3)
+tempfile two_arm_long
+save `two_arm_long'
+keep if time == 1
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+mlogit y_cat i.arm
+pt_expect_error, name(errors:pt_model_mlogit_stops): pt_model y_cat, postname(`postname') treat(arm)
+zip y_cnt i.arm, inflate(i.arm)
+pt_expect_error, name(errors:pt_model_zip_stops): pt_model y_cnt, postname(`postname') treat(arm)
+*the treatment in only one equation of a zero-inflated model runs
+zip y_cnt i.arm, inflate(y_cont)
+cap noisily pt_model y_cnt, postname(`postname') treat(arm)
+pt_record errors:pt_model_zip_treat_one_equation_runs, rc(`=_rc')
+postclose `postname'
+
+use `two_arm_long', clear
+tempname postname
+tempfile results
+postfile `postname' str60 variable str20(sum0 sum1 est p) using `results', replace
+mlogit y_cat i.arm##i.time
+pt_expect_error, name(errors:pt_model_mt_mlogit_stops): pt_model_mt y_cat, postname(`postname') treat(arm) time_var(time)
+postclose `postname'
