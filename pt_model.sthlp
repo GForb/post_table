@@ -35,6 +35,7 @@
 {syntab:Over Exposure of interest}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}}Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
+{synopt:{opt compare(comparisons)}} The treatment comparisons to report, written as two arm values joined by {cmd:v}, for example {cmd:compare(2v1 3v1)}. {cmd:2v1} means arm 2 minus arm 1. Required with three or more arms (also with {cmd:descriptive}), as a trial's analysis plan names the comparisons; the command stops with an error without it. With two arms it is optional: the default is the model's treatment coefficient (two-arm {cmd:pt_model}) or higher value vs lower value. See {help pt_model##arms:Multiple treatment arms}.{p_end}
 
 
 {syntab:Presenting data}
@@ -69,8 +70,12 @@
 {synopt:{opt miss_decimal(#)}}Decimal places used when presenting percent missing or percent with non missing observations.{p_end}
 
 {syntab:Model reporting}
-{synopt:{opt exp}}Expiate estimates and confidence interval bounds.{p_end}
+{synopt:{opt exp}}Exponentiate estimates and confidence interval bounds. Not needed when the model already reports ratios (for example {cmd:stcox}, {cmd:logistic}, or {cmd:logit} with {cmd:or}): every estimate then follows the model's scale.{p_end}
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
+{synopt:{opt level(#)}}Confidence level for the estimates; default as set by {cmd:set level}. The command stops with an error if this differs from the level of the model's confidence intervals, unless {cmd:nolevelcheck} is given.{p_end}
+{synopt:{opt nolevelcheck}}Allow a {cmd:level()} different from the model's. The two-arm estimate's interval is then worked out again from the model results table (estimate, standard error and degrees of freedom) at {cmd:level()}.{p_end}
+{synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
+{synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model##descriptive:Descriptive rows}.{p_end}
 
 
 {synoptline}
@@ -81,10 +86,53 @@
 {title:Description}
 
 {pstd}
-{cmd:pt_model} is part of the {cmd:post_table} package. The command should be run after estimating a model and can be used to build a results table when there is a binary treatment variable. 
+{cmd:pt_model} is part of the {cmd:post_table} package. The command should be run after estimating a model and can be used to build a results table for two or more treatment arms. 
 The command requires a post file to have been opened with the required number of columns and the data type for each column as string. You must pass the name of the postfile to the command with postname(). 
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
+
+{marker descriptive}{...}
+{title:Descriptive rows}
+
+{pstd}
+With {cmd:descriptive}, {cmd:pt_model} does not use a model: it can be run without one, and the last model is ignored. Each treatment group's summary uses the observations with a non-missing outcome.
+The estimate and p-value cells are left empty, so a descriptive row can sit in the same table as rows of model results, as long as it is given the same column options ({cmd:n_analysis()}, {cmd:missing()}, {cmd:su_label(col)}, {cmd:icc}).
+
+{pstd}
+For {cmd:type(cat)}, the outcome's label is on its own row, followed by one row per level of the outcome (its value label, or the value), with no. (%) in each treatment group.
+Percentages are of the group's non-missing observations. All levels of the variable get a row.
+
+{pstd}
+Without {cmd:descriptive}, the outcome given must be the outcome of the last model ({cmd:e(depvar)}), or the command stops with an error.
+After {cmd:stset} models such as {cmd:stcox}, whose outcome is {cmd:_t}, the {cmd:stset} time or failure variable, {cmd:_t} or {cmd:_d} is accepted.
+If the difference is intended, for example summaries of {it:y} after a model of log({it:y}) or of a change score, add {cmd:nodepvarcheck}.
+
+{pstd}
+After {cmd:mi estimate}, estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) are not currently supported, and the command stops with an error: {cmd:lincom} would use complete-data degrees of freedom, giving intervals that are too narrow. The two-arm estimate, read from the combined results table, is supported. To request this feature, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
+{pstd}
+Models where the treatment is in more than one equation (for example {cmd:mlogit}, zero-inflated models, {cmd:heckman}, or {cmd:sem}/{cmd:gsem} with several outcomes) are not currently supported, and the command stops with an error. To request this, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
+{marker arms}{...}
+{title:Multiple treatment arms}
+
+{pstd}
+With more than two arms, or when {cmd:compare()} is specified, treatment must be in the model using factor variable notation, for example {cmd:regress y i.treat}. Otherwise the command stops with an error. One summary column is posted for each arm in {cmd:treat_grps()}, so the post file needs a column for each arm. 
+
+{pstd}
+{bf:Comparisons.} Each comparison is written {it:a}{cmd:v}{it:b} and is arm {it:a} minus arm {it:b} (a ratio with {cmd:exp}), using the values of {cmd:treat}. 
+With three or more arms in {cmd:treat_grps()}, {cmd:compare()} is required: list the comparisons the analysis plan names, for example {cmd:compare(1v0 2v0)} for each active arm against control, or {cmd:compare(1v0 2v0 2v1)} for every pair. 
+Use {cmd:compare()} to choose the comparisons, their direction and their order. Results do not depend on which arm is the reference arm of the model. 
+Comparisons are labelled with the value labels of {cmd:treat}, for example "High dose vs Control", or with the numeric values where there is no label.
+
+{pstd}
+P-values and confidence intervals are not adjusted for multiple comparisons.
+
+{pstd}
+{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model. With {cmd:dfmethod(repeated)} Stata cannot calculate them for an estimate that combines coefficients (three or more arms, a later timepoint, or a subgroup), so the command stops with an error; use {cmd:dfmethod(residual)}, {cmd:anova}, {cmd:satterthwaite} or {cmd:kroger}. The two-arm estimate read from the results table is not affected.
+
+{pstd}
+{bf:Table layout.} With two arms each outcome has one row. The estimate is the treatment coefficient in the model results table, with that table's scale and degrees of freedom, at {cmd:level()}. With factor variable notation this is the other arm vs the base level, so {cmd:ib1.treat} gives 0 vs 1. If neither arm in {cmd:treat_grps()} is the base level, the estimate is higher value vs lower value. If {cmd:treat} is in the model as a plain variable rather than a factor variable, its coefficient is per unit, so the two arms' codes must be one apart (for example 0 and 1); otherwise the command stops with an error. Run {cmd:pt_model} immediately after the model, as it stops with an error if the treatment coefficient is not in the results table. {cmd:exp} has no effect on a table that is already exponentiated, for example after {cmd:logistic} or {cmd:stcox}. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.
 
 {marker examples}{...}
 {title:Examples}

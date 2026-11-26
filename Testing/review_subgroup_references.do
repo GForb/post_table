@@ -1,7 +1,8 @@
 /*
-Manual review of the pt_subgroup reference tables added or changed by the joint
-interaction test fix: table 7 (pt_subgroup test 3, regenerated) and table 10
-(pt_subgroup test 5, new). All other tables are in review_new_references.do.
+Manual review of the reference tables added or changed by the joint interaction
+test fix and the multi-arm comparisons: table 7 (pt_subgroup test 3), table 10
+(pt_subgroup test 5), table 11 (pt_model test 5) and table 12 (pt_model_mt test 5).
+All other tables are in review_new_references.do.
 
 For each table this file lists the saved reference table, loads the input data
 the test uses, runs the model and pauses so the table can be checked against the
@@ -67,22 +68,70 @@ review_pause 7
 ********************************************************************************
 di as text "Made by: regress y_cont i.arm##i.agegrp"
 di as text "         pt_subgroup y_cont, sub_var(agegrp) treat(arm) type(cont)"
-di as text "         pt_subgroup y_cont, sub_var(agegrp) treat(arm) type(cont) prim_treat(1)"
-di as text "Check:   rows 1-4 are High dose vs Control, rows 5-8 are Low dose vs Control;"
-di as text "         mean (sd) for all three arms in both blocks, where in_analysis==1;"
-di as text "         estimates against the lincom output; header p against the testparm output for that arm"
+di as text "Check:   row 1 is the title; rows 2, 6 and 10 name the comparison and have its interaction p;"
+di as text "         summaries for all three arms in rows 3-5 only, where in_analysis==1;"
+di as text "         estimates against the lincom output; interaction p against the test output"
 
 review_table 10 pt_subgroup/pt_subgroup_test5_reference.dta
 
 review_data "pt_subgroup/Input data/pt_subgroup_multiarm_input.dta"
 regress y_cont i.arm##i.agegrp
 gen in_analysis = e(sample)
-tabstat y_cont if in_analysis, by(arm) stats(mean sd n) nototal
 bysort agegrp: tabstat y_cont if in_analysis, by(arm) stats(mean sd n) nototal
-foreach a in 2 1 {
+foreach a in 1 2 {
 	foreach k in 1 2 3 {
 		lincom `a'.arm + `a'.arm#`k'.agegrp
 	}
 	testparm `a'.arm#i.agegrp
 }
+foreach k in 1 2 3 {
+	lincom 2.arm + 2.arm#`k'.agegrp - 1.arm - 1.arm#`k'.agegrp
+}
+test (2.arm#2.agegrp = 1.arm#2.agegrp) (2.arm#3.agegrp = 1.arm#3.agegrp)
 review_pause 10
+
+
+********************************************************************************
+*  Table 11: pt_model test 5
+********************************************************************************
+di as text "Made by: regress y_cont i.arm"
+di as text "         pt_model y_cont, treat(arm) type(cont)"
+di as text "Check:   row 1 has mean (sd) for each arm, where in_analysis==1, and no estimate;"
+di as text "         rows 2-4 against the lincom output"
+
+review_table 11 pt_model/pt_model_test5_reference.dta
+
+review_data "pt_subgroup/Input data/pt_subgroup_multiarm_input.dta"
+regress y_cont i.arm
+gen in_analysis = e(sample)
+tabstat y_cont if in_analysis, by(arm) stats(mean sd n) nototal
+lincom 1.arm
+lincom 2.arm
+lincom 2.arm - 1.arm
+review_pause 11
+
+
+********************************************************************************
+*  Table 12: pt_model_mt test 5
+********************************************************************************
+di as text "Made by: mixed y_cont i.arm##i.time || pid:"
+di as text "         pt_model_mt y_cont, time_var(time) treat(arm) type(cont)"
+di as text "Check:   row 1 is the title; rows 2, 5 and 8 name the comparison, with no p;"
+di as text "         summaries in rows 3-4 only, where in_analysis==1;"
+di as text "         estimates and p against the lincom output"
+
+review_table 12 pt_model_mt/pt_model_mt_test5_reference.dta
+
+review_data "pt_model_mt/Input data/pt_model_mt_multiarm_input.dta"
+mixed y_cont i.arm##i.time || pid:
+gen in_analysis = e(sample)
+bysort time: tabstat y_cont if in_analysis, by(arm) stats(mean sd n) nototal
+foreach a in 1 2 {
+	foreach k in 1 2 {
+		lincom `a'.arm + `a'.arm#`k'.time
+	}
+}
+foreach k in 1 2 {
+	lincom 2.arm + 2.arm#`k'.time - 1.arm - 1.arm#`k'.time
+}
+review_pause 12

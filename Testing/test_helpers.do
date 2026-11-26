@@ -20,7 +20,7 @@ if _rc {
 
 * Use the code in this repository rather than any installed copy
 adopath ++ "$pt_root"
-foreach p in pt_base pt_sum pt_model pt_model_mt pt_subgroup {
+foreach p in pt_base pt_sum pt_model pt_model_mt pt_subgroup pt_compare pt_desc_cat pt_check_depvar pt_model_level pt_check_equations {
 	cap program drop `p'
 }
 
@@ -108,6 +108,24 @@ program define pt_run_file
 	local rc = _rc
 	qui cd "$pt_root"
 	if `rc' pt_record `name', rc(`rc')
+end
+
+*************Programs to format expected values***************
+cap prog drop fmt_p
+prog define fmt_p, rclass
+	args p
+	if `p' >= 0.01 return local s = string(`p', "%3.2f")
+	else if `p' >= 0.001 return local s = string(`p', "%4.3f")
+	else return local s "<0.001"
+end
+
+cap prog drop fmt_lincom
+prog define fmt_lincom, rclass
+	* Formats the last lincom result as "est (ll, ul)"
+	args d
+	local f %12.`d'f
+	return local s = string(r(estimate), "`f'") + " (" + string(r(lb), "`f'") + ", " + string(r(ub), "`f'") + ")"
+	return local p = r(p)
 end
 
 cap program drop pt_test_summary

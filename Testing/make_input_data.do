@@ -111,6 +111,28 @@ label var y_cont "Continuous"
 save_new "$pt_root/Testing/pt_subgroup/Input data/pt_subgroup_multiarm_input.dta"
 
 
+*pt_model and pt_model_mt multi-arm tests: three arms, two timepoints
+clear
+set seed 2026
+set obs 300
+gen pid = _n
+gen arm = floor(3*runiform())
+gen u = rnormal(0, 2)
+expand 2
+bysort pid: gen time = _n
+gen y_cont = 10 + arm + 0.5*arm*(time==2) + u + rnormal(0, 3)
+replace y_cont = . if runiform() < 0.1
+drop u
+label define arm 0 "Control" 1 "Low dose" 2 "High dose"
+label values arm arm
+label define time 1 "Week 12" 2 "Week 24"
+label values time time
+label var arm "Treatment arm"
+label var time "Timepoint"
+label var y_cont "Continuous"
+save_new "$pt_root/Testing/pt_model_mt/Input data/pt_model_mt_multiarm_input.dta"
+
+
 *pt_base extra test: example data plus a categorical variable without value labels
 use "$pt_root/Examples/Creating comprehensive examples/eg_data2", clear
 clonevar ethnicity_nolab = ethnicity

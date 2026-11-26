@@ -8,7 +8,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	sub_var(varname) ///
 	[ ///
 	type(string) ///
-	treat(varname) treat_grps(numlist) prim_treat(integer -10000) ///
+	treat(varname) treat_grps(numlist) compare(string) ///
 	sub_grps(numlist) ///
 	gap(integer 0)  ///
 	su_decimal(integer 1) est_decimal(integer 1) miss_decimal(integer 1) decimal(integer 1) ///
@@ -22,7 +22,54 @@ syntax varlist(numeric max = 1), postname(string) ///
 	icc /// calculate and report icc from analysis
 	int_test_false /// report p-values for each subgroup level, rather than ineraction p-value
 	use_outcome_label /// uses outcome label rather than subgroup label
+	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
+	level(cilevel) /// confidence level for the estimates; default as set by set level
+	nolevelcheck /// allow a level() different from the model's
 	]
+
+	*model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so the
+	*estimates are exponentiated as if exp had been given (read before r() is overwritten)
+	local model_eform = 0
+	if "`descriptive'" == "" {
+		tempname T
+		cap mat `T' = r(table)
+		local have_table = !_rc
+		if `have_table' {
+			*the model's confidence level, worked back from its results table, must match level()
+			pt_model_level `T'
+			local model_level = r(level)
+			if "`levelcheck'" == "" & `model_level' < . & abs(`model_level' - `level') > 0.005 {
+				local ml = string(`model_level', "%9.0g")
+				di as error "The model's confidence intervals are at `ml'%, but level() is `level'% (the default is set by set level)."
+				di as error "Add level(`ml') to match the model, or the nolevelcheck option if this is intended."
+				exit 198
+			}
+			local er = rownumb(`T', "eform")
+			if `er' < . {
+				forvalues k = 1/`=colsof(`T')' {
+					if `T'[`er', `k'] == 1 local model_eform = 1
+				}
+			}
+		}
+	}
+	if `model_eform' local exp exp
+
+	if "`descriptive'" == "" & "`depvarcheck'" == "" pt_check_depvar `varlist'
+	if "`descriptive'" == "" {
+		*every estimate here combines coefficients with lincom, which after mi estimate uses
+		*complete-data degrees of freedom, so intervals would be too narrow
+		if "`e(mi)'" == "mi" {
+			di as error "Estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) after mi estimate are not currently supported."
+			di as error "If you would like this, please open an issue at https://github.com/GForb/post_table/issues or contact the package developers."
+			exit 198
+		}
+		if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" == "repeated" {
+			di as error "dfmethod(repeated) gives no degrees of freedom for a combination of coefficients, such as the treatment effect at a later timepoint or between two non-reference arms."
+			di as error "Refit the model with dfmethod(residual), dfmethod(anova), dfmethod(satterthwaite) or dfmethod(kroger)."
+			exit 198
+		}
+	}
 
 	local exclude_p exclude_p
 	if "`int_test_false'" != "" {
@@ -32,6 +79,9 @@ syntax varlist(numeric max = 1), postname(string) ///
 	local v `varlist' // setting v to be varlist (varlist is refered to as v throughout).
 		
 	if "`treat'" == "" local treat treat // sets default treatment parameter
+	if "`descriptive'" == "" {
+		if `have_table' pt_check_equations `T' `treat'
+	}
 	if "`treat_grps'" == "" qui levelsof `treat', local(treat_grps)
 	if "`per'" != "" local per % //sets whether % sign is included with percentages
 
@@ -44,12 +94,28 @@ syntax varlist(numeric max = 1), postname(string) ///
 	local grps: word count `treat_grps'
 	forvalues n = 1 (1) `grps' {
 		local grps`n': word `n' of `treat_grps'
-		if "`max_grps'" == "" local max_grps = `grps`n''
-		local max_grps = max(`max_grps', `grps`n'')
 	}
-	*setting primary treatment group (as opposed to the reference group)
-	if `prim_treat' < -9999 local prim_treat = `max_grps'
 	
+	*three or more arms: the comparisons must be given, as a trial's analysis plan names them
+	if `grps' > 2 & `"`compare'"' == "" {
+		di as error "With three or more arms, give the comparisons to report with compare(), for example compare(2v1 3v1)."
+		di as error "Each comparison is two arm values joined by v, meaning the first arm minus the second."
+		exit 198
+	}
+
+	*setting the comparisons to report (descriptive: one pass, no comparisons)
+	local n_comp = 1
+	if "`descriptive'" == "" {
+		pt_compare, treat(`treat') treat_grps(`treat_grps') compare(`compare')
+		local n_comp = r(n)
+		forvalues c = 1 (1) `n_comp' {
+			local a`c' `r(a`c')'
+			local b`c' `r(b`c')'
+			local comp_label`c' `"`r(label`c')'"'
+		}
+	}
+	*a header row names each comparison when there are more than two arms, or the comparison was chosen
+	local comp_headers = (`grps' > 2 | `"`compare'"' != "") & "`descriptive'" == ""
 
 	*setting sub group values
 	if "`sub_grps'" == "" qui levelsof `sub_var', local(sub_grps)
@@ -62,7 +128,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 	*Generating variable which indicates which observations were included in the analysis
 	tempvar inanalysis
 	tempname inan_label
-	gen `inanalysis' = e(sample)
+	if "`descriptive'" == "" gen `inanalysis' = e(sample)
+	else gen `inanalysis' = !missing(`v')
 	label var `inanalysis' "In analysis?"
 	label define `inan_label' 1 "Included in analysis" 0 "Excluded from analysis"
 	label values `inanalysis' `inan_label' 
@@ -71,7 +138,8 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 	*collecting ICC from the model
 	if "`icc'" == "" local post_icc ""
-	if "`icc'" != "" {
+	if "`icc'" != "" & "`descriptive'" != "" local post_icc ("")
+	if "`icc'" != "" & "`descriptive'" == "" {
 		get_icc
 		local post_icc =r(post_icc)
 		local post_icc ("`post_icc'")
@@ -124,75 +192,135 @@ syntax varlist(numeric max = 1), postname(string) ///
 		}
 	}
 	
-	*get p value for interaction
-	local p_int ("")
-	if "`int_test_false'" == "" {
-		testparm `prim_treat'.`treat'#i.`sub_var' // joint test across all sub group levels
-		local p_int_val = r(p)
-		format_p, p(`p_int_val')
-		local p_int_str  `r(p_string)'
-		local p_int ("`p_int_str'")
+	local blank_measure_post `measure_post'
+	local blank_summaries `summaries'
+	local blank_miss_cols `miss_cols'
+	local blank_inan_cols `inan_cols'
+
+	*title row, when each comparison has its own header row
+	if `comp_headers' {
+		post `postname' ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") ("") `post_icc'
+		if "`icc'" != "" local post_icc ("")
 	}
-	di `"posting: ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'"'	
-	post `postname' ("`var_label'`measure_append' `append_label'") `measure_post' `inan_cols' `miss_cols' `summaries' ("") `p_int' `post_icc'
 
 	*extracting the value labels for sub grps (the numeric value if there is no label)
 	foreach i in `sub_grps' {
 		local sub_lab`i' : label (`sub_var') `i'
 	}
 
+	*all sub group levels in the model, for the interaction test
+	qui levelsof `sub_var' if `inanalysis' == 1, local(model_sub_grps)
 
 	local form_est %12.`est_decimal'f // setting the format for estimates
-	*posting data
-	foreach k in `sub_grps'{
-		di
-
-		di
+	
+	*lincom and test only use the df method of a mixed model if asked to
+	local small ""
+	if "`e(cmd)'" == "mixed" & "`e(dfmethod)'" != "" local small small
+	
+	forvalues c = 1 (1) `n_comp' {
+		local a `a`c''
+		local b `b`c''
 		
-		if "`missing'" != "" {
-			di "numbers included/excluded form analysis in sub group `var_label' = `sub_lab`k''"
-			tab `inanalysis' `treat' if `sub_var' == `k' , col
+		*get p value for interaction
+		local p_int ("")
+		if "`int_test_false'" == "" & "`descriptive'" == "" {
+			local constraints ""
+			foreach k in `model_sub_grps' {
+				local constraints `constraints' (`a'.`treat'#`k'.`sub_var' = `b'.`treat'#`k'.`sub_var')
+			}
+			test `constraints', `small' // joint test across all sub group levels
+			local p_int_val = r(p)
+			format_p, p(`p_int_val')
+			local p_int_str  `r(p_string)'
+			local p_int ("`p_int_str'")
 		}
-		if "`n_analysis'" != "" {
-			di "numbers included/excluded form analysis in sub group `var_label' = `sub_lab`k''"
-			tab `inanalysis' `treat' if `sub_var' == `k', col
-		}
 		
+		*header row
+		local header_label "`var_label'`measure_append' `append_label'"
+		if `comp_headers' local header_label "  `comp_label`c''"
+		di `"posting: ("`header_label'") `blank_measure_post' `blank_inan_cols' `blank_miss_cols' `blank_summaries' ("") `p_int' `post_icc'"'	
+		post `postname' ("`header_label'") `blank_measure_post' `blank_inan_cols' `blank_miss_cols' `blank_summaries' ("") `p_int' `post_icc'
+		if "`icc'" != "" local post_icc ("") // the icc is for the whole model, so is only posted once
 
+		*posting data
+		foreach k in `sub_grps'{
+			di
 
-		
-		*Extracting estiamtes
-		local eform ""
-		if "`exp'" != "" local eform ,eform
-		lincom `prim_treat'.`treat' + `prim_treat'.`treat'#`k'.`sub_var' `eform' 
-		get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
-		local estimate_post_string  `r(post_string)'
-		di "Lincom post string: " `estimate_post_string'
-		
-		
-
-
-	*Other variable types
-
-		*Getting summareis
-		get_summaries `v' if `inanalysis' == 1 & `sub_var' == `k', treat(`treat') treat_grps(`treat_grps') type(`type1') ///
-			missing(`missing') n_analysis(`n_analysis')  ///
-			var_label(`"`var_label'"') su_decimal(`su_decimal') ///
-			positive(`positive') `percent' ///
-			su_label_text(`su_label_text') su_label(`su_label')
+			di
 			
-		local inan_cols `r(inan_cols)'
-		local miss_cols  `r(miss_cols)'
-		local summaries  `r(summaries)'
-		local measure_append  `r(measure_append)'
-		local measure_post `r(measure_post)'
+			if "`missing'" != "" {
+				di "numbers included/excluded form analysis in sub group `var_label' = `sub_lab`k''"
+				tab `inanalysis' `treat' if `sub_var' == `k' , col
+			}
+			if "`n_analysis'" != "" {
+				di "numbers included/excluded form analysis in sub group `var_label' = `sub_lab`k''"
+				tab `inanalysis' `treat' if `sub_var' == `k', col
+			}
+			
 
-		local indent "    "
-		*posting results
-		di `"posting: ("`indent'`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'"'
-		post `postname' ("`indent'`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'
+
+			
+			*Extracting estiamtes
+			if "`descriptive'" != "" local estimate_post_string ("") ("")
+			else {
+				local eform ""
+				if "`exp'" != "" local eform eform
+				lincom (`a'.`treat' + `a'.`treat'#`k'.`sub_var') - (`b'.`treat' + `b'.`treat'#`k'.`sub_var'), `eform' `small' level(`level')
+				get_ests_from_lincom, est_decimal(`est_decimal') `exclude_p'
+				local estimate_post_string  `r(post_string)'
+				di "Lincom post string: " `estimate_post_string'
+			}
+
+			*descriptive categorical outcomes: a row for the subgroup level, then one row per category
+			if "`descriptive'" != "" & "`type1'" == "cat" {
+				local measure_append ""
+				if "`su_label'" == "append" {
+					local measure1 "no. (%)"
+					if "`missing'" == "brackets" local measure1 "`measure1' [missing]"
+					if "`n_analysis'" == "brackets" local measure1 "`measure1' [no. included in analysis]"
+					if "`su_label_text'" != "" local measure1 `su_label_text'
+					local measure_append " - `measure1'"
+				}
+				post `postname' ("    `sub_lab`k'' `measure_append' `append_sub_lab'") `blank_measure_post' `blank_inan_cols' `blank_miss_cols' `blank_summaries' ("") ("") `post_icc'
+				pt_desc_cat `v' if `inanalysis' == 1 & `sub_var' == `k', all_if(`sub_var' == `k') postname(`postname') ///
+					treat(`treat') treat_grps(`treat_grps') indent("        ") ///
+					su_label(`su_label') su_label_text(`su_label_text') missing(`missing') n_analysis(`n_analysis') per(`per') ///
+					su_decimal(`su_decimal') miss_decimal(`miss_decimal') `icc'
+				continue
+			}
+			
+			
+
+
+		*Other variable types
+
+			*Getting summareis (first comparison only, so they are not repeated)
+			local inan_cols `blank_inan_cols'
+			local miss_cols `blank_miss_cols'
+			local summaries `blank_summaries'
+			local measure_append ""
+			local measure_post `blank_measure_post'
+			if `c' == 1 {
+				get_summaries `v' if `inanalysis' == 1 & `sub_var' == `k', all_if(`sub_var' == `k') treat(`treat') treat_grps(`treat_grps') type(`type1') ///
+					missing(`missing') n_analysis(`n_analysis')  ///
+					var_label(`"`var_label'"') su_decimal(`su_decimal') miss_decimal(`miss_decimal') ///
+					positive(`positive') per(`per') ///
+					su_label_text(`su_label_text') su_label(`su_label')
+					
+				local inan_cols `r(inan_cols)'
+				local miss_cols  `r(miss_cols)'
+				local summaries  `r(summaries)'
+				local measure_append  `r(measure_append)'
+				local measure_post `r(measure_post)'
+			}
+
+			local indent "    "
+			*posting results
+			di `"posting: ("`indent'`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'"'
+			post `postname' ("`indent'`sub_lab`k'' `measure_append' `append_sub_lab'") `measure_post' `inan_cols' `miss_cols' `summaries' `estimate_post_string' `post_icc'
 
 		}
+	}
 
 		*setting marcros for posting gaps
 		 // following lines enact measure option
@@ -287,7 +415,7 @@ syntax, est_decimal(integer) [exclude_p]
 
 end
 
-prog get_icc
+prog get_icc, rclass
 	estat icc
 	local icc = r(icc2)
 	
@@ -301,13 +429,12 @@ prog get_icc
 		local icc_str = "<0.001"
 	}
 	
-	local post_icc ("`icc_str'")
-	return local post_icc `"post_icc"'
+	return local post_icc "`icc_str'"
 end
 
 prog get_summaries, rclass
-	syntax varlist [if/], treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) ///
-	[positive(integer 1) percent su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
+	syntax varlist [if/], all_if(string) treat(string) treat_grps(numlist)  type(string)  su_decimal(integer) miss_decimal(integer) ///
+	[positive(integer 1) per(string) su_label_text(string) su_label(string) var_label(string) missing(string)  n_analysis(string) ]
 		local v `varlist'
 		local type1 `type'
 		
@@ -328,7 +455,7 @@ prog get_summaries, rclass
 		foreach i in `treat_grps' {
 			qui count if `treat' == `i' `and_if'
 			local n_inanalysis_`i' = r(N)
-			qui count if `treat' == `i' `and_if'
+			qui count if `treat' == `i' & `all_if'
 			local n_missing_`i' = r(N) - `n_inanalysis_`i''
 			local n_missing_per_`i' = `n_missing_`i''/r(N)*100
 			if "`missing'" == "brackets" local str_missing "[`n_missing_`i'']"
@@ -352,7 +479,7 @@ prog get_summaries, rclass
 				scalar count_treat_positive_`i' = r(N)
 				local n = count_treat_positive_`i'
 				local percent = count_treat_positive_`i'/count_treat_`i'*100
-				local per_str = string(`percent', "%2.`su_decimal'f")
+				local per_str = string(`percent', "%12.`su_decimal'f")
 				local su_`i' "`n' (`per_str'`per') `str_missing' `str_inanalysis'" 
 				local measure1 "no. (%)"
 			}

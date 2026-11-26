@@ -38,7 +38,7 @@
 {syntab:Treatment indicator}
 {synopt:{opt treat(varname)}} The name of a binary or categorical exposure of interest. This variable must be the first variable in the model after outcome. This will be random allocation in an RCT.{p_end}
 {synopt:{opt treat_grps(numlist)}} Specify the order levels of the {cmd: treat }variable are to be reported. Default is ascending.{p_end}
-{synopt:{opt prim_treat(integer)}} Non-reference group for {cmd: treat} used in statistical test for interaction. The interaction p-value is a joint test of all interaction terms between this group and {cmd: sub_var}. If ommited defaults to maximum value which matches Stata default behaviour {p_end}
+{synopt:{opt compare(comparisons)}} The treatment comparisons to report, written as two arm values joined by {cmd:v}, for example {cmd:compare(2v1 3v1)}. {cmd:2v1} means arm 2 minus arm 1. Required with three or more arms (also with {cmd:descriptive}), as a trial's analysis plan names the comparisons; the command stops with an error without it. With two arms it is optional: the default is the model's treatment coefficient (two-arm {cmd:pt_model}) or higher value vs lower value. See {help pt_subgroup##arms:Multiple treatment arms}.{p_end}
 
 {syntab:Subgroups}
 {synopt:{opt sub_grps(numlist)}} Specify the order levels of the {cmd: sub_var }variable are to be reported. Default is ascending.{p_end}
@@ -77,10 +77,14 @@
 {synopt:{opt miss_decimal(#)}}Decimal places used when presenting percent missing or percent with non missing observations.{p_end}
 
 {syntab:Model reporting}
-{synopt:{opt exp}}Expiate estimates and confidence interval bounds.{p_end}
+{synopt:{opt exp}}Exponentiate estimates and confidence interval bounds. Not needed when the model already reports ratios (for example {cmd:stcox}, {cmd:logistic}, or {cmd:logit} with {cmd:or}): every estimate then follows the model's scale.{p_end}
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
 {synopt:{opt int_test_false}}Report p-values for each level of the subgroup variable rather than the global interaction test.
 
+{synopt:{opt level(#)}}Confidence level for the estimates; default as set by {cmd:set level}. The command stops with an error if this differs from the level of the model's confidence intervals, unless {cmd:nolevelcheck} is given.{p_end}
+{synopt:{opt nolevelcheck}}Allow a {cmd:level()} different from the model's. The two-arm estimate's interval is then worked out again from the model results table (estimate, standard error and degrees of freedom) at {cmd:level()}.{p_end}
+{synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
+{synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells, as for {help pt_model_mt##descriptive:pt_model_mt}. Observations with a non-missing outcome are included; no comparison rows or interaction test. Without it, the outcome must be the outcome of the last model.{p_end}
 {synopt:{opt use_outcome_label}}Label the rows with the label from the outcome variable. Default is to use subgroup variable.
 
 {synoptline}
@@ -96,25 +100,42 @@ The command requires a post file to have been opened with the required number of
 Run after estimating a model, the command then posts lines to the post file with summary statistics for the variables in varlist and results from the model. 
 It will work with most GLMs run with Stata. Exceptions are survival models, or ordinal or multinomial regression.
 
+{pstd}
+After {cmd:mi estimate}, estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) are not currently supported, and the command stops with an error: {cmd:lincom} would use complete-data degrees of freedom, giving intervals that are too narrow. The two-arm estimate, read from the combined results table, is supported. To request this feature, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
+{pstd}
+Models where the treatment is in more than one equation (for example {cmd:mlogit}, zero-inflated models, {cmd:heckman}, or {cmd:sem}/{cmd:gsem} with several outcomes) are not currently supported, and the command stops with an error. To request this, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
+{marker arms}{...}
 {marker remarks}{...}
-{title:Multiple treatment arms and subgroup levels}
+{title:Multiple treatment arms}
 
 {pstd}
 The model must include the treatment by subgroup interaction using factor variable notation, for example {cmd:regress y i.treat##i.subgroup}.
 
 {pstd}
 {bf:Treatment arms.} One summary column is posted for each arm in {cmd:treat_grps()}, so the post file needs a column for each arm. 
-Estimates are posted for one comparison only: {cmd:prim_treat()} against the reference arm of the model. 
-To compare each arm with the reference, run {cmd:pt_subgroup} once per arm, setting {cmd:prim_treat()} each time. Each run posts its own set of rows, and the summary columns are repeated. Use {cmd:var_lab()} to name the comparison on each set of rows, as the header row does not show it by default. 
-{cmd:prim_treat()} defaults to the highest value in {cmd:treat_grps()}. 
-The command stops with an error if {cmd:prim_treat()} is the reference arm of the model. This includes the default when the highest arm is the reference, for example after fitting {cmd:ib2.treat} with arms 0, 1 and 2.
 
 {pstd}
-{bf:Subgroup levels.} One row is posted for each level in {cmd:sub_grps()}, giving the effect of {cmd:prim_treat()} against the reference arm within that level. Rows are labelled with the value labels of {cmd:sub_var}, or with the numeric value where there is no label.
+{bf:Comparisons.} Each comparison is written {it:a}{cmd:v}{it:b} and is arm {it:a} minus arm {it:b} (a ratio with {cmd:exp}), using the values of {cmd:treat}. 
+With three or more arms in {cmd:treat_grps()}, {cmd:compare()} is required: list the comparisons the analysis plan names, for example {cmd:compare(1v0 2v0)} for each active arm against control, or {cmd:compare(1v0 2v0 2v1)} for every pair. 
+Use {cmd:compare()} to choose the comparisons, their direction and their order. Results do not depend on which arm is the reference arm of the model. 
+Comparisons are labelled with the value labels of {cmd:treat}, for example "High dose vs Control", or with the numeric values where there is no label.
 
 {pstd}
-{bf:Interaction p-value.} The p-value on the header row is a joint test of all interaction terms between {cmd:prim_treat()} and {cmd:sub_var}, with degrees of freedom equal to the number of subgroup levels minus one. 
-It does not test the other treatment arms, and it does not depend on which subgroup level is the reference. 
+P-values and confidence intervals are not adjusted for multiple comparisons.
+
+{pstd}
+{bf:Small-sample inference.} After {cmd:mixed} with {cmd:dfmethod()}, confidence intervals and p-values use the same degrees of freedom method as the model, through the {cmd:small} option of {cmd:lincom} and {cmd:test}. With {cmd:dfmethod(repeated)} Stata cannot calculate them for an estimate that combines coefficients (three or more arms, a later timepoint, or a subgroup), so the command stops with an error; use {cmd:dfmethod(residual)}, {cmd:anova}, {cmd:satterthwaite} or {cmd:kroger}. The two-arm estimate read from the results table is not affected.
+
+{pstd}
+{bf:Table layout.} With two arms the table has a header row, carrying the interaction p-value, and one row per subgroup level. 
+With more than two arms, or when {cmd:compare()} is specified, the first row is a title and each comparison has a block of rows: a header row naming the comparison and carrying its interaction p-value, then one row per level in {cmd:sub_grps()}. 
+Summaries are posted in the first block only. Rows are labelled with the value labels of {cmd:sub_var}, or with the numeric value where there is no label.
+
+{pstd}
+{bf:Interaction p-value.} Each interaction p-value is a joint test that the difference between the two arms is the same in every subgroup level, with degrees of freedom equal to the number of subgroup levels minus one. 
+It does not depend on which subgroup level is the reference. 
 It covers every subgroup level in the model, even if {cmd:sub_grps()} reports only some of them.
 
 {marker examples}{...}

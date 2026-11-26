@@ -41,8 +41,8 @@ if "`order'" == "" local order group_over
 local stats_list "N", "missing", "mean_sd", "median_iqr", "range" // list of permited stats
 foreach s in `stats' {
 	 if inlist("`s'", "`stats_list'") ==0 {
-		di "stats option incorrectly specified. stats must be one of: `stats_list'"
-		exit
+		di as error `"stats option incorrectly specified. stats must be one of: `stats_list'"'
+		exit 198
 	}
 }
 
