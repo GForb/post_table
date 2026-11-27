@@ -31,6 +31,7 @@ pt_run_file "Testing/pt_model/test_pt_model.do", name(pt_model_test)
 pt_run_file "Testing/pt_model/test_pt_model_descriptive.do", name(pt_model_descriptive_test)
 pt_run_file "Testing/pt_model/test_pt_model_scale.do", name(pt_model_scale_test)
 pt_run_file "Testing/pt_model/test_pt_model_level.do", name(pt_model_level_test)
+pt_run_file "Testing/pt_model/test_pt_model_converged.do", name(pt_model_converged_test)
 
 *Testing pt_model_mt
 pt_run_file "Testing/pt_model_mt/test_pt_model_mt.do", name(pt_model_mt_test)

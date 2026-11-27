@@ -74,6 +74,7 @@
 {synopt:{opt icc}}Include an ICC. This calls estat ICC. Requires an additional ICC column in postfix.{p_end}
 {synopt:{opt level(#)}}Confidence level for the estimates; default as set by {cmd:set level}. The command stops with an error if this differs from the level of the model's confidence intervals, unless {cmd:nolevelcheck} is given.{p_end}
 {synopt:{opt nolevelcheck}}Allow a {cmd:level()} different from the model's. The two-arm estimate's interval is then worked out again from the model results table (estimate, standard error and degrees of freedom) at {cmd:level()}.{p_end}
+{synopt:{opt noconvergencecheck}}Post results from a model that did not converge. Without it, the command stops with an error (r(430)) if {cmd:e(converged)} is 0.{p_end}
 {synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model##descriptive:Descriptive rows}.{p_end}
 
@@ -109,6 +110,12 @@ If the difference is intended, for example summaries of {it:y} after a model of 
 
 {pstd}
 After {cmd:mi estimate}, estimates that combine coefficients (three or more arms, a later timepoint or a subgroup) are not currently supported, and the command stops with an error: {cmd:lincom} would use complete-data degrees of freedom, giving intervals that are too narrow. The two-arm estimate, read from the combined results table, is supported. To request this feature, open an issue at {browse "https://github.com/GForb/post_table/issues"}.
+
+{pstd}
+Without {cmd:descriptive}, the command stops with an error (r(430)) if the last model did not converge ({cmd:e(converged)} is 0), as its estimates are not reliable.
+Commands that iterate ({cmd:glm}, {cmd:logit}, {cmd:mixed}, {cmd:melogit}, {cmd:meglm}, {cmd:mestreg}, {cmd:stcox} with {cmd:shared()}, ...) set {cmd:e(converged)}; commands that don't ({cmd:regress}) leave it empty, which passes.
+{cmd:mi estimate} doesn't set it, so non-convergence in single imputations isn't detected.
+To post the results anyway, add {cmd:noconvergencecheck}.
 
 {pstd}
 Models where the treatment is in more than one equation (for example {cmd:mlogit}, zero-inflated models, {cmd:heckman}, or {cmd:sem}/{cmd:gsem} with several outcomes) are not currently supported, and the command stops with an error. To request this, open an issue at {browse "https://github.com/GForb/post_table/issues"}.

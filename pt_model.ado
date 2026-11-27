@@ -22,6 +22,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(cilevel) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
+	noconvergencecheck /// allow results from a model that did not converge
 	]
 
 *model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so comparisons
@@ -31,6 +32,7 @@ local model_level = .
 if "`descriptive'" == "" {
 	mat A = r(table)
 	if "`depvarcheck'" == "" pt_check_depvar `varlist'
+	if "`convergencecheck'" == "" pt_check_converged
 	*the model's confidence level, worked back from its results table, must match level()
 	pt_model_level A
 	local model_level = r(level)
