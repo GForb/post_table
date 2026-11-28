@@ -22,7 +22,7 @@ syntax varlist(numeric max = 1), postname(passthru) ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
-	nosummary /// estimates only, with empty summary cells
+	nosummary /// estimates only, without the summary columns
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(passthru) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
