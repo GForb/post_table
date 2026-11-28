@@ -60,6 +60,7 @@
 {syntab:Comments}
 {synopt:{opt comment(comment)}}Adds a cell containing {it:comment} in the final column. If a comment is included for another row in the table specifying {cmd:comment(no comment)} adds an empty comment cell. {p_end}
 
+{synopt:{opt countcolumns}}Post nothing: show how many columns the postfile needs with the other options given, and what goes in each. Needs no data, model or open postfile. See {help pt_sum##countcolumns:Counting columns}.{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -74,6 +75,20 @@ The command then posts lines to the post file with summary statistics for the va
 All variables must be numeric; binary or categorical variable must have their values encoded as numbers. If variables and values are labeled the command used labels to name rows in the table by default.
 
 
+
+{marker countcolumns}{...}
+{title:Counting columns}
+
+{pstd}
+With {cmd:countcolumns}, {cmd:pt_sum} posts nothing and shows the number of columns its other options give, as {it:a} x k + {it:b}, where k is the number of levels of {cmd:over()}, followed by a list of what goes in each column. Variables need not exist and no postfile need be open, so it can be used to set up the {cmd:postfile} command. If {cmd:over_grps()} is given, k is known: the total and each column's position are shown too.
+
+{pstd}
+With {cmd:overall()}, the overall column is one more group, counted in the fixed part of the formula. Without {cmd:over()}, the count is a plain number.
+
+{pstd}
+Stored results: {cmd:r(per_level)} ({it:a}), {cmd:r(fixed)} ({it:b}), {cmd:r(formula)}, {cmd:r(columns)} (the column list) and, when k is known, {cmd:r(k)} and {cmd:r(n_cols)}.
+
+{phang2}{cmd:. pt_sum y, postname(results) stats(N mean_sd) over(arm) over_grps(0 1) countcolumns}{p_end}
 
 {marker examples}{...}
 {title:Examples}

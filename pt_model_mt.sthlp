@@ -86,6 +86,7 @@
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model_mt##descriptive:Descriptive rows}.{p_end}
 {synopt:{opt nosummary}}Estimates only: no summary column for each arm and no summary label column ({cmd:su_label(col)}; {cmd:su_label(append)} text is also left out). The postfile needs that many fewer columns. {cmd:n_analysis()}, {cmd:missing()} and {cmd:icc} columns are still posted when given. Cannot be combined with {cmd:descriptive}.{p_end}
 
+{synopt:{opt countcolumns}}Post nothing: show how many columns the postfile needs with the other options given, and what goes in each. Needs no data, model or open postfile. See {help pt_model_mt##countcolumns:Counting columns}.{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -147,6 +148,20 @@ P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
 {bf:Table layout.} With two arms the table has a header row and one row per timepoint. With more than two arms, or when {cmd:compare()} is specified, the first row is a title and each comparison has a header row naming it, then one row per timepoint. Summaries are posted in the first block only.
+
+{marker countcolumns}{...}
+{title:Counting columns}
+
+{pstd}
+With {cmd:countcolumns}, {cmd:pt_model_mt} posts nothing and shows the number of columns its other options give, as {it:a} x k + {it:b}, where k is the number of levels of {cmd:treat()}, followed by a list of what goes in each column. Variables need not exist and no postfile need be open, so it can be used to set up the {cmd:postfile} command. If {cmd:treat_grps()} is given, k is known: the total and each column's position are shown too.
+
+{pstd}
+{cmd:countcolumns} replaces {cmd:r()}, including the model's {cmd:r(table)}, so run it before fitting the model, or refit the model before posting.
+
+{pstd}
+Stored results: {cmd:r(per_level)} ({it:a}), {cmd:r(fixed)} ({it:b}), {cmd:r(formula)}, {cmd:r(columns)} (the column list) and, when k is known, {cmd:r(k)} and {cmd:r(n_cols)}.
+
+{phang2}{cmd:. pt_model_mt y, postname(results) time_var(visit) treat(arm) treat_grps(0 1) n_analysis(cols) countcolumns}{p_end}
 
 {marker examples}{...}
 {title:Examples}

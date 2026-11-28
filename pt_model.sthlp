@@ -80,6 +80,7 @@
 {synopt:{opt nosummary}}Estimates only: no summary column for each arm and no summary label column ({cmd:su_label(col)}; {cmd:su_label(append)} text is also left out). The postfile needs that many fewer columns. {cmd:n_analysis()}, {cmd:missing()} and {cmd:icc} columns are still posted when given. Cannot be combined with {cmd:descriptive}.{p_end}
 
 
+{synopt:{opt countcolumns}}Post nothing: show how many columns the postfile needs with the other options given, and what goes in each. Needs no data, model or open postfile. See {help pt_model##countcolumns:Counting columns}.{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -141,6 +142,20 @@ P-values and confidence intervals are not adjusted for multiple comparisons.
 
 {pstd}
 {bf:Table layout.} With two arms each outcome has one row. The estimate is the treatment coefficient in the model results table, with that table's scale and degrees of freedom, at {cmd:level()}. With factor variable notation this is the other arm vs the base level, so {cmd:ib1.treat} gives 0 vs 1. If neither arm in {cmd:treat_grps()} is the base level, the estimate is higher value vs lower value. If {cmd:treat} is in the model as a plain variable rather than a factor variable, its coefficient is per unit, so the two arms' codes must be one apart (for example 0 and 1); otherwise the command stops with an error. Run {cmd:pt_model} immediately after the model, as it stops with an error if the treatment coefficient is not in the results table. {cmd:exp} has no effect on a table that is already exponentiated, for example after {cmd:logistic} or {cmd:stcox}. With more than two arms, or when {cmd:compare()} is specified, the first row has the summaries and is followed by one row per comparison.
+
+{marker countcolumns}{...}
+{title:Counting columns}
+
+{pstd}
+With {cmd:countcolumns}, {cmd:pt_model} posts nothing and shows the number of columns its other options give, as {it:a} x k + {it:b}, where k is the number of levels of {cmd:treat()}, followed by a list of what goes in each column. Variables need not exist and no postfile need be open, so it can be used to set up the {cmd:postfile} command. If {cmd:treat_grps()} is given, k is known: the total and each column's position are shown too.
+
+{pstd}
+{cmd:countcolumns} replaces {cmd:r()}, including the model's {cmd:r(table)}, so run it before fitting the model, or refit the model before posting.
+
+{pstd}
+Stored results: {cmd:r(per_level)} ({it:a}), {cmd:r(fixed)} ({it:b}), {cmd:r(formula)}, {cmd:r(columns)} (the column list) and, when k is known, {cmd:r(k)} and {cmd:r(n_cols)}.
+
+{phang2}{cmd:. pt_model y, postname(results) treat(arm) treat_grps(0 1) n_analysis(cols) countcolumns}{p_end}
 
 {marker examples}{...}
 {title:Examples}

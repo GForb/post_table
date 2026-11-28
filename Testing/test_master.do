@@ -43,5 +43,8 @@ pt_run_file "Testing/pt_subgroup/test_pt_subgroup.do", name(pt_subgroup_test)
 *Testing error handling
 pt_run_file "Testing/errors/test_errors.do", name(errors_test)
 
+*countcolumns, all commands
+pt_run_file "Testing/test_countcolumns.do", name(countcolumns_test)
+
 
 pt_test_summary

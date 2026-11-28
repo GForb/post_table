@@ -4,6 +4,15 @@
 *version 0.3
 
 prog define pt_subgroup
+*countcolumns: report the columns this command posts, without data, a model or a postfile
+local cmdline `"`0'"'
+syntax [anything] [if] [in] [, countcolumns *]
+if "`countcolumns'" != "" {
+	pt_count_columns pt_subgroup, `options'
+	exit
+}
+local 0 `"`cmdline'"'
+local options ""
 syntax varlist(numeric max = 1), postname(string) ///
 	sub_var(varname) ///
 	[ ///
