@@ -27,6 +27,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(cilevel) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
+	noconvergencecheck /// allow results from a model that did not converge
 	]
 
 	if "`descriptive'" != "" & "`summary'" != "" {
@@ -62,6 +63,7 @@ syntax varlist(numeric max = 1), postname(string) ///
 	if `model_eform' local exp exp
 
 	if "`descriptive'" == "" & "`depvarcheck'" == "" pt_check_depvar `varlist'
+	if "`descriptive'" == "" & "`convergencecheck'" == "" pt_check_converged
 	if "`descriptive'" == "" {
 		*every estimate here combines coefficients with lincom, which after mi estimate uses
 		*complete-data degrees of freedom, so intervals would be too narrow
