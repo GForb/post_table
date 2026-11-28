@@ -4,6 +4,15 @@
 capture program drop pt_base
 
 prog define pt_base
+*countcolumns: report the columns this command posts, without data, a model or a postfile
+local cmdline `"`0'"'
+syntax [anything] [if] [in] [, countcolumns *]
+if "`countcolumns'" != "" {
+	pt_count_columns pt_base, `options'
+	exit
+}
+local 0 `"`cmdline'"'
+local options ""
 syntax varlist(numeric) [if] [in], POSTname(string) ///
 	[ ///
 	Type(string) /// options: skew (reports median IQR), bin (no %), cont (mean sd), cat (freq by group), misstable table summarising missing values

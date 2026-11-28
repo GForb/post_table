@@ -16,3 +16,4 @@ F pt_check_depvar.ado
 F pt_model_level.ado
 F pt_check_equations.ado
 F pt_check_converged.ado
+F pt_count_columns.ado

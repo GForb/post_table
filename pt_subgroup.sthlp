@@ -89,6 +89,7 @@
 {synopt:{opt nosummary}}Estimates only: no summary column for each arm and no summary label column ({cmd:su_label(col)}; {cmd:su_label(append)} text is also left out). The postfile needs that many fewer columns. {cmd:n_analysis()}, {cmd:missing()} and {cmd:icc} columns are still posted when given. Cannot be combined with {cmd:descriptive}.{p_end}
 {synopt:{opt use_outcome_label}}Label the rows with the label from the outcome variable. Default is to use subgroup variable.
 
+{synopt:{opt countcolumns}}Post nothing: show how many columns the postfile needs with the other options given, and what goes in each. Needs no data, model or open postfile. See {help pt_subgroup##countcolumns:Counting columns}.{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -145,6 +146,20 @@ Summaries are posted in the first block only. Rows are labelled with the value l
 {bf:Interaction p-value.} Each interaction p-value is a joint test that the difference between the two arms is the same in every subgroup level, with degrees of freedom equal to the number of subgroup levels minus one. 
 It does not depend on which subgroup level is the reference. 
 It covers every subgroup level in the model, even if {cmd:sub_grps()} reports only some of them.
+
+{marker countcolumns}{...}
+{title:Counting columns}
+
+{pstd}
+With {cmd:countcolumns}, {cmd:pt_subgroup} posts nothing and shows the number of columns its other options give, as {it:a} x k + {it:b}, where k is the number of levels of {cmd:treat()}, followed by a list of what goes in each column. Variables need not exist and no postfile need be open, so it can be used to set up the {cmd:postfile} command. If {cmd:treat_grps()} is given, k is known: the total and each column's position are shown too.
+
+{pstd}
+{cmd:countcolumns} replaces {cmd:r()}, including the model's {cmd:r(table)}, so run it before fitting the model, or refit the model before posting.
+
+{pstd}
+Stored results: {cmd:r(per_level)} ({it:a}), {cmd:r(fixed)} ({it:b}), {cmd:r(formula)}, {cmd:r(columns)} (the column list) and, when k is known, {cmd:r(k)} and {cmd:r(n_cols)}.
+
+{phang2}{cmd:. pt_subgroup y, postname(results) sub_var(sex) treat(arm) treat_grps(0 1 2) n_analysis(cols) countcolumns}{p_end}
 
 {marker examples}{...}
 {title:Examples}

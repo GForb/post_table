@@ -4,6 +4,15 @@ capture program drop pt_model
 *version 0.2
 
 prog define pt_model
+*countcolumns: report the columns this command posts, without data, a model or a postfile
+local cmdline `"`0'"'
+syntax [anything] [if] [in] [, countcolumns *]
+if "`countcolumns'" != "" {
+	pt_count_columns pt_model, `options'
+	exit
+}
+local 0 `"`cmdline'"'
+local options ""
 syntax varlist(numeric max = 1), postname(string) ///
 	[ ///
 	treat(varname) treat_grps(numlist) compare(string) ///

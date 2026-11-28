@@ -1,6 +1,15 @@
 capture program drop pt_sum
 
 prog define pt_sum
+*countcolumns: report the columns this command posts, without data, a model or a postfile
+local cmdline `"`0'"'
+syntax [anything] [if] [in] [, countcolumns *]
+if "`countcolumns'" != "" {
+	pt_count_columns pt_sum, `options'
+	exit
+}
+local 0 `"`cmdline'"'
+local options ""
 syntax varlist(numeric) [if] [in] , POSTname(string) stats(namelist) ///
 	[ ///
 	over(varname) ///
