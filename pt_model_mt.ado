@@ -22,6 +22,7 @@ syntax varlist(numeric max = 1), postname(passthru) ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nosummary /// estimates only, without the summary columns
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(passthru) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
@@ -30,7 +31,7 @@ syntax varlist(numeric max = 1), postname(passthru) ///
 
 	if "`timepoints'" != "" local sub_grps sub_grps(`timepoints')
 	pt_subgroup `varlist', sub_var(`time_var') `sub_grps' `postname' `type' `treat' `treat_grps' `compare' `gap' `su_decimal' `est_decimal' `miss_decimal' `decimal' ///
-		`positive' `missing' `n_analysis' `su_label' `su_label_text' `append_label' `var_lab' `per' `exp' `icc' `descriptive' `depvarcheck' `level' `levelcheck' `convergencecheck' use_outcome_label int_test_false
+		`positive' `missing' `n_analysis' `su_label' `su_label_text' `append_label' `var_lab' `per' `exp' `icc' `descriptive' `summary' `depvarcheck' `level' `levelcheck' `convergencecheck' use_outcome_label int_test_false
 	
 	
 end

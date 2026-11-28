@@ -23,11 +23,17 @@ syntax varlist(numeric max = 1), postname(string) ///
 	int_test_false /// report p-values for each subgroup level, rather than ineraction p-value
 	use_outcome_label /// uses outcome label rather than subgroup label
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nosummary /// estimates only, without the summary columns
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(cilevel) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
 	noconvergencecheck /// allow results from a model that did not converge
 	]
+
+	if "`descriptive'" != "" & "`summary'" != "" {
+		di as error "descriptive and nosummary cannot be combined: the row would be empty."
+		exit 198
+	}
 
 	*model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so the
 	*estimates are exponentiated as if exp had been given (read before r() is overwritten)
@@ -194,6 +200,11 @@ syntax varlist(numeric max = 1), postname(string) ///
 		}
 	}
 	
+	*nosummary: no summary or summary label columns
+	if "`summary'" != "" {
+		local measure_post ""
+		local summaries ""
+	}
 	local blank_measure_post `measure_post'
 	local blank_summaries `summaries'
 	local blank_miss_cols `miss_cols'
@@ -314,6 +325,12 @@ syntax varlist(numeric max = 1), postname(string) ///
 				local summaries  `r(summaries)'
 				local measure_append  `r(measure_append)'
 				local measure_post `r(measure_post)'
+				*nosummary: no summary or summary label columns
+				if "`summary'" != "" {
+					local summaries `blank_summaries'
+					local measure_append ""
+					local measure_post `blank_measure_post'
+				}
 			}
 
 			local indent "    "
@@ -326,10 +343,12 @@ syntax varlist(numeric max = 1), postname(string) ///
 
 		*setting marcros for posting gaps
 		 // following lines enact measure option
-		if "`su_label'" == "col" local measure_post ("")
+		if "`su_label'" == "col" & "`summary'" == "" local measure_post ("")
 		local summaries ""
-		foreach i in `treat_grps' {
-			local summaries `summaries'  ("")
+		if "`summary'" == "" {
+			foreach i in `treat_grps' {
+				local summaries `summaries'  ("")
+			}
 		}
 		
 		if "`missing'" == "cols" {

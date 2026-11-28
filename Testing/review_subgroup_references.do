@@ -1,8 +1,13 @@
 /*
 Manual review of the reference tables added or changed by the joint interaction
 test fix and the multi-arm comparisons: table 7 (pt_subgroup test 3), table 10
-(pt_subgroup test 5), table 11 (pt_model test 5) and table 12 (pt_model_mt test 5).
+(pt_subgroup test 5), table 11 (pt_model test 5) and table 12 (pt_model_mt test 5),
+plus row 5 of pt_model test 1, regenerated when two-arm estimates started being read
+from the model results table. Table 7 was reviewed on 2026-11-05; type q to skip it.
 All other tables are in review_new_references.do.
+
+The tests now pass compare(1v0 2v0 2v1), which compare() requires with three or more
+arms; that is the order the old default gave, so the tables are unchanged.
 
 For each table this file lists the saved reference table, loads the input data
 the test uses, runs the model and pauses so the table can be checked against the
@@ -67,7 +72,7 @@ review_pause 7
 *  Table 10: pt_subgroup test 5
 ********************************************************************************
 di as text "Made by: regress y_cont i.arm##i.agegrp"
-di as text "         pt_subgroup y_cont, sub_var(agegrp) treat(arm) type(cont)"
+di as text "         pt_subgroup y_cont, sub_var(agegrp) treat(arm) type(cont) compare(1v0 2v0 2v1)"
 di as text "Check:   row 1 is the title; rows 2, 6 and 10 name the comparison and have its interaction p;"
 di as text "         summaries for all three arms in rows 3-5 only, where in_analysis==1;"
 di as text "         estimates against the lincom output; interaction p against the test output"
@@ -95,7 +100,7 @@ review_pause 10
 *  Table 11: pt_model test 5
 ********************************************************************************
 di as text "Made by: regress y_cont i.arm"
-di as text "         pt_model y_cont, treat(arm) type(cont)"
+di as text "         pt_model y_cont, treat(arm) type(cont) compare(1v0 2v0 2v1)"
 di as text "Check:   row 1 has mean (sd) for each arm, where in_analysis==1, and no estimate;"
 di as text "         rows 2-4 against the lincom output"
 
@@ -115,7 +120,7 @@ review_pause 11
 *  Table 12: pt_model_mt test 5
 ********************************************************************************
 di as text "Made by: mixed y_cont i.arm##i.time || pid:"
-di as text "         pt_model_mt y_cont, time_var(time) treat(arm) type(cont)"
+di as text "         pt_model_mt y_cont, time_var(time) treat(arm) type(cont) compare(1v0 2v0 2v1)"
 di as text "Check:   row 1 is the title; rows 2, 5 and 8 name the comparison, with no p;"
 di as text "         summaries in rows 3-4 only, where in_analysis==1;"
 di as text "         estimates and p against the lincom output"
@@ -135,3 +140,29 @@ foreach k in 1 2 {
 	lincom 2.arm + 2.arm#`k'.time - 1.arm - 1.arm#`k'.time
 }
 review_pause 12
+
+
+********************************************************************************
+*  pt_model test 1, row 5 (regenerated)
+********************************************************************************
+di as text "Made by: poisson y_count allocation, irr"
+di as text "         pt_model y_count, treat(allocation) exp type(skew) su_label(append)"
+di as text "Check:   row 5 est is the incidence rate ratio and CI in the poisson, irr output below."
+di as text "         It was 4.5 (3.7, 5.7): exp() applied to a table already exponentiated (exp(1.5) = 4.5)."
+
+review_table "pt_model test 1" pt_model/pt_model_test1_reference.dta
+
+*the test's data, made the same way (Testing/pt_model/test_pt_model.do)
+set seed 100
+clear
+set obs 300
+gen allocation = rbinomial(1, 0.5)
+gen y_cont_err = rnormal(0, 3)
+gen y_cont = y_cont_err + allocation
+gen y_bin = 0
+replace y_bin = 1 if y_cont > 0
+gen y_count = rpoisson(allocation + 2)
+poisson y_count allocation, irr
+gen in_analysis = e(sample)
+tabstat y_count if in_analysis, by(allocation) stats(p25 p50 p75 n) nototal
+review_pause "pt_model test 1"

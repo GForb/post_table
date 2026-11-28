@@ -77,6 +77,7 @@
 {synopt:{opt noconvergencecheck}}Post results from a model that did not converge. Without it, the command stops with an error (r(430)) if {cmd:e(converged)} is 0.{p_end}
 {synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model##descriptive:Descriptive rows}.{p_end}
+{synopt:{opt nosummary}}Estimates only: no summary column for each arm and no summary label column ({cmd:su_label(col)}; {cmd:su_label(append)} text is also left out). The postfile needs that many fewer columns. {cmd:n_analysis()}, {cmd:missing()} and {cmd:icc} columns are still posted when given. Cannot be combined with {cmd:descriptive}.{p_end}
 
 
 {synoptline}
