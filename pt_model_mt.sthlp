@@ -161,7 +161,7 @@ With {cmd:countcolumns}, {cmd:pt_model_mt} posts nothing and shows the number of
 {pstd}
 Stored results: {cmd:r(per_level)} ({it:a}), {cmd:r(fixed)} ({it:b}), {cmd:r(formula)}, {cmd:r(columns)} (the column list) and, when k is known, {cmd:r(k)} and {cmd:r(n_cols)}.
 
-{phang2}{cmd:. pt_model_mt y, postname(results) time_var(visit) treat(arm) treat_grps(0 1 2) n_analysis(cols) countcolumns}{p_end}
+{phang2}{cmd:. pt_model_mt y, postname(results) time_var(visit) treat(arm) treat_grps(0 1) n_analysis(cols) countcolumns}{p_end}
 
 {marker examples}{...}
 {title:Examples}

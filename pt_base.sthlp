@@ -114,7 +114,7 @@ With {cmd:overall()}, the overall column is one more group, counted in the fixed
 {pstd}
 Stored results: {cmd:r(per_level)} ({it:a}), {cmd:r(fixed)} ({it:b}), {cmd:r(formula)}, {cmd:r(columns)} (the column list) and, when k is known, {cmd:r(k)} and {cmd:r(n_cols)}.
 
-{phang2}{cmd:. pt_base y, postname(results) over(arm) over_grps(0 1 2) n_analysis(cols) countcolumns}{p_end}
+{phang2}{cmd:. pt_base y, postname(results) over(arm) over_grps(0 1) n_analysis(cols) countcolumns}{p_end}
 
 {marker examples}{...}
 {title:Examples}
