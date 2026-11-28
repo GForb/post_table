@@ -19,10 +19,16 @@ syntax varlist(numeric max = 1), postname(string) ///
 	exp /// exponate results from regression
 	icc /// calculate and report icc from analysis
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nosummary /// estimates only, with empty summary cells
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(cilevel) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
 	]
+
+if "`descriptive'" != "" & "`summary'" != "" {
+	di as error "descriptive and nosummary cannot be combined: the row would be empty."
+	exit 198
+}
 
 *model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so comparisons
 *made with lincom are exponentiated too, as the two-arm estimate read from the table is
@@ -315,11 +321,17 @@ local type1 = "`type'" // resetting type variable to be that given by
 	if "`su_label_text'" != "" local measure1 `su_label_text'
 	if "`su_label'" == "col" local measure_post ("`measure1'")
 	if "`su_label'" == "append" local measure_append =" - `measure1'"
+	*nosummary: the summary and summary label cells are left empty
+	if "`summary'" != "" {
+		if "`su_label'" == "col" local measure_post ("")
+		local measure_append ""
+	}
 	
 	*creating entry in post file for summaries
 	local summaries ""
 	foreach i in `treat_grps' {
 		local temp `su_`i''
+		if "`summary'" != "" local temp ""
 		local summaries `summaries'  ("`temp'")
 	}
 

@@ -29,6 +29,7 @@ pt_run_file "Testing/pt_sum/pt_sum_test.do", name(pt_sum_test)
 *Testing pt_model
 pt_run_file "Testing/pt_model/test_pt_model.do", name(pt_model_test)
 pt_run_file "Testing/pt_model/test_pt_model_descriptive.do", name(pt_model_descriptive_test)
+pt_run_file "Testing/pt_model/test_pt_model_nosummary.do", name(pt_model_nosummary_test)
 pt_run_file "Testing/pt_model/test_pt_model_scale.do", name(pt_model_scale_test)
 pt_run_file "Testing/pt_model/test_pt_model_level.do", name(pt_model_level_test)
 

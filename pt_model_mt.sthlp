@@ -83,6 +83,7 @@
 {synopt:{opt nolevelcheck}}Allow a {cmd:level()} different from the model's. The two-arm estimate's interval is then worked out again from the model results table (estimate, standard error and degrees of freedom) at {cmd:level()}.{p_end}
 {synopt:{opt nodepvarcheck}}Allow an outcome that is not the outcome of the last model, for example summaries of {it:y} after a model of log({it:y}). Without it, the command stops with an error if {it:varname} is not {cmd:e(depvar)}.{p_end}
 {synopt:{opt descriptive}}No model: post summaries only, with empty estimate and p-value cells (and an empty ICC cell with {cmd:icc}), so the row fits a table of model results posted with the same options. Observations with a non-missing outcome are included. With three or more arms, no comparison rows are posted. Categorical outcomes ({cmd:type(cat)}) get one row per level with no. (%). See {help pt_model_mt##descriptive:Descriptive rows}.{p_end}
+{synopt:{opt nosummary}}Estimates only: the summary cells for each arm (and the summary label, from {cmd:su_label()}) are left empty, so the row keeps the same columns. {cmd:n_analysis()}, {cmd:missing()} and {cmd:icc} are still posted when given. Cannot be combined with {cmd:descriptive}.{p_end}
 
 {synoptline}
 {p2colreset}{...}

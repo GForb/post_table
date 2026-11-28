@@ -23,10 +23,16 @@ syntax varlist(numeric max = 1), postname(string) ///
 	int_test_false /// report p-values for each subgroup level, rather than ineraction p-value
 	use_outcome_label /// uses outcome label rather than subgroup label
 	descriptive /// no model: summaries only, with empty estimate and p-value cells
+	nosummary /// estimates only, with empty summary cells
 	nodepvarcheck /// allow an outcome that is not the model's outcome, e.g. summaries of y after a model of log(y)
 	level(cilevel) /// confidence level for the estimates; default as set by set level
 	nolevelcheck /// allow a level() different from the model's
 	]
+
+	if "`descriptive'" != "" & "`summary'" != "" {
+		di as error "descriptive and nosummary cannot be combined: the row would be empty."
+		exit 198
+	}
 
 	*model_eform: the model reported ratios (e.g. stcox, logistic, logit with or), so the
 	*estimates are exponentiated as if exp had been given (read before r() is overwritten)
@@ -312,6 +318,12 @@ syntax varlist(numeric max = 1), postname(string) ///
 				local summaries  `r(summaries)'
 				local measure_append  `r(measure_append)'
 				local measure_post `r(measure_post)'
+				*nosummary: the summary and summary label cells are left empty
+				if "`summary'" != "" {
+					local summaries `blank_summaries'
+					local measure_append ""
+					local measure_post `blank_measure_post'
+				}
 			}
 
 			local indent "    "
